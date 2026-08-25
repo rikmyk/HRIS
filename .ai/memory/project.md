@@ -81,3 +81,4 @@ docker-compose dev env) & **Fase 1 Core Foundation (T008–T016)** (Auth + Emplo
 - Design System: `docs projects/11-DESIGN-SYSTEM.md`
 - AI Agent Task Briefs (T001–T058): `docs projects/12-AI-AGENT-TASKS.md`
 - Mobile UI Changelog (all changes beyond wireframe): `docs projects/13-MOBILE-UI-CHANGELOG.md`
+- Multi-Office Placement Spec: `docs projects/specs/2026-08-25-multi-office-placement-design.md` (Indonesian: `2026-08-25-multi-office-placement-design.id.md`)

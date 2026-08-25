@@ -204,6 +204,57 @@ New card anatomy replacing the old 2-row layout:
 - **Row 2:** `flexDirection: row` — "Masuk: HH:mm" on left + "Keluar: HH:mm" on right.
 - **Row 3:** `flexDirection: row`, `gap: 8` — "📷 Foto Masuk" button + "📷 Foto Keluar" button (secondary style, `flex: 1`).
 
+### 4.4 App Settings & Assistance (NEW — Profile Screen)
+**Status:** Implemented (UI Shell) ✅
+
+**Added Items:**
+1. **Panduan Penggunaan Aplikasi (View App User Guide)** — `book-open` icon, directs user to app guide.
+2. **Tema Tampilan (Theme Change)** — `sun` icon, displays `Mode Terang (Light Mode)` with a non-functional pill switch (`[ Terang | Gelap ]`).
+3. **Bahasa Aplikasi (Language Change)** — `globe` icon, displays `Bahasa Indonesia (Default)` with an `🇮🇩 ID` selector pill.
+4. **Tentang HRIS Mobile (About This App)** — `info` icon, displays application version `v2.4.0 (Build 2026.08)`.
+
+### 4.5 Green Hero Profile Card & Details Card Redesign (NEW — Profile Screen)
+**Status:** Implemented ✅
+
+**Mockup Alignment:** Restructured profile screen to match exact visual layout provided in screenshot:
+1. **Green Hero Profile Card (`Colors.forestGreen` / `#2F6F5E`):**
+   - Theme color matching the active clock-in button ("Absen Masuk") and mobile design system.
+   - Translucent circular avatar container (`rgba(255,255,255,0.25)`) with white bold initial letter.
+   - Large bold uppercase employee name (`BUDI SANTOSO`).
+   - Employee account NIK badge subtitle (`EMP-2026-001`).
+   - Translucent rounded position pill (`Senior Software Engineer`).
+2. **White Details Card:**
+   - Single clean card container with light border (`#F1F5F9`) and key-value rows (`Account`, `Name`, `Employee Code`, `Department`, `Penempatan Kantor`, `Email`).
+
+### 4.6 Safe Area Padding & Status Bar Adjustments (NEW — Mobile App)
+**Status:** Implemented ✅
+
+**Fixes & Adjustments:**
+1. **Top Safe Area / Notch & Status Bar**: Added `Platform.OS === 'android' ? (StatusBar.currentHeight || 28) : 0` top padding to `styles.container` and rendered `<StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />` to prevent the header from overlapping the device status bar.
+2. **Bottom Safe Area / Home Indicator**: Added `paddingBottom: Platform.OS === 'ios' ? 24 : 12` to `styles.bottomNav` and increased `content` scroll padding to `120px` to prevent the bottom navigation bar and content from being covered by iOS/Android gesture bars.
+
+### 4.7 Forest Green Theme Alignment for Payslip Hero Card (NEW — Mobile App)
+**Status:** Implemented ✅
+
+**Styling Updates:**
+1. **Payslip Hero Card (`styles.payslipHero`)**: Changed background color from slate dark (`#1E293B`) to **Forest Green** (`Colors.forestGreen` / `#2F6F5E`), matching the Profile hero card and primary clock-in action buttons.
+2. **Typography Contrast**: Adjusted text label opacities (`rgba(255,255,255,0.85)` for period and `rgba(255,255,255,0.75)` for Take Home Pay label) with green elevation shadows (`elevation: 4`, `shadowColor: Colors.forestGreen`).
+
+### 4.8 Real CameraView & GPS Sensor Integration (NEW — Mobile App)
+**Status:** Implemented ✅
+
+**Features Integrated:**
+1. **Live Camera (`expo-camera` SDK 54)**: Replaced mock camera placeholder box in `mobile/App.tsx` with live `<CameraView facing="front" ref={cameraRef}>` rendering live hardware front camera feed inside the modal.
+2. **Selfie Photo Capture**: Added `takePictureAsync()` capture mechanism saving base64/uri photo state (`capturedPhotoUri`) with photo preview frame and retake option (`🔄 Foto Ulang`).
+3. **Live GPS Location (`expo-location`)**: Wired `Location.getCurrentPositionAsync()` to fetch real latitude/longitude coordinates dynamically upon modal open.
+4. **Retake Photo Blank Screen Fix**: Implemented `cameraKey` timestamp state (`setCameraKey(Date.now())`) on `<CameraView key={cameraKey}>` to force a clean unmount and immediate hardware surface remount when clicking "Foto Ulang", eliminating black/blank preview screens on Android/iOS.
+5. **Android SurfaceView Z-Ordering Fix**: Replaced native React Native `<Modal transparent>` for camera dialog with conditional absolute View overlay (`styles.modalOverlayAbsolute`). This resolves Android OS hardware composer `SurfaceView` window bleeding where camera preview rendered behind the parent window while leaving the modal sheet container blank.
+6. **CameraView Native Surface & Layout Overlay Separation**: Separated `<CameraView style={{ width: '100%', height: '100%' }} mode="picture" />` from UI text/guides overlay (`zIndex: 10`). In Expo SDK 54 on Android, nesting children inside `CameraView` caused child ViewGroup layout passes to obscure the underlying native `TextureView` surface buffer resulting in blank/dark previews during retakes.
+7. **Strict Front Camera Lock & Clean "Live" Badge UI**: Locked `<CameraView facing="front">` strictly to the front camera, removed the camera toggle button completely, and simplified top-left badge text to read only `"Live"`.
+8. **Native CameraX Capture Lock Release Delay (`isCameraRefreshing`)**: Implemented a 250ms asynchronous refresh window during retake (`handleRetakePhoto`). After calling `takePictureAsync()`, Android native CameraX driver locks the camera capture pipeline. Temporarily unmounting `<CameraView>` for 250ms via `isCameraRefreshing = true` allows Android hardware to close the snapshot thread and re-initialize live preview without black/blank screen locks.
+9. **Direct Hardware Selfie Photo Capture (Simplified Pipeline)**: Removed client-side face detection & liveness restrictions per request. Users can take selfie photos directly via `<CameraView facing="front">` using `📸 Ambil Foto Selfie` button with immediate preview and photo retake support (`🔄 Foto Ulang`).
+10. **Clean Pure White Card Aesthetics for Photo Preview & Zoom Dialogs**: Redesigned all modal cards (attendance selfie preview container, GPS card container, and full-screen photo detail modal container) to use pure white backgrounds (`#FFFFFF`) with crisp light borders (`borderColor: Colors.lineBorder`) and dark typography (`color: Colors.darkInk`), ensuring color is reserved strictly for action buttons (`btnPrimary`, `btnSecondary`).
+
 ---
 
 ## 5. API Integration Notes (for backend team)

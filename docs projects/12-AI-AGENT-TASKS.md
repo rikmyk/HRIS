@@ -108,6 +108,13 @@
 
 ## Phase 2 — GPS + Photo Attendance
 
+### T016B — Multi-Office Placement & Multi-Geofence Validation
+**Docs:** `SPEC-2026-08-25-MULTI-OFFICE`, `ERD` table `employee_office_placement`, `API` §2 & §3.
+**Acceptance Criteria:**
+- **Junction table `employee_office_placement`** created in DB migrations (`/db/migrations/`).
+- **Web Admin Employee Placement UI & API:** HR Admin can assign 1 or multiple office placement locations (`office_location_ids: string[]`) to an employee via `POST /employees`, `PUT /employees/{id}`, and `PUT /employees/{id}/office-placements`.
+- **Multi-Geofence Validation:** Geofence logic evaluates distance from employee GPS against **ALL** active assigned office placement locations for the employee. Attendance is accepted if within radius of ANY assigned placement; matching `office_location_id` is recorded on `attendance_record`.
+
 ### T017 — Clock-in/clock-out endpoint
 **Docs:** `API` §3, `ERD` entity `attendance_record`.
 **Acceptance Criteria:**
