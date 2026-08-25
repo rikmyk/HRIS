@@ -61,6 +61,7 @@ type PayslipBreakdown struct {
 	EmployeeName     string      `json:"employee_name,omitempty"`
 	EmployeeCode     string      `json:"employee_code,omitempty"`
 	DepartmentName   string      `json:"department_name,omitempty"`
+	PositionTitle    string      `json:"position_title,omitempty"`
 	PeriodID         string      `json:"period_id"`
 	PeriodName       string      `json:"period_name,omitempty"`
 	TotalPresent     int         `json:"total_present"`
@@ -101,7 +102,7 @@ func NewService(storageSvc storage.StorageService) *Service {
 		storage:    storageSvc,
 	}
 
-	// Seed mock salary structure & initial payslip for testing
+	// Seed mock salary structure
 	svc.structures["emp-001"] = &EmployeeSalaryStructure{
 		EmployeeID: "emp-001",
 		BaseSalary: 9000000,
@@ -111,13 +112,14 @@ func NewService(storageSvc storage.StorageService) *Service {
 		},
 	}
 
-	// Initial draft payslip for emp-001
+	// 1. Initial payslip for Budi Santoso (ps-001 / emp-001)
 	svc.payslips["ps-001"] = &PayslipBreakdown{
 		ID:               "ps-001",
 		EmployeeID:       "emp-001",
 		EmployeeName:     "Budi Santoso",
 		EmployeeCode:     "EMP-2026-001",
 		DepartmentName:   "Engineering",
+		PositionTitle:    "Senior Software Engineer",
 		PeriodID:         "period-2026-08",
 		PeriodName:       "Agustus 2026",
 		TotalPresent:     18,
@@ -132,7 +134,58 @@ func NewService(storageSvc storage.StorageService) *Service {
 			{Name: "Gaji Pokok", Type: "allowance", Amount: 9000000},
 			{Name: "Tunjangan Transport", Type: "allowance", Amount: 1000000},
 			{Name: "Tunjangan Makan", Type: "allowance", Amount: 500000},
-			{Name: "Potongan Keterlambatan", Type: "deduction", Amount: -150000},
+			{Name: "Potongan Keterlambatan (30m)", Type: "deduction", Amount: 150000},
+		},
+		UpdatedAt: time.Now(),
+	}
+
+	// 2. Initial payslip for Siti Rahma (ps-002 / emp-002)
+	svc.payslips["ps-002"] = &PayslipBreakdown{
+		ID:               "ps-002",
+		EmployeeID:       "emp-002",
+		EmployeeName:     "Siti Rahma",
+		EmployeeCode:     "EMP-2026-002",
+		DepartmentName:   "Human Resources",
+		PositionTitle:    "HR Specialist",
+		PeriodID:         "period-2026-08",
+		PeriodName:       "Agustus 2026",
+		TotalPresent:     20,
+		TotalLateMinutes: 0,
+		UnpaidLeaveDays:  0,
+		GrossSalary:      8500000,
+		TotalDeduction:   0,
+		NetSalary:        8500000,
+		Status:           "approved",
+		IsPaid:           true,
+		Components: []Component{
+			{Name: "Gaji Pokok", Type: "allowance", Amount: 7500000},
+			{Name: "Tunjangan Jabatan", Type: "allowance", Amount: 1000000},
+		},
+		UpdatedAt: time.Now(),
+	}
+
+	// 3. Initial payslip for Agus Pratama (ps-003 / emp-003)
+	svc.payslips["ps-003"] = &PayslipBreakdown{
+		ID:               "ps-003",
+		EmployeeID:       "emp-003",
+		EmployeeName:     "Agus Pratama",
+		EmployeeCode:     "EMP-2026-003",
+		DepartmentName:   "Product Management",
+		PositionTitle:    "Product Manager",
+		PeriodID:         "period-2026-08",
+		PeriodName:       "Agustus 2026",
+		TotalPresent:     19,
+		TotalLateMinutes: 45,
+		UnpaidLeaveDays:  0,
+		GrossSalary:      12500000,
+		TotalDeduction:   225000,
+		NetSalary:        12275000,
+		Status:           "approved",
+		IsPaid:           false,
+		Components: []Component{
+			{Name: "Gaji Pokok", Type: "allowance", Amount: 11000000},
+			{Name: "Tunjangan Transport", Type: "allowance", Amount: 1500000},
+			{Name: "Potongan Keterlambatan (45m)", Type: "deduction", Amount: 225000},
 		},
 		UpdatedAt: time.Now(),
 	}
@@ -167,10 +220,10 @@ func (s *Service) CalculatePayslip(ctx context.Context, input CalculationInput) 
 		components = append(components, Component{Name: "Tunjangan Makan", Type: "allowance", Amount: input.MealAllow})
 	}
 	if lateDeduction > 0 {
-		components = append(components, Component{Name: "Potongan Keterlambatan", Type: "deduction", Amount: -lateDeduction})
+		components = append(components, Component{Name: "Potongan Keterlambatan", Type: "deduction", Amount: lateDeduction})
 	}
 	if unpaidDeduction > 0 {
-		components = append(components, Component{Name: "Potongan Unpaid Leave", Type: "deduction", Amount: -unpaidDeduction})
+		components = append(components, Component{Name: "Potongan Unpaid Leave", Type: "deduction", Amount: unpaidDeduction})
 	}
 
 	psID := fmt.Sprintf("ps-%s-%s", input.PeriodID, input.EmployeeID)
@@ -216,13 +269,14 @@ func (s *Service) ApprovePayslip(ctx context.Context, payslipID, actorID string)
 		EmployeeName:    ps.EmployeeName,
 		EmployeeCode:    ps.EmployeeCode,
 		DepartmentName:  ps.DepartmentName,
+		PositionTitle:   ps.PositionTitle,
 		PeriodName:      ps.PeriodName,
 		BaseSalary:      ps.GrossSalary - ps.TotalDeduction,
 		AllowancesTotal: ps.GrossSalary,
 		DeductionsTotal: ps.TotalDeduction,
 		NetSalary:       ps.NetSalary,
 		TotalPresent:    ps.TotalPresent,
-		TotalLate:       ps.TotalLateMinutes / 10,
+		TotalLate:       ps.TotalLateMinutes,
 		TotalLeave:      ps.UnpaidLeaveDays,
 	}
 	for _, c := range ps.Components {
@@ -301,11 +355,23 @@ func (s *Service) BulkMarkAsPaid(ctx context.Context, payslipIDs []string, actor
 func (s *Service) GeneratePDFBytes(ctx context.Context, payslipID string) ([]byte, error) {
 	ps, exists := s.payslips[payslipID]
 	if !exists {
+		// Fallback lookup by employee ID or alternate alias
+		for _, item := range s.payslips {
+			if item.EmployeeID == payslipID || item.ID == payslipID {
+				ps = item
+				exists = true
+				break
+			}
+		}
+	}
+
+	if !exists || ps == nil {
 		ps = &PayslipBreakdown{
 			ID:               payslipID,
 			EmployeeName:     "Budi Santoso",
 			EmployeeCode:     "EMP-2026-001",
 			DepartmentName:   "Engineering",
+			PositionTitle:    "Senior Software Engineer",
 			PeriodName:       "Agustus 2026",
 			GrossSalary:      10500000,
 			TotalDeduction:   150000,
@@ -317,7 +383,7 @@ func (s *Service) GeneratePDFBytes(ctx context.Context, payslipID string) ([]byt
 				{Name: "Gaji Pokok", Type: "allowance", Amount: 9000000},
 				{Name: "Tunjangan Transport", Type: "allowance", Amount: 1000000},
 				{Name: "Tunjangan Makan", Type: "allowance", Amount: 500000},
-				{Name: "Potongan Keterlambatan", Type: "deduction", Amount: -150000},
+				{Name: "Potongan Keterlambatan (30m)", Type: "deduction", Amount: 150000},
 			},
 		}
 	}
@@ -327,13 +393,14 @@ func (s *Service) GeneratePDFBytes(ctx context.Context, payslipID string) ([]byt
 		EmployeeName:    ps.EmployeeName,
 		EmployeeCode:    ps.EmployeeCode,
 		DepartmentName:  ps.DepartmentName,
+		PositionTitle:   ps.PositionTitle,
 		PeriodName:      ps.PeriodName,
 		BaseSalary:      ps.GrossSalary - ps.TotalDeduction,
 		AllowancesTotal: ps.GrossSalary,
 		DeductionsTotal: ps.TotalDeduction,
 		NetSalary:       ps.NetSalary,
 		TotalPresent:    ps.TotalPresent,
-		TotalLate:       ps.TotalLateMinutes / 10,
+		TotalLate:       ps.TotalLateMinutes,
 		TotalLeave:      ps.UnpaidLeaveDays,
 	}
 	for _, c := range ps.Components {
