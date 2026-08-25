@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert, Linking } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert, Linking, Modal, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Colors, Radius } from './src/theme';
 
@@ -11,6 +11,11 @@ export default function App() {
   const [clockInSuccess, setClockInSuccess] = useState<boolean>(false);
   const [clockOutSuccess, setClockOutSuccess] = useState<boolean>(false);
   
+  // Camera Modal & Permission State
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState<boolean>(false);
+  const [attendanceType, setAttendanceType] = useState<'in' | 'out'>('in');
+  const [isRequestingPermissions, setIsRequestingPermissions] = useState<boolean>(false);
+  
   // Form input state for Leave Request
   const [leaveReason, setLeaveReason] = useState<string>('Cuti Tahunan keperluan keluarga');
   const [leaveDays, setLeaveDays] = useState<string>('3');
@@ -20,8 +25,19 @@ export default function App() {
     { id: '2', type: 'Cuti Tahunan', date: '01 Jun 2026', days: '1 Hari', status: 'Disetujui' }
   ]);
 
+  // Trigger camera & GPS modal
+  const openAttendanceModal = (type: 'in' | 'out') => {
+    setAttendanceType(type);
+    setIsCameraModalOpen(true);
+    setIsRequestingPermissions(true);
+    setTimeout(() => {
+      setIsRequestingPermissions(false);
+    }, 1000);
+  };
+
   // Handlers for Mobile Actions
   const handleClockIn = async () => {
+    setIsCameraModalOpen(false);
     try {
       await fetch(`${API_BASE}/attendance/clock-in`, {
         method: 'POST',
@@ -36,6 +52,7 @@ export default function App() {
   };
 
   const handleClockOut = async () => {
+    setIsCameraModalOpen(false);
     try {
       await fetch(`${API_BASE}/attendance/clock-out`, {
         method: 'POST',
@@ -138,56 +155,56 @@ export default function App() {
 
       {/* Main Tab Screen Content */}
       <ScrollView contentContainerStyle={styles.content}>
-        {/* TAB 1: ABSEN MASUK (SUCCESS / CAMERA LIVE) */}
+        {/* TAB 1: ABSEN HOME & STATUS */}
         {activeTab === 'home' && (
           <View>
-            {/* Live Camera View Box */}
-            <View style={styles.cameraBox}>
-              <View style={styles.camTopline}>
-                <View style={styles.badgeLive}>
-                  <View style={styles.dotGreen} />
-                  <Text style={styles.badgeText}>Kamera Depan Aktif</Text>
+            {/* Clock Time & Date Banner */}
+            <View style={{ backgroundColor: '#FFF', borderRadius: Radius.lg, padding: 20, alignItems: 'center', borderWidth: 1, borderColor: Colors.lineBorder, marginBottom: 16 }}>
+              <Text style={styles.welcomeText}>WAKTU SEKARANG</Text>
+              <Text style={styles.timeText}>
+                {clockOutSuccess ? '17:05:12' : clockInSuccess ? '17:05:00' : '08:14:05'}
+              </Text>
+              <Text style={styles.dateText}>Selasa, 25 Agustus 2026</Text>
+
+              {/* GPS Status Badge */}
+              <View style={styles.gpsCard}>
+                <View style={styles.gpsPulseIcon}>
+                  <Feather name="map-pin" size={16} color="#FFF" />
+                </View>
+                <View>
+                  <Text style={styles.gpsTitle}>Dalam Radius Geofence</Text>
+                  <Text style={styles.gpsSub}>Head Office Jakarta · 35m dari titik pusat</Text>
                 </View>
               </View>
-              <View style={styles.faceGuide} />
-              <Text style={styles.camHint}>Posisikan wajah Anda di dalam bingkai</Text>
             </View>
 
-            {/* GPS Pulse Card */}
-            <View style={styles.gpsCard}>
-              <View style={styles.gpsPulseIcon}>
-                <Feather name="map-pin" size={16} color="#FFF" />
+            {/* Attendance Status Summary Card */}
+            <View style={{ backgroundColor: '#FFF', borderRadius: Radius.lg, padding: 16, borderWidth: 1, borderColor: Colors.lineBorder, marginBottom: 16 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.darkInk, marginBottom: 12 }}>Status Absensi Hari Ini</Text>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
+                <Text style={{ fontSize: 13, color: Colors.mutedText }}>Absen Masuk</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: clockInSuccess ? '#166534' : '#94A3B8' }}>
+                  {clockInSuccess ? '✓ 08:14:05 WIB' : 'Belum Absen'}
+                </Text>
               </View>
-              <View>
-                <Text style={styles.gpsTitle}>Dalam Radius Geofence</Text>
-                <Text style={styles.gpsSub}>Head Office Jakarta · 35m dari titik pusat</Text>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10 }}>
+                <Text style={{ fontSize: 13, color: Colors.mutedText }}>Absen Keluar</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: clockOutSuccess ? '#166534' : '#94A3B8' }}>
+                  {clockOutSuccess ? '✓ 17:05:12 WIB' : 'Belum Absen'}
+                </Text>
               </View>
             </View>
 
-            {/* Clock Time & Date */}
-            <Text style={styles.timeText}>
-              {clockOutSuccess ? '17:05:12' : clockInSuccess ? '17:05:00' : '08:14:05'}
-            </Text>
-            <Text style={styles.dateText}>Selasa, 25 Agustus 2026</Text>
-
-            {clockInSuccess && (
-              <View style={{ marginBottom: 16, backgroundColor: clockOutSuccess ? '#DCFCE7' : '#FEF3C7', padding: 12, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: clockOutSuccess ? '#166534' : '#D97706' }}>
-                <Text style={{ color: clockOutSuccess ? '#166534' : '#92400E', fontWeight: 'bold', fontSize: 13 }}>
-                  {clockOutSuccess ? '✓ Absensi Hari Ini Lengkap' : '✓ Absen Masuk Dicatat (08:14 WIB)'}
-                </Text>
-                <Text style={{ color: clockOutSuccess ? '#15803D' : '#B45309', fontSize: 11, marginTop: 2 }}>
-                  {clockOutSuccess ? 'Absen Masuk: 08:14:05 WIB · Absen Keluar: 17:05:12 WIB' : 'Silakan lakukan Absen Keluar saat jam kerja Anda selesai.'}
-                </Text>
-              </View>
-            )}
-
+            {/* Action Buttons */}
             {!clockInSuccess ? (
-              <TouchableOpacity style={styles.btnPrimary} onPress={handleClockIn}>
-                <Text style={styles.btnPrimaryText}>Absen Masuk (Verifikasi Selfie)</Text>
+              <TouchableOpacity style={styles.btnPrimary} onPress={() => openAttendanceModal('in')}>
+                <Text style={styles.btnPrimaryText}>📷 Absen Masuk (Buka Kamera & GPS)</Text>
               </TouchableOpacity>
             ) : !clockOutSuccess ? (
-              <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: '#1E3A8A' }]} onPress={handleClockOut}>
-                <Text style={styles.btnPrimaryText}>Absen Keluar (Verifikasi Selfie)</Text>
+              <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: '#1E3A8A' }]} onPress={() => openAttendanceModal('out')}>
+                <Text style={styles.btnPrimaryText}>📷 Absen Keluar (Buka Kamera & GPS)</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: '#64748B' }]} disabled>
@@ -422,6 +439,75 @@ export default function App() {
           <Text style={[styles.navText, activeTab === 'profile' && styles.navActiveText]}>Profil</Text>
         </TouchableOpacity>
       </View>
+
+      {/* CAMERA & GPS ATTENDANCE MODAL DIALOG */}
+      <Modal visible={isCameraModalOpen} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Feather name="camera" size={20} color={Colors.forestGreen} style={{ marginRight: 8 }} />
+                <Text style={styles.modalTitle}>
+                  {attendanceType === 'in' ? 'Verifikasi Absen Masuk' : 'Verifikasi Absen Keluar'}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setIsCameraModalOpen(false)}>
+                <Feather name="x" size={22} color={Colors.darkInk} />
+              </TouchableOpacity>
+            </View>
+
+            {isRequestingPermissions ? (
+              <View style={styles.permissionBox}>
+                <ActivityIndicator size="large" color={Colors.forestGreen} style={{ marginBottom: 16 }} />
+                <Text style={styles.permissionTitle}>Meminta Akses Kamera & GPS HP...</Text>
+                <Text style={styles.permissionSub}>
+                  Sistem sedang mengaktifkan sensor lokasi presisi dan kamera depan perangkat Anda.
+                </Text>
+              </View>
+            ) : (
+              <View>
+                {/* Camera Frame inside Modal */}
+                <View style={styles.cameraBoxModal}>
+                  <View style={styles.camTopline}>
+                    <View style={styles.badgeLive}>
+                      <View style={styles.dotGreen} />
+                      <Text style={styles.badgeText}>Kamera Depan Aktif · Live</Text>
+                    </View>
+                  </View>
+                  <View style={styles.faceGuide} />
+                  <Text style={styles.camHint}>Posisikan wajah Anda di dalam bingkai</Text>
+                </View>
+
+                {/* GPS Location inside Modal */}
+                <View style={styles.gpsCardModal}>
+                  <Feather name="map-pin" size={16} color={Colors.forestGreen} style={{ marginRight: 8 }} />
+                  <Text style={styles.gpsSubModal}>
+                    Lat: -6.2088, Lng: 106.8456 · Head Office (Radius 35m - Valid)
+                  </Text>
+                </View>
+
+                {/* Capture & Submit Button */}
+                <TouchableOpacity
+                  style={[styles.btnPrimary, { marginTop: 16, backgroundColor: attendanceType === 'out' ? '#1E3A8A' : Colors.forestGreen }]}
+                  onPress={attendanceType === 'in' ? handleClockIn : handleClockOut}
+                >
+                  <Text style={styles.btnPrimaryText}>
+                    📷 Ambil Foto & Submit {attendanceType === 'in' ? 'Absen Masuk' : 'Absen Keluar'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.btnSecondary, { marginTop: 8 }]}
+                  onPress={() => setIsCameraModalOpen(false)}
+                >
+                  <Text style={styles.btnSecondaryText}>Batal</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -493,5 +579,15 @@ const styles = StyleSheet.create({
   logoBadge: { width: 44, height: 44, borderRadius: 12, backgroundColor: Colors.forestGreen, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
   logoText: { color: '#FFF', fontSize: 22, fontWeight: '800' },
   loginTitle: { fontSize: 24, fontWeight: '800', color: Colors.darkInk, marginBottom: 6 },
-  loginSub: { fontSize: 13, color: Colors.mutedText, marginBottom: 24 }
+  loginSub: { fontSize: 13, color: Colors.mutedText, marginBottom: 24 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.65)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 36 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: Colors.lineBorder },
+  modalTitle: { fontSize: 16, fontWeight: '800', color: Colors.darkInk },
+  permissionBox: { paddingVertical: 36, alignItems: 'center', justifyContent: 'center' },
+  permissionTitle: { fontSize: 15, fontWeight: '700', color: Colors.darkInk, marginBottom: 6 },
+  permissionSub: { fontSize: 12, color: Colors.mutedText, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 },
+  cameraBoxModal: { height: 220, backgroundColor: '#1E293B', borderRadius: Radius.lg, justifyContent: 'space-between', padding: 14, alignItems: 'center' },
+  gpsCardModal: { marginTop: 12, backgroundColor: '#F8FAFC', borderRadius: Radius.md, padding: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.lineBorder },
+  gpsSubModal: { fontSize: 12, fontWeight: '600', color: Colors.darkInk }
 });
