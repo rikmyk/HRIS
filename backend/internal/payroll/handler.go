@@ -19,10 +19,11 @@ func NewHandler(storageSvc storage.StorageService) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router fiber.Router, jwtSecret string) {
-	// Public stream endpoint for PDF download (browser window.open & mobile deep link)
-	router.Get("/payroll/payslips/:id/pdf", h.DownloadPayslipPDF)
+	// Public & direct download endpoints for PDF streaming (browser window.open & mobile deep link)
+	router.Get("/payroll/public/payslips/:id/pdf", h.DownloadPayslipPDF)
 
 	payrollGroup := router.Group("/payroll", auth.ProtectedMiddleware(jwtSecret))
+	payrollGroup.Get("/payslips/:id/pdf", h.DownloadPayslipPDF)
 
 	payrollGroup.Get("/salary-structure/:employee_id", auth.RequireRoles("HR", "SA", "MGR"), h.GetSalaryStructure)
 	payrollGroup.Post("/calculate", auth.RequireRoles("HR", "SA"), h.CalculateSinglePayslip)

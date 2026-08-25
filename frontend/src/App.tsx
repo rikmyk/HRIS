@@ -186,7 +186,7 @@ export default function App() {
 
   const handleDownloadPDF = (id: string, name: string) => {
     showToast(`Mengunduh Slip Gaji PDF ${name}...`);
-    window.open(`${API_BASE}/payroll/payslips/${id}/pdf`, '_blank');
+    window.open(`${API_BASE}/payroll/public/payslips/${id}/pdf`, '_blank');
   };
 
   if (!isLoggedIn) {

@@ -16,7 +16,14 @@ const (
 func ProtectedMiddleware(secretKey string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
-		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		tokenStr := ""
+		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
+			tokenStr = strings.TrimPrefix(authHeader, "Bearer ")
+		} else {
+			tokenStr = c.Query("token")
+		}
+
+		if tokenStr == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"success": false,
 				"error": fiber.Map{
@@ -25,8 +32,6 @@ func ProtectedMiddleware(secretKey string) fiber.Handler {
 				},
 			})
 		}
-
-		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims, err := ValidateToken(tokenStr, secretKey)
 		if err != nil || claims.TokenType != "access" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

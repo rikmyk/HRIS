@@ -277,7 +277,7 @@ export default function App() {
               </View>
 
               <TouchableOpacity style={[styles.btnPrimary, { marginTop: 16 }]} onPress={() => {
-                const pdfUrl = 'http://localhost:8080/v1/payroll/payslips/ps-001/pdf';
+                const pdfUrl = 'http://localhost:8080/v1/payroll/public/payslips/ps-001/pdf';
                 Alert.alert('Mengunduh Slip Gaji PDF', 'Membuka slip gaji PDF dari Go Backend API...');
                 Linking.openURL(pdfUrl).catch(() => {});
               }}>
