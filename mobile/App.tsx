@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView } from 'react-native';
+import { Camera, History, FileText, CreditCard, User, MapPin, AlertTriangle, CheckCircle2 } from 'lucide-react-native';
 import { Colors, Radius } from './src/theme';
 
 export default function App() {
@@ -67,7 +68,7 @@ export default function App() {
             {/* GPS Pulse Card */}
             <View style={styles.gpsCard}>
               <View style={styles.gpsPulseIcon}>
-                <Text style={{ color: '#FFF', fontWeight: '800', fontSize: 12 }}>📍</Text>
+                <MapPin size={18} color="#FFF" />
               </View>
               <View>
                 <Text style={styles.gpsTitle}>Dalam Radius Geofence</Text>
@@ -114,7 +115,7 @@ export default function App() {
             {/* GPS Outside Card */}
             <View style={[styles.gpsCard, styles.gpsOutsideCard]}>
               <View style={[styles.gpsPulseIcon, { backgroundColor: Colors.danger }]}>
-                <Text style={{ color: '#FFF', fontWeight: '800', fontSize: 12 }}>⚠️</Text>
+                <AlertTriangle size={18} color="#FFF" />
               </View>
               <View>
                 <Text style={[styles.gpsTitle, { color: '#8A3226' }]}>Di Luar Radius Kantor</Text>
@@ -193,8 +194,14 @@ export default function App() {
               <Text style={styles.payslipPeriod}>Gaji Bersih · Agustus 2026</Text>
               <Text style={styles.payslipAmount}>Rp 9.850.000</Text>
               <View style={styles.tagRow}>
-                <View style={styles.psTag}><Text style={styles.psTagText}>✓ Disetujui HR</Text></View>
-                <View style={styles.psTag}><Text style={styles.psTagText}>✓ Sudah Dibayar 30 Agu</Text></View>
+                <View style={styles.psTag}>
+                  <CheckCircle2 size={12} color="#FFF" style={{ marginRight: 4 }} />
+                  <Text style={styles.psTagText}>Disetujui HR</Text>
+                </View>
+                <View style={styles.psTag}>
+                  <CheckCircle2 size={12} color="#FFF" style={{ marginRight: 4 }} />
+                  <Text style={styles.psTagText}>Sudah Dibayar 30 Agu</Text>
+                </View>
               </View>
             </View>
             <View style={styles.card}>
@@ -218,16 +225,17 @@ export default function App() {
         )}
       </ScrollView>
 
-      {/* Bottom Navbar per Stitch DS §2.9 */}
+      {/* Bottom Navbar with Clean Lucide React Native Icons per Stitch DS §2.9 */}
       <View style={styles.bottomNav}>
         {[
-          { id: 'home', label: 'Absen', icon: '📷' },
-          { id: 'history', label: 'Riwayat', icon: '📋' },
-          { id: 'leave', label: 'Izin', icon: '📝' },
-          { id: 'payslip', label: 'Slip Gaji', icon: '💳' },
-          { id: 'profile', label: 'Profil', icon: '👤' },
+          { id: 'home', label: 'Absen', Icon: Camera },
+          { id: 'history', label: 'Riwayat', Icon: History },
+          { id: 'leave', label: 'Izin', Icon: FileText },
+          { id: 'payslip', label: 'Slip Gaji', Icon: CreditCard },
+          { id: 'profile', label: 'Profil', Icon: User },
         ].map((tab) => {
           const isActive = activeTab === tab.id || (activeTab === 'reject' && tab.id === 'home');
+          const TabIcon = tab.Icon;
           return (
             <TouchableOpacity
               key={tab.id}
@@ -236,7 +244,7 @@ export default function App() {
               activeOpacity={0.7}
             >
               <View style={[styles.navIconBox, isActive && styles.navIconBoxActive]}>
-                <Text style={[styles.navIconText, isActive && styles.navIconTextActive]}>{tab.icon}</Text>
+                <TabIcon size={18} color={isActive ? Colors.primary : Colors.muted} strokeWidth={isActive ? 2.3 : 1.8} />
               </View>
               <Text style={[styles.navText, isActive && styles.navTextActive]}>
                 {tab.label}
@@ -295,18 +303,16 @@ const styles = StyleSheet.create({
   payslipPeriod: { color: Colors.line, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 },
   payslipAmount: { color: '#FFF', fontSize: 26, fontWeight: '800', marginVertical: 8 },
   tagRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
-  psTag: { backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
+  psTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   psTagText: { color: '#FFF', fontSize: 10.5, fontWeight: '600' },
   breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.line },
   bLabel: { fontSize: 12.5, color: Colors.ink },
   bValue: { fontSize: 12.5, fontWeight: '600', color: Colors.ink },
   bottomNav: { flexDirection: 'row', backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.line, paddingVertical: 8, paddingHorizontal: 4 },
   navItem: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  navIconBox: { width: 28, height: 28, borderRadius: 8, backgroundColor: Colors.line, alignItems: 'center', justifyContent: 'center', marginBottom: 3 },
-  navIconBoxActive: { backgroundColor: Colors.primary },
-  navIconText: { fontSize: 14 },
-  navIconTextActive: { color: '#FFF' },
-  navText: { fontSize: 10.5, color: Colors.muted, fontWeight: '500' },
+  navIconBox: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#F5F3EE', alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  navIconBoxActive: { backgroundColor: '#E4F3EC' },
+  navText: { fontSize: 11, color: Colors.muted, fontWeight: '500' },
   navTextActive: { color: Colors.primary, fontWeight: '700' },
   loginCard: { margin: 20, backgroundColor: Colors.surface, padding: 24, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.line, marginTop: 60 },
   logoBadge: { width: 44, height: 44, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
