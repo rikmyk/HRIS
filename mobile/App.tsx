@@ -330,7 +330,7 @@ export default function App() {
               </View>
             </View>
 
-            {/* 3-Tab Filter Selector: 7 Hari | Bulan Ini | 30 Hari (Below Summary Cards) */}
+            {/* 3-Tab Filter Selector: 7 Hari | 30 Hari | Bulan Ini */}
             <View style={{ flexDirection: 'row', backgroundColor: '#E2E8F0', padding: 3, borderRadius: Radius.md, marginBottom: 14 }}>
               <TouchableOpacity
                 onPress={() => setHistoryFilter('7days')}
@@ -346,19 +346,6 @@ export default function App() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => setHistoryFilter('month')}
-                style={{
-                  flex: 1,
-                  paddingVertical: 8,
-                  alignItems: 'center',
-                  borderRadius: 6,
-                  backgroundColor: historyFilter === 'month' ? Colors.forestGreen : 'transparent'
-                }}
-              >
-                <Text style={{ fontSize: 12, fontWeight: '700', color: historyFilter === 'month' ? '#FFF' : Colors.mutedText }}>Bulan Ini</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
                 onPress={() => setHistoryFilter('30days')}
                 style={{
                   flex: 1,
@@ -369,6 +356,19 @@ export default function App() {
                 }}
               >
                 <Text style={{ fontSize: 12, fontWeight: '700', color: historyFilter === '30days' ? '#FFF' : Colors.mutedText }}>30 Hari</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setHistoryFilter('month')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 8,
+                  alignItems: 'center',
+                  borderRadius: 6,
+                  backgroundColor: historyFilter === 'month' ? Colors.forestGreen : 'transparent'
+                }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '700', color: historyFilter === 'month' ? '#FFF' : Colors.mutedText }}>Bulan Ini</Text>
               </TouchableOpacity>
             </View>
 
