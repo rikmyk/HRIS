@@ -15,6 +15,7 @@ export default function App() {
   const [isCameraModalOpen, setIsCameraModalOpen] = useState<boolean>(false);
   const [attendanceType, setAttendanceType] = useState<'in' | 'out'>('in');
   const [isRequestingPermissions, setIsRequestingPermissions] = useState<boolean>(false);
+  const [isPhotoCaptured, setIsPhotoCaptured] = useState<boolean>(false);
   
   // Form input state for Leave Request
   const [leaveReason, setLeaveReason] = useState<string>('Cuti Tahunan keperluan keluarga');
@@ -30,6 +31,7 @@ export default function App() {
     setAttendanceType(type);
     setIsCameraModalOpen(true);
     setIsRequestingPermissions(true);
+    setIsPhotoCaptured(false);
     setTimeout(() => {
       setIsRequestingPermissions(false);
     }, 1000);
@@ -465,9 +467,9 @@ export default function App() {
                   Sistem sedang mengaktifkan sensor lokasi presisi dan kamera depan perangkat Anda.
                 </Text>
               </View>
-            ) : (
+            ) : !isPhotoCaptured ? (
               <View>
-                {/* Camera Frame inside Modal */}
+                {/* Live Camera Frame */}
                 <View style={styles.cameraBoxModal}>
                   <View style={styles.camTopline}>
                     <View style={styles.badgeLive}>
@@ -479,7 +481,7 @@ export default function App() {
                   <Text style={styles.camHint}>Posisikan wajah Anda di dalam bingkai</Text>
                 </View>
 
-                {/* GPS Location inside Modal */}
+                {/* GPS Location info */}
                 <View style={styles.gpsCardModal}>
                   <Feather name="map-pin" size={16} color={Colors.forestGreen} style={{ marginRight: 8 }} />
                   <Text style={styles.gpsSubModal}>
@@ -487,14 +489,12 @@ export default function App() {
                   </Text>
                 </View>
 
-                {/* Capture & Submit Button */}
+                {/* Take Photo Action */}
                 <TouchableOpacity
-                  style={[styles.btnPrimary, { marginTop: 16, backgroundColor: attendanceType === 'out' ? '#1E3A8A' : Colors.forestGreen }]}
-                  onPress={attendanceType === 'in' ? handleClockIn : handleClockOut}
+                  style={[styles.btnPrimary, { marginTop: 16 }]}
+                  onPress={() => setIsPhotoCaptured(true)}
                 >
-                  <Text style={styles.btnPrimaryText}>
-                    📷 Ambil Foto & Submit {attendanceType === 'in' ? 'Absen Masuk' : 'Absen Keluar'}
-                  </Text>
+                  <Text style={styles.btnPrimaryText}>📸 Ambil Foto Selfie</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -503,6 +503,52 @@ export default function App() {
                 >
                   <Text style={styles.btnSecondaryText}>Batal</Text>
                 </TouchableOpacity>
+              </View>
+            ) : (
+              <View>
+                {/* Captured Photo Preview Box */}
+                <View style={[styles.cameraBoxModal, { backgroundColor: '#0F172A', borderColor: '#10B981', borderWidth: 2 }]}>
+                  <View style={styles.camTopline}>
+                    <View style={[styles.badgeLive, { backgroundColor: '#10B981' }]}>
+                      <Feather name="check" size={12} color="#FFF" style={{ marginRight: 4 }} />
+                      <Text style={styles.badgeText}>Foto Tersimpan & Valid</Text>
+                    </View>
+                  </View>
+                  
+                  {/* Photo Preview Avatar Placeholder */}
+                  <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: '#1E293B', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#10B981' }}>
+                    <Feather name="user-check" size={48} color="#10B981" />
+                  </View>
+                  
+                  <Text style={{ color: '#E2E8F0', fontSize: 12, fontWeight: '600' }}>Wajah Terverifikasi (Kualitas Bagus)</Text>
+                </View>
+
+                {/* GPS Location info */}
+                <View style={styles.gpsCardModal}>
+                  <Feather name="map-pin" size={16} color={Colors.forestGreen} style={{ marginRight: 8 }} />
+                  <Text style={styles.gpsSubModal}>
+                    Lat: -6.2088, Lng: 106.8456 · Head Office (Radius 35m - Valid)
+                  </Text>
+                </View>
+
+                {/* 2 Buttons: Retake & Submit */}
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+                  <TouchableOpacity
+                    style={[styles.btnSecondary, { flex: 1, marginTop: 0 }]}
+                    onPress={() => setIsPhotoCaptured(false)}
+                  >
+                    <Text style={styles.btnSecondaryText}>🔄 Foto Ulang</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.btnPrimary, { flex: 1.4, marginTop: 0, backgroundColor: attendanceType === 'out' ? '#1E3A8A' : Colors.forestGreen }]}
+                    onPress={attendanceType === 'in' ? handleClockIn : handleClockOut}
+                  >
+                    <Text style={styles.btnPrimaryText}>
+                      ✅ Submit {attendanceType === 'in' ? 'Masuk' : 'Keluar'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           </View>
