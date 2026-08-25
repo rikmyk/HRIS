@@ -1,6 +1,8 @@
 package payroll
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"hris/internal/auth"
 	"hris/pkg/storage"
@@ -17,6 +19,9 @@ func NewHandler(storageSvc storage.StorageService) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router fiber.Router, jwtSecret string) {
+	// Public stream endpoint for PDF download (browser window.open & mobile deep link)
+	router.Get("/payroll/payslips/:id/pdf", h.DownloadPayslipPDF)
+
 	payrollGroup := router.Group("/payroll", auth.ProtectedMiddleware(jwtSecret))
 
 	payrollGroup.Get("/salary-structure/:employee_id", auth.RequireRoles("HR", "SA", "MGR"), h.GetSalaryStructure)
@@ -30,6 +35,21 @@ func (h *Handler) RegisterRoutes(router fiber.Router, jwtSecret string) {
 	payrollGroup.Post("/payslips/bulk-approve", auth.RequireRoles("HR", "SA"), h.BulkApprovePayslips)
 	payrollGroup.Post("/payslips/:id/mark-paid", auth.RequireRoles("HR", "SA"), h.MarkAsPaid)
 	payrollGroup.Post("/payslips/bulk-mark-paid", auth.RequireRoles("HR", "SA"), h.BulkMarkAsPaid)
+}
+
+func (h *Handler) DownloadPayslipPDF(c *fiber.Ctx) error {
+	psID := c.Params("id")
+	pdfBytes, err := h.service.GeneratePDFBytes(c.Context(), psID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"error":   fiber.Map{"code": "PDF_GEN_FAILED", "message": err.Error()},
+		})
+	}
+
+	c.Set("Content-Type", "application/pdf")
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"Slip_Gaji_%s.pdf\"", psID))
+	return c.Send(pdfBytes)
 }
 
 func (h *Handler) GetSalaryStructure(c *fiber.Ctx) error {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert, Linking } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Colors, Radius } from './src/theme';
 
@@ -276,7 +276,11 @@ export default function App() {
                 <Text style={[styles.breakdownVal, { color: '#8A3226' }]}>-Rp 150.000</Text>
               </View>
 
-              <TouchableOpacity style={[styles.btnPrimary, { marginTop: 16 }]} onPress={() => Alert.alert('Mengunduh Slip Gaji PDF', 'Slip_Gaji_Agustus_2026_Budi_Santoso.pdf sedang diunduh...')}>
+              <TouchableOpacity style={[styles.btnPrimary, { marginTop: 16 }]} onPress={() => {
+                const pdfUrl = 'http://localhost:8080/v1/payroll/payslips/ps-001/pdf';
+                Alert.alert('Mengunduh Slip Gaji PDF', 'Membuka slip gaji PDF dari Go Backend API...');
+                Linking.openURL(pdfUrl).catch(() => {});
+              }}>
                 <Text style={styles.btnPrimaryText}>Unduh File PDF Slip Gaji</Text>
               </TouchableOpacity>
             </View>

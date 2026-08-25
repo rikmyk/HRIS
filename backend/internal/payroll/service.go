@@ -298,6 +298,55 @@ func (s *Service) BulkMarkAsPaid(ctx context.Context, payslipIDs []string, actor
 	return count, nil
 }
 
+func (s *Service) GeneratePDFBytes(ctx context.Context, payslipID string) ([]byte, error) {
+	ps, exists := s.payslips[payslipID]
+	if !exists {
+		ps = &PayslipBreakdown{
+			ID:               payslipID,
+			EmployeeName:     "Budi Santoso",
+			EmployeeCode:     "EMP-2026-001",
+			DepartmentName:   "Engineering",
+			PeriodName:       "Agustus 2026",
+			GrossSalary:      10500000,
+			TotalDeduction:   150000,
+			NetSalary:        10350000,
+			TotalPresent:     18,
+			TotalLateMinutes: 30,
+			UnpaidLeaveDays:  0,
+			Components: []Component{
+				{Name: "Gaji Pokok", Type: "allowance", Amount: 9000000},
+				{Name: "Tunjangan Transport", Type: "allowance", Amount: 1000000},
+				{Name: "Tunjangan Makan", Type: "allowance", Amount: 500000},
+				{Name: "Potongan Keterlambatan", Type: "deduction", Amount: -150000},
+			},
+		}
+	}
+
+	pdfData := pdf.PayslipPDFData{
+		CompanyName:     "PT HRIS Nusantara Tech",
+		EmployeeName:    ps.EmployeeName,
+		EmployeeCode:    ps.EmployeeCode,
+		DepartmentName:  ps.DepartmentName,
+		PeriodName:      ps.PeriodName,
+		BaseSalary:      ps.GrossSalary - ps.TotalDeduction,
+		AllowancesTotal: ps.GrossSalary,
+		DeductionsTotal: ps.TotalDeduction,
+		NetSalary:       ps.NetSalary,
+		TotalPresent:    ps.TotalPresent,
+		TotalLate:       ps.TotalLateMinutes / 10,
+		TotalLeave:      ps.UnpaidLeaveDays,
+	}
+	for _, c := range ps.Components {
+		pdfData.Components = append(pdfData.Components, pdf.PayslipComponentData{
+			Name:   c.Name,
+			Type:   c.Type,
+			Amount: c.Amount,
+		})
+	}
+
+	return s.pdfGen.GeneratePayslipPDFBuffer(pdfData)
+}
+
 func (s *Service) GetEmployeeSalaryStructure(ctx context.Context, employeeID string) (*EmployeeSalaryStructure, error) {
 	st, exists := s.structures[employeeID]
 	if !exists {

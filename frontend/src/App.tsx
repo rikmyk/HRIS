@@ -184,6 +184,11 @@ export default function App() {
     showToast(`Berhasil menandai ${approvedUnpaid.length} slip gaji TERPILIH SEBAGAI SUDAH DIBAYAR!`);
   };
 
+  const handleDownloadPDF = (id: string, name: string) => {
+    showToast(`Mengunduh Slip Gaji PDF ${name}...`);
+    window.open(`${API_BASE}/payroll/payslips/${id}/pdf`, '_blank');
+  };
+
   if (!isLoggedIn) {
     return (
       <div className="login-split-container" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
@@ -481,7 +486,7 @@ export default function App() {
                           {p.status === 'draft' ? (
                             <button onClick={() => handleApprovePayslip(p.id, p.employee_name)} className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Check size={13} /> Approve</button>
                           ) : (
-                            <button onClick={() => showToast(`Mengunduh Slip Gaji PDF ${p.employee_name}`)} className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><FileText size={13} /> Lihat PDF</button>
+                            <button onClick={() => handleDownloadPDF(p.id, p.employee_name)} className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><FileText size={13} /> Lihat PDF</button>
                           )}
                         </td>
                       </tr>
