@@ -1,0 +1,94 @@
+/* HRIS Design System Core CSS Tokens (ADR-008 & 11-DESIGN-SYSTEM.md) */
+
+:root {
+  --ink:          #1B2430;  /* Dark navy — primary text, active states, dark buttons */
+  --primary:      #2F6F5E;  /* Forest green — primary CTA, GPS in-range, nav active */
+  --primary-dark: #204F42;  /* Darker green — pill text on light-green bg */
+  --accent:       #E8A33D;  /* Amber — KPI highlights, avatar bg, brand accent */
+  --bg:           #F5F3EE;  /* Warm off-white — page background */
+  --surface:      #FFFFFF;  /* White — cards, modals, phone screen */
+  --danger:       #C24A3B;  /* Red-brown — errors, outside-geofence, rejected status */
+  --muted:        #6B7280;  /* Grey — secondary text, labels, disabled states */
+  --line:         #E5E1D8;  /* Warm grey line — borders, dividers, table lines */
+  --radius:       14px;     /* Default corner radius */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .display-font {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Button Component Styles per DS §2.3 */
+.btn-primary {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 20px -8px rgba(47, 111, 94, 0.55);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Status Pills per DS §2.4 */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pill-present, .pill-paid {
+  background-color: #E4F3EC;
+  color: var(--primary-dark);
+}
+
+.pill-late, .pill-approved {
+  background-color: #FDF1DC;
+  color: #9A6714;
+}
+
+.pill-absent, .pill-rejected {
+  background-color: #FBEEEC;
+  color: #8A3226;
+}
+
+.pill-leave, .pill-pending {
+  background-color: #E9EEF7;
+  color: #2F4E8A;
+}
+
+.pill-draft {
+  background-color: #EFEDE7;
+  color: var(--muted);
+}
