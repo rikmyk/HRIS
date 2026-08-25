@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, Scro
 import { Colors, Radius } from './src/theme';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'home' | 'reject' | 'history' | 'payslip' | 'profile'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'reject' | 'history' | 'leave' | 'payslip' | 'profile'>('home');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
 
   if (!isLoggedIn) {
@@ -164,7 +164,29 @@ export default function App() {
           </View>
         )}
 
-        {/* TAB 4: SLIP GAJI */}
+        {/* TAB 4: AJUKAN IZIN (T030) */}
+        {activeTab === 'leave' && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Ajukan Permohonan Izin / Cuti</Text>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>JENIS IZIN</Text>
+              <TextInput style={styles.input} value="Cuti Tahunan" />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>TANGGAL MULAI - SELESAI</Text>
+              <TextInput style={styles.input} value="26 Agu 2026 - 28 Agu 2026" />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>ALASAN / CATATAN</Text>
+              <TextInput style={[styles.input, { height: 70 }]} multiline value="Keperluan keluarga di luar kota" />
+            </View>
+            <TouchableOpacity style={styles.btnPrimary}>
+              <Text style={styles.btnPrimaryText}>Kirim Pengajuan Izin</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* TAB 5: SLIP GAJI */}
         {activeTab === 'payslip' && (
           <View>
             <View style={styles.payslipCard}>
@@ -184,7 +206,7 @@ export default function App() {
           </View>
         )}
 
-        {/* TAB 5: PROFIL */}
+        {/* TAB 6: PROFIL */}
         {activeTab === 'profile' && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Profil Personel Karyawan</Text>
@@ -196,24 +218,32 @@ export default function App() {
         )}
       </ScrollView>
 
-      {/* Bottom Navbar per DS §2.9 */}
+      {/* Bottom Navbar per Stitch DS §2.9 */}
       <View style={styles.bottomNav}>
         {[
-          { id: 'home', label: 'Absen' },
-          { id: 'history', label: 'Riwayat' },
-          { id: 'payslip', label: 'Slip Gaji' },
-          { id: 'profile', label: 'Profil' },
-        ].map((tab) => (
-          <TouchableOpacity
-            key={tab.id}
-            onPress={() => setActiveTab(tab.id as any)}
-            style={styles.navItem}
-          >
-            <Text style={[styles.navText, (activeTab === tab.id || (activeTab === 'reject' && tab.id === 'home')) && styles.navTextActive]}>
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+          { id: 'home', label: 'Absen', icon: '📷' },
+          { id: 'history', label: 'Riwayat', icon: '📋' },
+          { id: 'leave', label: 'Izin', icon: '📝' },
+          { id: 'payslip', label: 'Slip Gaji', icon: '💳' },
+          { id: 'profile', label: 'Profil', icon: '👤' },
+        ].map((tab) => {
+          const isActive = activeTab === tab.id || (activeTab === 'reject' && tab.id === 'home');
+          return (
+            <TouchableOpacity
+              key={tab.id}
+              onPress={() => setActiveTab(tab.id as any)}
+              style={styles.navItem}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.navIconBox, isActive && styles.navIconBoxActive]}>
+                <Text style={[styles.navIconText, isActive && styles.navIconTextActive]}>{tab.icon}</Text>
+              </View>
+              <Text style={[styles.navText, isActive && styles.navTextActive]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </SafeAreaView>
   );
@@ -270,9 +300,13 @@ const styles = StyleSheet.create({
   breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.line },
   bLabel: { fontSize: 12.5, color: Colors.ink },
   bValue: { fontSize: 12.5, fontWeight: '600', color: Colors.ink },
-  bottomNav: { flexDirection: 'row', backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.line, paddingVertical: 10 },
-  navItem: { flex: 1, alignItems: 'center' },
-  navText: { fontSize: 11, color: Colors.muted },
+  bottomNav: { flexDirection: 'row', backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.line, paddingVertical: 8, paddingHorizontal: 4 },
+  navItem: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  navIconBox: { width: 28, height: 28, borderRadius: 8, backgroundColor: Colors.line, alignItems: 'center', justifyContent: 'center', marginBottom: 3 },
+  navIconBoxActive: { backgroundColor: Colors.primary },
+  navIconText: { fontSize: 14 },
+  navIconTextActive: { color: '#FFF' },
+  navText: { fontSize: 10.5, color: Colors.muted, fontWeight: '500' },
   navTextActive: { color: Colors.primary, fontWeight: '700' },
   loginCard: { margin: 20, backgroundColor: Colors.surface, padding: 24, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.line, marginTop: 60 },
   logoBadge: { width: 44, height: 44, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
@@ -280,8 +314,8 @@ const styles = StyleSheet.create({
   loginTitle: { fontSize: 20, fontWeight: '700', color: Colors.ink },
   loginSub: { fontSize: 13, color: Colors.muted, marginBottom: 20 },
   inputGroup: { marginBottom: 16 },
-  label: { fontSize: 11, fontWeight: '700', color: Colors.ink, marginBottom: 6 },
   input: { borderWidth: 1, borderColor: Colors.line, borderRadius: 8, padding: 10, backgroundColor: '#FAFAFA' },
+  label: { fontSize: 11, fontWeight: '700', color: Colors.ink, marginBottom: 6 },
   infoLabel: { fontSize: 13, color: Colors.muted, marginVertical: 4 },
   infoVal: { fontWeight: '700', color: Colors.ink },
 });
