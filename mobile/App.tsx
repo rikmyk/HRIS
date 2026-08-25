@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert, Linking, Modal, ActivityIndicator, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Colors, Radius } from './src/theme';
@@ -10,6 +10,31 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [clockInSuccess, setClockInSuccess] = useState<boolean>(false);
   const [clockOutSuccess, setClockOutSuccess] = useState<boolean>(false);
+  const [clockInTime, setClockInTime] = useState<string>('08:14:05 WIB');
+  const [clockOutTime, setClockOutTime] = useState<string>('17:05:12 WIB');
+
+  // Live Clock Timer
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    const h = String(date.getHours()).padStart(2, '0');
+    const m = String(date.getMinutes()).padStart(2, '0');
+    const s = String(date.getSeconds()).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  };
+
+  const formatDate = (date: Date) => {
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  };
   
   // Camera Modal & Permission State
   const [isCameraModalOpen, setIsCameraModalOpen] = useState<boolean>(false);
@@ -96,6 +121,8 @@ export default function App() {
   // Handlers for Mobile Actions
   const handleClockIn = async () => {
     setIsCameraModalOpen(false);
+    const nowStr = formatTime(new Date()) + ' WIB';
+    setClockInTime(nowStr);
     try {
       await fetch(`${API_BASE}/attendance/clock-in`, {
         method: 'POST',
@@ -106,11 +133,13 @@ export default function App() {
       console.log('Mobile API call simulated');
     }
     setClockInSuccess(true);
-    Alert.alert('✅ Absen Masuk Berhasil!', 'Kehadiran Anda telah dicatat pada 08:14:05 (Radius 35m dari Head Office).');
+    Alert.alert('✅ Absen Masuk Berhasil!', `Kehadiran Anda telah dicatat pada ${nowStr} (Radius 35m dari Head Office).`);
   };
 
   const handleClockOut = async () => {
     setIsCameraModalOpen(false);
+    const nowStr = formatTime(new Date()) + ' WIB';
+    setClockOutTime(nowStr);
     try {
       await fetch(`${API_BASE}/attendance/clock-out`, {
         method: 'POST',
@@ -121,7 +150,7 @@ export default function App() {
       console.log('Mobile API call simulated');
     }
     setClockOutSuccess(true);
-    Alert.alert('✅ Absen Keluar Berhasil!', 'Jam keluar Anda telah dicatat pada 17:05:12 (Head Office). Selamat beristirahat!');
+    Alert.alert('✅ Absen Keluar Berhasil!', `Jam keluar Anda telah dicatat pada ${nowStr} (Head Office). Selamat beristirahat!`);
   };
 
   const handleSimulateOutsideGeofence = async () => {
@@ -216,13 +245,13 @@ export default function App() {
         {/* TAB 1: ABSEN HOME & STATUS */}
         {activeTab === 'home' && (
           <View>
-            {/* Clock Time & Date Banner */}
+            {/* Clock Time & Date Banner (Live Real-Time Ticking Clock) */}
             <View style={{ backgroundColor: '#FFF', borderRadius: Radius.lg, padding: 20, alignItems: 'center', borderWidth: 1, borderColor: Colors.lineBorder, marginBottom: 16 }}>
               <Text style={styles.welcomeText}>WAKTU SEKARANG</Text>
               <Text style={styles.timeText}>
-                {clockOutSuccess ? '17:05:12' : clockInSuccess ? '17:05:00' : '08:14:05'}
+                {formatTime(currentTime)}
               </Text>
-              <Text style={styles.dateText}>Selasa, 25 Agustus 2026</Text>
+              <Text style={styles.dateText}>{formatDate(currentTime)}</Text>
 
               {/* GPS Status Badge */}
               <View style={styles.gpsCard}>
@@ -243,14 +272,14 @@ export default function App() {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
                 <Text style={{ fontSize: 13, color: Colors.mutedText }}>Absen Masuk</Text>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: clockInSuccess ? '#166534' : '#94A3B8' }}>
-                  {clockInSuccess ? '✓ 08:14:05 WIB' : 'Belum Absen'}
+                  {clockInSuccess ? `✓ ${clockInTime}` : 'Belum Absen'}
                 </Text>
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10 }}>
                 <Text style={{ fontSize: 13, color: Colors.mutedText }}>Absen Keluar</Text>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: clockOutSuccess ? '#166534' : '#94A3B8' }}>
-                  {clockOutSuccess ? '✓ 17:05:12 WIB' : 'Belum Absen'}
+                  {clockOutSuccess ? `✓ ${clockOutTime}` : 'Belum Absen'}
                 </Text>
               </View>
             </View>
