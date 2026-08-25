@@ -251,7 +251,7 @@ export default function App() {
                 <p className="sub">150 karyawan · Cutoff otomatis 20 Agu 2026</p>
                 <div className="kpi-row">
                   <div className="kpi-card"><div className="kpi-label">Draft Menunggu Review</div><div className="kpi-value accent">23</div></div>
-                  <div className="kpi-card"><div class="kpi-label">Sudah Disetujui</div><div className="kpi-value">115</div></div>
+                  <div className="kpi-card"><div className="kpi-label">Sudah Disetujui</div><div className="kpi-value">115</div></div>
                   <div className="kpi-card"><div className="kpi-label">Direvisi</div><div className="kpi-value warn">2</div></div>
                 </div>
                 <table>

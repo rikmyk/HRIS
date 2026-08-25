@@ -282,7 +282,6 @@ const styles = StyleSheet.create({
   inputGroup: { marginBottom: 16 },
   label: { fontSize: 11, fontWeight: '700', color: Colors.ink, marginBottom: 6 },
   input: { borderWidth: 1, borderColor: Colors.line, borderRadius: 8, padding: 10, backgroundColor: '#FAFAFA' },
-  label: { fontSize: 11, fontWeight: '700', color: Colors.ink, marginBottom: 6 },
   infoLabel: { fontSize: 13, color: Colors.muted, marginVertical: 4 },
   infoVal: { fontWeight: '700', color: Colors.ink },
 });
