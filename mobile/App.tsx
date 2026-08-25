@@ -55,6 +55,43 @@ export default function App() {
     { id: '2', type: 'Cuti Tahunan', date: '01 Jun 2026', days: '1 Hari', status: 'Disetujui' }
   ]);
 
+  // Payslip History Data with PDF URLs
+  const [payslipHistory] = useState([
+    {
+      id: 'ps-001',
+      period: 'Agustus 2026',
+      thp: 'Rp 9.850.000',
+      basicSalary: 'Rp 9.000.000',
+      transport: 'Rp 1.000.000',
+      deduction: '-Rp 150.000',
+      approvalStatus: 'Disetujui',
+      paymentStatus: 'Sudah Dibayar',
+      pdfUrl: `${API_BASE}/payroll/public/payslips/ps-001/pdf`
+    },
+    {
+      id: 'ps-002',
+      period: 'Juli 2026',
+      thp: 'Rp 10.000.000',
+      basicSalary: 'Rp 9.000.000',
+      transport: 'Rp 1.000.000',
+      deduction: 'Rp 0',
+      approvalStatus: 'Disetujui',
+      paymentStatus: 'Sudah Dibayar',
+      pdfUrl: `${API_BASE}/payroll/public/payslips/ps-002/pdf`
+    },
+    {
+      id: 'ps-003',
+      period: 'Juni 2026',
+      thp: 'Rp 9.700.000',
+      basicSalary: 'Rp 9.000.000',
+      transport: 'Rp 1.000.000',
+      deduction: '-Rp 300.000',
+      approvalStatus: 'Disetujui',
+      paymentStatus: 'Sudah Dibayar',
+      pdfUrl: `${API_BASE}/payroll/public/payslips/ps-003/pdf`
+    }
+  ]);
+
   // Attendance History Data with Selfie Photos
   const [attendanceHistory] = useState([
     {
@@ -570,13 +607,68 @@ export default function App() {
               </View>
 
               <TouchableOpacity style={[styles.btnPrimary, { marginTop: 16 }]} onPress={() => {
-                const pdfUrl = 'http://localhost:8080/v1/payroll/public/payslips/ps-001/pdf';
+                const pdfUrl = `${API_BASE}/payroll/public/payslips/ps-001/pdf`;
                 Alert.alert('Mengunduh Slip Gaji PDF', 'Membuka slip gaji PDF dari Go Backend API...');
                 Linking.openURL(pdfUrl).catch(() => {});
               }}>
-                <Text style={styles.btnPrimaryText}>Unduh File PDF Slip Gaji</Text>
+                <Text style={styles.btnPrimaryText}>📄 Unduh File PDF Slip Gaji Bulan Ini</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Riwayat Slip Gaji Past Periods List */}
+            <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 14 }]}>
+              Riwayat Slip Gaji Karyawan
+            </Text>
+
+            {payslipHistory.map((item) => (
+              <View
+                key={item.id}
+                style={{
+                  backgroundColor: '#FFF',
+                  borderRadius: Radius.md,
+                  padding: 16,
+                  marginBottom: 12,
+                  borderWidth: 1,
+                  borderColor: Colors.lineBorder
+                }}
+              >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Feather name="file-text" size={18} color={Colors.forestGreen} />
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.darkInk }}>{item.period}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    <View style={[styles.statusPill, styles.pillApproved, { paddingHorizontal: 8, paddingVertical: 2 }]}>
+                      <Text style={[styles.statusText, styles.textApproved, { fontSize: 10 }]}>{item.approvalStatus}</Text>
+                    </View>
+                    <View style={[styles.statusPill, styles.pillPaid, { paddingHorizontal: 8, paddingVertical: 2 }]}>
+                      <Text style={[styles.statusText, styles.textPaid, { fontSize: 10 }]}>{item.paymentStatus}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, backgroundColor: '#F8FAFC', padding: 10, borderRadius: 6 }}>
+                  <View>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: Colors.mutedText }}>TAKE HOME PAY</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '800', color: Colors.forestGreen, marginTop: 2 }}>
+                      {item.thp}
+                    </Text>
+                  </View>
+                  <Text style={{ fontSize: 11, color: Colors.mutedText }}>Gaji Pokok: {item.basicSalary}</Text>
+                </View>
+
+                <TouchableOpacity
+                  style={[styles.btnSecondary, { marginTop: 0, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }]}
+                  onPress={() => {
+                    Alert.alert('Mengunduh Slip Gaji PDF', `Membuka file PDF Slip Gaji periode ${item.period}...`);
+                    Linking.openURL(item.pdfUrl).catch(() => {});
+                  }}
+                >
+                  <Feather name="download" size={14} color={Colors.darkInk} />
+                  <Text style={styles.btnSecondaryText}>Unduh PDF ({item.period})</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         )}
 
