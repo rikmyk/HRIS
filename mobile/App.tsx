@@ -343,15 +343,17 @@ export default function App() {
                   </View>
                 </View>
 
-                {/* Clock-In & Clock-Out Grid with Photos */}
+                {/* Clock-In & Clock-Out Grid with Clean Photo Buttons */}
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                   {/* Clock In Column */}
-                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 10, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0' }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN MASUK</Text>
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: Colors.darkInk }}>{item.clockIn}</Text>
-                    <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockInLoc}</Text>
+                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 12, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0', justifyContent: 'space-between' }}>
+                    <View>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN MASUK</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '800', color: Colors.darkInk }}>{item.clockIn}</Text>
+                      <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockInLoc}</Text>
+                    </View>
 
-                    {/* Selfie Photo Thumbnail */}
+                    {/* Button Foto Absen Masuk */}
                     <TouchableOpacity
                       onPress={() => setSelectedPhoto({
                         title: 'Foto Selfie Absen Masuk',
@@ -360,22 +362,33 @@ export default function App() {
                         loc: item.clockInLoc,
                         url: item.clockInPhoto
                       })}
-                      style={{ height: 90, borderRadius: 8, overflow: 'hidden', backgroundColor: '#CBD5E1' }}
+                      style={{
+                        backgroundColor: '#FFF',
+                        borderWidth: 1,
+                        borderColor: Colors.forestGreen,
+                        borderRadius: Radius.md,
+                        paddingVertical: 7,
+                        paddingHorizontal: 8,
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        marginTop: 4
+                      }}
                     >
-                      <Image source={{ uri: item.clockInPhoto }} style={{ width: '100%', height: '100%' }} />
-                      <View style={{ position: 'absolute', bottom: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-                        <Text style={{ color: '#FFF', fontSize: 9, fontWeight: '700' }}>🔍 Lihat</Text>
-                      </View>
+                      <Feather name="camera" size={12} color={Colors.forestGreen} style={{ marginRight: 4 }} />
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.forestGreen }}>Foto Masuk</Text>
                     </TouchableOpacity>
                   </View>
 
                   {/* Clock Out Column */}
-                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 10, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0' }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN KELUAR</Text>
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: Colors.darkInk }}>{item.clockOut}</Text>
-                    <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockOutLoc}</Text>
+                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 12, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0', justifyContent: 'space-between' }}>
+                    <View>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN KELUAR</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '800', color: Colors.darkInk }}>{item.clockOut}</Text>
+                      <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockOutLoc}</Text>
+                    </View>
 
-                    {/* Selfie Photo Thumbnail */}
+                    {/* Button Foto Absen Keluar */}
                     <TouchableOpacity
                       onPress={() => setSelectedPhoto({
                         title: 'Foto Selfie Absen Keluar',
@@ -384,12 +397,21 @@ export default function App() {
                         loc: item.clockOutLoc,
                         url: item.clockOutPhoto
                       })}
-                      style={{ height: 90, borderRadius: 8, overflow: 'hidden', backgroundColor: '#CBD5E1' }}
+                      style={{
+                        backgroundColor: '#FFF',
+                        borderWidth: 1,
+                        borderColor: '#1E3A8A',
+                        borderRadius: Radius.md,
+                        paddingVertical: 7,
+                        paddingHorizontal: 8,
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        marginTop: 4
+                      }}
                     >
-                      <Image source={{ uri: item.clockOutPhoto }} style={{ width: '100%', height: '100%' }} />
-                      <View style={{ position: 'absolute', bottom: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-                        <Text style={{ color: '#FFF', fontSize: 9, fontWeight: '700' }}>🔍 Lihat</Text>
-                      </View>
+                      <Feather name="camera" size={12} color="#1E3A8A" style={{ marginRight: 4 }} />
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E3A8A' }}>Foto Keluar</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
