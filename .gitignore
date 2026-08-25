@@ -35,6 +35,7 @@ coverage.out
 # ==========================================
 # Node / Frontend / Mobile Dependencies & Build
 # ==========================================
+.vite/
 node_modules/
 .pnpm-store/
 dist/
