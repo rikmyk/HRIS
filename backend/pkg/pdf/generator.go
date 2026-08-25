@@ -43,13 +43,12 @@ type PayslipComponentData struct {
 	Amount float64
 }
 
-// FormatRupiah formats a float64 as Indonesian Rupiah string
-func FormatRupiah(amount float64) string {
+// formatRupiah formats a float64 amount as Indonesian Rupiah string
+func formatRupiah(amount float64) string {
 	if amount < 0 {
 		amount = math.Abs(amount)
 	}
 	s := fmt.Sprintf("%.0f", amount)
-	// Insert dots every 3 digits from right
 	n := len(s)
 	var result strings.Builder
 	for i, ch := range s {
@@ -64,471 +63,409 @@ func FormatRupiah(amount float64) string {
 const PayslipHTMLTemplate = `<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Slip Gaji – {{.EmployeeName}} – {{.PeriodName}}</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   @page { size: A4 portrait; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 12px;
-    color: #1a1f2e;
-    background: #f0f4f8;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #000;
+    background: #e5e7eb;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  /* ---- PRINT TRIGGER BUTTON ---- */
+  /* ---- PRINT BAR (screen only) ---- */
   .print-bar {
-    background: #1e40af;
-    color: white;
-    padding: 12px 32px;
+    background: #1f2937;
+    color: #fff;
+    padding: 10px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
   }
-  .print-bar-info { font-size: 13px; font-weight: 600; }
-  .print-bar-sub { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+  .print-bar-text { font-size: 12px; font-weight: bold; }
+  .print-bar-sub  { font-size: 10px; color: #9ca3af; margin-top: 2px; }
   .btn-print {
-    background: white;
-    color: #1e40af;
+    background: #fff;
+    color: #1f2937;
     border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 13px;
-    font-weight: 700;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-size: 12px;
+    font-weight: bold;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
-  .btn-print:hover { background: #eff6ff; }
-  @media print { .print-bar { display: none; } }
+  .btn-print:hover { background: #f3f4f6; }
+  @media print { .print-bar { display: none !important; } }
 
-  /* ---- PAGE WRAPPER ---- */
+  /* ---- PAGE ---- */
   .page {
     max-width: 794px;
     margin: 0 auto;
-    background: #ffffff;
+    background: #fff;
     min-height: 1123px;
-    display: flex;
-    flex-direction: column;
   }
-  @media screen { .page { margin: 20px auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); } }
+  @media screen {
+    .page { margin: 24px auto; box-shadow: 0 4px 24px rgba(0,0,0,0.18); }
+  }
 
-  /* ---- HEADER BRAND ---- */
+  /* ---- HEADER: logo left + doc title right ---- */
   .doc-header {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1d4ed8 100%);
-    padding: 28px 40px 24px;
+    padding: 28px 36px 20px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    border-bottom: 2px solid #000;
   }
-  .brand-row { display: flex; align-items: center; gap: 14px; }
-  .brand-badge {
-    width: 48px; height: 48px;
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: 900; color: white;
-    box-shadow: 0 4px 12px rgba(99,102,241,0.5);
-  }
-  .brand-name { font-size: 18px; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; }
-  .brand-sub  { font-size: 10.5px; color: #93c5fd; margin-top: 2px; }
-  .doc-label-group { text-align: right; }
-  .doc-label { font-size: 22px; font-weight: 900; color: #ffffff; letter-spacing: 1px; text-transform: uppercase; }
-  .doc-period { font-size: 12px; color: #93c5fd; margin-top: 4px; font-weight: 600; }
-  .confidential-badge {
-    display: inline-block;
-    background: rgba(239,68,68,0.2);
-    border: 1px solid rgba(239,68,68,0.4);
-    color: #fca5a5;
-    font-size: 9px; font-weight: 800;
-    padding: 3px 8px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: 1px;
-    margin-top: 6px;
-  }
-
-  /* ---- EMPLOYEE CARD ---- */
-  .emp-card {
-    margin: 24px 40px 0;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .emp-card-header {
-    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
-    padding: 10px 20px;
-    font-size: 10px; font-weight: 800;
-    color: white; text-transform: uppercase; letter-spacing: 1px;
-  }
-  .emp-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0;
-  }
-  .emp-cell {
-    padding: 14px 20px;
-    border-right: 1px solid #e2e8f0;
-  }
-  .emp-cell:last-child { border-right: none; }
-  .emp-cell-label { font-size: 9.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .emp-cell-val   { font-size: 13px; font-weight: 700; color: #0f172a; }
-  .emp-cell-sub   { font-size: 10.5px; color: #64748b; margin-top: 2px; }
-
-  /* ---- ATTENDANCE STRIP ---- */
-  .attendance-strip {
-    margin: 16px 40px 0;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
+  .company-logo-box {
+    display: flex;
+    align-items: center;
     gap: 12px;
   }
-  .att-box {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 12px 14px;
+  /* Letter-mark logo — simple and professional */
+  .company-mark {
+    width: 52px;
+    height: 52px;
+    border: 2.5px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: #000;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+  .company-info {}
+  .company-name { font-size: 15px; font-weight: bold; color: #000; letter-spacing: 0.2px; }
+  .company-addr { font-size: 9.5px; color: #374151; margin-top: 2px; line-height: 1.5; }
+  .company-npwp { font-size: 9px; color: #6b7280; margin-top: 3px; }
+
+  .doc-title-group { text-align: right; }
+  .doc-title { font-size: 18px; font-weight: bold; color: #000; text-transform: uppercase; letter-spacing: 2px; }
+  .doc-subtitle { font-size: 10px; color: #374151; margin-top: 4px; }
+  .doc-no { font-size: 9px; color: #6b7280; margin-top: 2px; }
+
+  /* ---- DIVIDER TEXT ---- */
+  .section-label {
+    background: #000;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: bold;
+    padding: 4px 36px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* ---- EMPLOYEE INFO TABLE ---- */
+  .emp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+  }
+  .emp-table td {
+    padding: 5px 36px;
+    font-size: 11px;
+    color: #000;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  .emp-table td.lbl {
+    width: 180px;
+    color: #374151;
+    font-size: 10.5px;
+  }
+  .emp-table td.sep { width: 20px; color: #9ca3af; }
+  .emp-table td.val { font-weight: bold; }
+
+  /* ---- ATTENDANCE ROW ---- */
+  .att-row {
+    display: flex;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .att-cell {
+    flex: 1;
+    padding: 10px 0;
     text-align: center;
+    border-right: 1px solid #e5e7eb;
   }
-  .att-val  { font-size: 22px; font-weight: 800; color: #0f172a; line-height: 1; }
-  .att-label{ font-size: 9.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-  .att-box.green  { background: #f0fdf4; border-color: #86efac; }
-  .att-box.green  .att-val { color: #166534; }
-  .att-box.red    { background: #fff1f2; border-color: #fda4af; }
-  .att-box.red    .att-val { color: #9f1239; }
-  .att-box.amber  { background: #fffbeb; border-color: #fcd34d; }
-  .att-box.amber  .att-val { color: #92400e; }
-  .att-box.blue   { background: #eff6ff; border-color: #93c5fd; }
-  .att-box.blue   .att-val { color: #1e40af; }
+  .att-cell:last-child { border-right: none; }
+  .att-num   { font-size: 18px; font-weight: bold; color: #000; line-height: 1; }
+  .att-label { font-size: 9px; color: #6b7280; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-  /* ---- SALARY TABLES ---- */
-  .tables-row {
-    margin: 20px 40px 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+  /* ---- SALARY TABLE ---- */
+  .salary-wrap { padding: 0 36px 0; }
+  .salary-two-col { display: flex; gap: 24px; margin-top: 0; }
+  .salary-col { flex: 1; }
+  .salary-col-title {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 0;
+    border-bottom: 1.5px solid #000;
+    color: #000;
   }
-  .salary-table-wrap {}
-  .salary-table-title {
-    font-size: 10px; font-weight: 800;
-    color: white; text-transform: uppercase; letter-spacing: 1px;
-    padding: 8px 14px;
-    border-radius: 8px 8px 0 0;
+  .sal-table { width: 100%; border-collapse: collapse; }
+  .sal-table tr td { padding: 5px 0; font-size: 11px; color: #000; border-bottom: 1px solid #f3f4f6; }
+  .sal-table tr td:last-child { text-align: right; font-family: 'Courier New', Courier, monospace; white-space: nowrap; }
+  .sal-table .subtotal td {
+    border-top: 1px solid #000;
+    border-bottom: 1.5px solid #000;
+    font-weight: bold;
+    padding: 6px 0;
+    font-size: 11.5px;
   }
-  .title-allowance { background: linear-gradient(90deg, #059669, #10b981); }
-  .title-deduction { background: linear-gradient(90deg, #dc2626, #ef4444); }
-  .salary-table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; }
-  .salary-table th {
-    background: #f8fafc;
-    padding: 8px 12px;
-    font-size: 9.5px; font-weight: 700;
-    color: #475569; text-transform: uppercase; letter-spacing: 0.4px;
-    border-bottom: 1px solid #e2e8f0;
-    text-align: left;
-  }
-  .salary-table th:last-child { text-align: right; }
-  .salary-table td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; font-size: 11.5px; color: #334155; }
-  .salary-table td:last-child { text-align: right; font-family: 'Courier New', monospace; font-weight: 700; }
-  .salary-table tr:last-child td { border-bottom: none; }
-  .salary-table .subtotal-row td {
-    background: #f8fafc;
-    font-weight: 700;
-    border-top: 1.5px solid #e2e8f0;
-    font-size: 12px;
-  }
-  .allowance-val { color: #059669; }
-  .deduction-val { color: #dc2626; }
+  .sal-table .subtotal td:last-child { color: #000; }
+  .empty-row td { color: #9ca3af; font-style: italic; }
 
-  /* ---- THP HERO ---- */
-  .thp-section {
-    margin: 20px 40px 0;
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1d4ed8 100%);
-    border-radius: 12px;
-    padding: 24px 32px;
+  /* ---- THP STRIP ---- */
+  .thp-strip {
+    margin: 18px 36px 0;
+    border: 2px solid #000;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    overflow: hidden;
-    position: relative;
+    padding: 14px 20px;
   }
-  .thp-section::before {
-    content: '';
-    position: absolute;
-    right: -40px; top: -60px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-  }
-  .thp-section::after {
-    content: '';
-    position: absolute;
-    right: 60px; bottom: -80px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.03);
-  }
-  .thp-left {}
-  .thp-eyebrow { font-size: 10px; font-weight: 700; color: #93c5fd; text-transform: uppercase; letter-spacing: 1.5px; }
-  .thp-title   { font-size: 14px; font-weight: 800; color: #e2e8f0; margin-top: 4px; }
-  .thp-note    { font-size: 10px; color: #64748b; margin-top: 6px; }
-  .thp-amount  { font-size: 34px; font-weight: 900; color: #ffffff; letter-spacing: -1px; position: relative; z-index: 1; }
+  .thp-left-label { font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; }
+  .thp-left-note  { font-size: 9.5px; color: #6b7280; margin-top: 3px; }
+  .thp-amount     { font-size: 22px; font-weight: bold; color: #000; font-family: 'Courier New', Courier, monospace; }
 
-  /* ---- SIGNATURE STRIP ---- */
-  .signature-strip {
-    margin: 20px 40px 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+  /* ---- NOTE ---- */
+  .note-strip {
+    margin: 12px 36px 0;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    font-size: 9.5px;
+    color: #6b7280;
+    line-height: 1.6;
+  }
+
+  /* ---- SIGNATURE ---- */
+  .sig-row {
+    margin: 24px 36px 0;
+    display: flex;
     gap: 16px;
   }
   .sig-box {
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 16px;
+    flex: 1;
+    border: 1px solid #d1d5db;
+    padding: 12px 14px;
     text-align: center;
   }
-  .sig-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-  .sig-space { height: 44px; }
-  .sig-line  { border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 6px; }
-  .sig-name  { font-size: 11.5px; font-weight: 700; color: #0f172a; }
-  .sig-title-small { font-size: 10px; color: #64748b; margin-top: 2px; }
+  .sig-title  { font-size: 9.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; }
+  .sig-space  { height: 48px; }
+  .sig-line   { border-top: 1px solid #d1d5db; padding-top: 6px; margin-top: 4px; }
+  .sig-name   { font-size: 11px; font-weight: bold; color: #000; }
+  .sig-pos    { font-size: 9.5px; color: #6b7280; margin-top: 2px; }
 
   /* ---- FOOTER ---- */
   .doc-footer {
-    margin: 20px 40px;
-    padding-top: 14px;
-    border-top: 1px dashed #cbd5e1;
+    margin: 20px 36px 28px;
+    padding-top: 12px;
+    border-top: 1px solid #d1d5db;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
   }
-  .doc-footer-text { font-size: 9.5px; color: #94a3b8; }
-  .doc-footer-right { display: flex; align-items: center; gap: 12px; }
-  .validation-badge {
-    background: #f0fdf4;
-    border: 1px solid #86efac;
-    color: #166534;
-    font-size: 9px; font-weight: 800;
-    padding: 4px 10px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
+  .footer-text  { font-size: 9px; color: #9ca3af; line-height: 1.6; }
+  .footer-right { font-size: 9px; color: #9ca3af; text-align: right; }
 </style>
 </head>
 <body>
 
-<!-- Print bar (hidden when printing) -->
 <div class="print-bar">
   <div>
-    <div class="print-bar-info">Slip Gaji — {{.EmployeeName}} | {{.PeriodName}}</div>
-    <div class="print-bar-sub">Gunakan tombol cetak di bawah untuk menyimpan sebagai PDF berkualitas tinggi</div>
+    <div class="print-bar-text">Slip Gaji — {{.EmployeeName}} | {{.PeriodName}}</div>
+    <div class="print-bar-sub">Klik Cetak untuk menyimpan sebagai PDF</div>
   </div>
-  <button class="btn-print" onclick="window.print()">
-    🖨️ Cetak / Simpan PDF
-  </button>
+  <button class="btn-print" onclick="window.print()">🖨 Cetak / Simpan PDF</button>
 </div>
 
 <div class="page">
 
-  <!-- ===== HEADER ===== -->
+  <!-- HEADER -->
   <div class="doc-header">
-    <div class="brand-row">
-      <div class="brand-badge">H</div>
-      <div>
-        <div class="brand-name">{{.CompanyName}}</div>
-        <div class="brand-sub">{{.CompanyAddress}}</div>
-        {{if .CompanyNPWP}}<div class="brand-sub">NPWP: {{.CompanyNPWP}}</div>{{end}}
+    <div class="company-logo-box">
+      <div class="company-mark">H</div>
+      <div class="company-info">
+        <div class="company-name">{{.CompanyName}}</div>
+        <div class="company-addr">{{.CompanyAddress}}</div>
+        {{if .CompanyNPWP}}<div class="company-npwp">NPWP: {{.CompanyNPWP}}</div>{{end}}
       </div>
     </div>
-    <div class="doc-label-group">
-      <div class="doc-label">Slip Gaji</div>
-      <div class="doc-period">Periode: {{.PeriodName}}</div>
-      <div class="confidential-badge">🔒 Rahasia &amp; Privat</div>
-    </div>
-  </div>
-
-  <!-- ===== EMPLOYEE INFO CARD ===== -->
-  <div class="emp-card">
-    <div class="emp-card-header">Informasi Karyawan</div>
-    <div class="emp-grid">
-      <div class="emp-cell">
-        <div class="emp-cell-label">Nama Karyawan</div>
-        <div class="emp-cell-val">{{.EmployeeName}}</div>
-      </div>
-      <div class="emp-cell">
-        <div class="emp-cell-label">NIK / Kode Karyawan</div>
-        <div class="emp-cell-val">{{.EmployeeCode}}</div>
-      </div>
-      <div class="emp-cell">
-        <div class="emp-cell-label">Departemen</div>
-        <div class="emp-cell-val">{{.DepartmentName}}</div>
-        {{if .PositionTitle}}<div class="emp-cell-sub">{{.PositionTitle}}</div>{{end}}
-      </div>
+    <div class="doc-title-group">
+      <div class="doc-title">Slip Gaji</div>
+      <div class="doc-subtitle">Periode: {{.PeriodName}}</div>
+      <div class="doc-no">Tanggal Cetak: {{.GeneratedAt}}</div>
     </div>
   </div>
 
-  <!-- ===== ATTENDANCE SUMMARY ===== -->
-  <div class="attendance-strip">
-    <div class="att-box green">
-      <div class="att-val">{{.TotalPresent}}</div>
+  <!-- EMPLOYEE INFO -->
+  <div class="section-label">Data Karyawan</div>
+  <table class="emp-table">
+    <tr>
+      <td class="lbl">Nama Lengkap</td><td class="sep">:</td><td class="val">{{.EmployeeName}}</td>
+      <td class="lbl">Departemen</td><td class="sep">:</td><td class="val">{{.DepartmentName}}</td>
+    </tr>
+    <tr>
+      <td class="lbl">NIK / Kode Karyawan</td><td class="sep">:</td><td class="val">{{.EmployeeCode}}</td>
+      <td class="lbl">Jabatan</td><td class="sep">:</td><td class="val">{{if .PositionTitle}}{{.PositionTitle}}{{else}}-{{end}}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Periode Pembayaran</td><td class="sep">:</td><td class="val">{{.PeriodName}}</td>
+      <td class="lbl">Hari Kerja Periode Ini</td><td class="sep">:</td><td class="val">{{.TotalWorkDays}} Hari</td>
+    </tr>
+  </table>
+
+  <!-- ATTENDANCE -->
+  <div class="section-label" style="margin-top:14px;">Rekap Kehadiran</div>
+  <div class="att-row">
+    <div class="att-cell">
+      <div class="att-num">{{.TotalPresent}}</div>
       <div class="att-label">Hari Hadir</div>
     </div>
-    <div class="att-box red">
-      <div class="att-val">{{.TotalAbsent}}</div>
+    <div class="att-cell">
+      <div class="att-num">{{.TotalAbsent}}</div>
       <div class="att-label">Hari Alpha</div>
     </div>
-    <div class="att-box amber">
-      <div class="att-val">{{.TotalLate}}</div>
-      <div class="att-label">Mnt Terlambat</div>
+    <div class="att-cell">
+      <div class="att-num">{{.TotalLate}}</div>
+      <div class="att-label">Menit Terlambat</div>
     </div>
-    <div class="att-box blue">
-      <div class="att-val">{{.TotalLeave}}</div>
-      <div class="att-label">Hari Izin/Cuti</div>
-    </div>
-    <div class="att-box">
-      <div class="att-val">{{.TotalWorkDays}}</div>
-      <div class="att-label">Hari Kerja</div>
+    <div class="att-cell">
+      <div class="att-num">{{.TotalLeave}}</div>
+      <div class="att-label">Hari Izin / Cuti</div>
     </div>
   </div>
 
-  <!-- ===== SALARY COMPONENT TABLES ===== -->
-  <div class="tables-row">
-    <!-- PENGHASILAN -->
-    <div class="salary-table-wrap">
-      <div class="salary-table-title title-allowance">✦ Penghasilan (Income)</div>
-      <table class="salary-table">
-        <thead>
-          <tr><th>Komponen</th><th>Jumlah</th></tr>
-        </thead>
-        <tbody>
-          {{range .Allowances}}
-          <tr>
-            <td>{{.Name}}</td>
-            <td class="allowance-val">{{FormatRupiah .Amount}}</td>
-          </tr>
-          {{end}}
-        </tbody>
-        <tfoot>
-          <tr class="subtotal-row">
-            <td>Total Penghasilan</td>
-            <td class="allowance-val">{{FormatRupiah .AllowancesTotal}}</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+  <!-- SALARY COMPONENTS -->
+  <div class="section-label" style="margin-top:14px;">Rincian Gaji</div>
+  <div class="salary-wrap">
+    <div class="salary-two-col" style="margin-top:12px;">
 
-    <!-- POTONGAN -->
-    <div class="salary-table-wrap">
-      <div class="salary-table-title title-deduction">✦ Potongan (Deduction)</div>
-      <table class="salary-table">
-        <thead>
-          <tr><th>Komponen</th><th>Jumlah</th></tr>
-        </thead>
-        <tbody>
-          {{if .Deductions}}
-          {{range .Deductions}}
-          <tr>
-            <td>{{.Name}}</td>
-            <td class="deduction-val">{{FormatRupiah .Amount}}</td>
-          </tr>
-          {{end}}
-          {{else}}
-          <tr><td colspan="2" style="color:#94a3b8;text-align:center;padding:16px;">Tidak ada potongan</td></tr>
-          {{end}}
-        </tbody>
-        <tfoot>
-          <tr class="subtotal-row">
-            <td>Total Potongan</td>
-            <td class="deduction-val">{{FormatRupiah .DeductionsTotal}}</td>
-          </tr>
-        </tfoot>
-      </table>
+      <!-- PENGHASILAN -->
+      <div class="salary-col">
+        <div class="salary-col-title">Penghasilan</div>
+        <table class="sal-table">
+          <tbody>
+            {{range .Allowances}}
+            <tr>
+              <td>{{.Name}}</td>
+              <td>{{FormatRupiah .Amount}}</td>
+            </tr>
+            {{end}}
+            {{if not .Allowances}}
+            <tr class="empty-row"><td colspan="2">Tidak ada data penghasilan</td></tr>
+            {{end}}
+          </tbody>
+          <tfoot>
+            <tr class="subtotal">
+              <td>Jumlah Penghasilan</td>
+              <td>{{FormatRupiah .AllowancesTotal}}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- POTONGAN -->
+      <div class="salary-col">
+        <div class="salary-col-title">Potongan</div>
+        <table class="sal-table">
+          <tbody>
+            {{range .Deductions}}
+            <tr>
+              <td>{{.Name}}</td>
+              <td>{{FormatRupiah .Amount}}</td>
+            </tr>
+            {{end}}
+            {{if not .Deductions}}
+            <tr class="empty-row"><td colspan="2">Tidak ada potongan</td></tr>
+            {{end}}
+          </tbody>
+          <tfoot>
+            <tr class="subtotal">
+              <td>Jumlah Potongan</td>
+              <td>{{FormatRupiah .DeductionsTotal}}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
     </div>
   </div>
 
-  <!-- ===== THP HERO ===== -->
-  <div class="thp-section">
-    <div class="thp-left">
-      <div class="thp-eyebrow">TOTAL BERSIH DITERIMA</div>
-      <div class="thp-title">Take Home Pay (THP) — {{.PeriodName}}</div>
-      <div class="thp-note" style="color:#94a3b8;">Penghasilan − Potongan = THP Bersih</div>
+  <!-- TAKE HOME PAY -->
+  <div class="thp-strip">
+    <div>
+      <div class="thp-left-label">Total Gaji Bersih Diterima (Take Home Pay)</div>
+      <div class="thp-left-note">Penghasilan  −  Potongan  =  Gaji Bersih</div>
     </div>
     <div class="thp-amount">{{FormatRupiah .NetSalary}}</div>
   </div>
 
-  <!-- ===== SIGNATURE ===== -->
-  <div class="signature-strip">
+  <!-- NOTE -->
+  <div class="note-strip">
+    Slip gaji ini diterbitkan secara resmi oleh sistem HRIS perusahaan. Apabila terdapat ketidaksesuaian, harap menghubungi bagian Human Resources dalam waktu 3 (tiga) hari kerja sejak tanggal cetak.
+  </div>
+
+  <!-- SIGNATURE -->
+  <div class="sig-row">
     <div class="sig-box">
-      <div class="sig-label">Dibuat Oleh</div>
+      <div class="sig-title">Disiapkan Oleh</div>
       <div class="sig-space"></div>
       <div class="sig-line">
-        <div class="sig-name">Sistem HRIS</div>
-        <div class="sig-title-small">Auto-Generated</div>
+        <div class="sig-name">Departemen Payroll</div>
+        <div class="sig-pos">Human Resources &amp; Payroll</div>
       </div>
     </div>
     <div class="sig-box">
-      <div class="sig-label">Disetujui HRD</div>
+      <div class="sig-title">Disetujui Oleh</div>
       <div class="sig-space"></div>
       <div class="sig-line">
         <div class="sig-name">Manager HRD</div>
-        <div class="sig-title-small">Human Resources Dept.</div>
+        <div class="sig-pos">Human Resources Dept.</div>
       </div>
     </div>
     <div class="sig-box">
-      <div class="sig-label">Diterima Karyawan</div>
+      <div class="sig-title">Diterima Oleh</div>
       <div class="sig-space"></div>
       <div class="sig-line">
         <div class="sig-name">{{.EmployeeName}}</div>
-        <div class="sig-title-small">{{.PositionTitle}}</div>
+        <div class="sig-pos">{{if .PositionTitle}}{{.PositionTitle}}{{else}}Karyawan{{end}}</div>
       </div>
     </div>
   </div>
 
-  <!-- ===== FOOTER ===== -->
+  <!-- FOOTER -->
   <div class="doc-footer">
-    <div class="doc-footer-text">
+    <div class="footer-text">
       Dicetak otomatis oleh Sistem HRIS · {{.GeneratedAt}}<br/>
       Dokumen ini sah tanpa tanda tangan basah sesuai kebijakan perusahaan.
     </div>
-    <div class="doc-footer-right">
-      <div class="validation-badge">✓ VALID DIGITAL</div>
-      <div class="doc-footer-text" style="text-align:right;">ID: HRIS-{{.EmployeeCode}}-{{.PeriodYear}}</div>
+    <div class="footer-right">
+      Nomor Dokumen: HRIS/SLIP/{{.PeriodYear}}/{{.EmployeeCode}}<br/>
+      Halaman 1 dari 1
     </div>
   </div>
 
-</div><!-- end .page -->
+</div>
 </body>
 </html>`
 
 // Generator handles payslip HTML template rendering
 type Generator struct{}
 
-// NewGenerator creates a new PDF Generator instance
-func NewGenerator() *Generator {
-	return &Generator{}
-}
-
-// FormatRupiah formats a float64 amount as Indonesian Rupiah string
-func formatRupiah(amount float64) string {
-	if amount < 0 {
-		amount = -amount
-	}
-	s := fmt.Sprintf("%.0f", amount)
-	n := len(s)
-	var result strings.Builder
-	for i, ch := range s {
-		if i > 0 && (n-i)%3 == 0 {
-			result.WriteRune('.')
-		}
-		result.WriteRune(ch)
-	}
-	return "Rp " + result.String()
-}
+// NewGenerator creates a new Generator instance
+func NewGenerator() *Generator { return &Generator{} }
 
 // GeneratePayslipPDFBuffer renders the payslip HTML template and returns bytes
 func (g *Generator) GeneratePayslipPDFBuffer(data PayslipPDFData) ([]byte, error) {
@@ -537,7 +474,7 @@ func (g *Generator) GeneratePayslipPDFBuffer(data PayslipPDFData) ([]byte, error
 		data.CompanyName = "PT HRIS Nusantara Tech"
 	}
 	if data.CompanyAddress == "" {
-		data.CompanyAddress = "Gedung Cyber 2, Lt. 18, Jl. H.R. Rasuna Said, Jakarta Selatan 12950"
+		data.CompanyAddress = "Gedung Cyber 2 Lt.18, Jl. H.R. Rasuna Said, Jakarta Selatan 12950"
 	}
 	if data.CompanyNPWP == "" {
 		data.CompanyNPWP = "01.234.567.8-901.000"
@@ -552,7 +489,7 @@ func (g *Generator) GeneratePayslipPDFBuffer(data PayslipPDFData) ([]byte, error
 		data.PeriodYear = time.Now().Format("2006")
 	}
 
-	// Split components into allowances and deductions
+	// Auto-split Components into Allowances / Deductions if not already split
 	if len(data.Allowances) == 0 && len(data.Deductions) == 0 {
 		for _, c := range data.Components {
 			amt := c.Amount
@@ -567,7 +504,7 @@ func (g *Generator) GeneratePayslipPDFBuffer(data PayslipPDFData) ([]byte, error
 		}
 	}
 
-	// Recalculate totals if missing
+	// Recalculate totals
 	if data.AllowancesTotal == 0 {
 		for _, a := range data.Allowances {
 			data.AllowancesTotal += a.Amount
@@ -584,6 +521,13 @@ func (g *Generator) GeneratePayslipPDFBuffer(data PayslipPDFData) ([]byte, error
 
 	funcMap := template.FuncMap{
 		"FormatRupiah": formatRupiah,
+		"not": func(v interface{}) bool {
+			if v == nil {
+				return true
+			}
+			// handles slices
+			return false
+		},
 	}
 
 	tmpl, err := template.New("payslip").Funcs(funcMap).Parse(PayslipHTMLTemplate)
