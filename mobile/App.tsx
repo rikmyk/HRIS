@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert, Linking, Modal, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert, Linking, Modal, ActivityIndicator, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Colors, Radius } from './src/theme';
 
@@ -17,6 +17,9 @@ export default function App() {
   const [isRequestingPermissions, setIsRequestingPermissions] = useState<boolean>(false);
   const [isPhotoCaptured, setIsPhotoCaptured] = useState<boolean>(false);
   
+  // Photo Detail Modal State
+  const [selectedPhoto, setSelectedPhoto] = useState<{ title: string; date: string; url: string; loc: string; time: string } | null>(null);
+
   // Form input state for Leave Request
   const [leaveReason, setLeaveReason] = useState<string>('Cuti Tahunan keperluan keluarga');
   const [leaveDays, setLeaveDays] = useState<string>('3');
@@ -24,6 +27,58 @@ export default function App() {
   const [leaveHistory, setLeaveHistory] = useState([
     { id: '1', type: 'Sakit dengan Surat Dokter', date: '12 Jul 2026', days: '2 Hari', status: 'Disetujui' },
     { id: '2', type: 'Cuti Tahunan', date: '01 Jun 2026', days: '1 Hari', status: 'Disetujui' }
+  ]);
+
+  // Attendance History Data with Selfie Photos
+  const [attendanceHistory] = useState([
+    {
+      id: 'att-1',
+      date: 'Selasa, 25 Agu 2026',
+      status: 'Hadir',
+      lateMinutes: 0,
+      clockIn: '08:14:05 WIB',
+      clockInLoc: 'Head Office (35m)',
+      clockInPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80',
+      clockOut: '17:05:12 WIB',
+      clockOutLoc: 'Head Office (32m)',
+      clockOutPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80'
+    },
+    {
+      id: 'att-2',
+      date: 'Senin, 24 Agu 2026',
+      status: 'Hadir',
+      lateMinutes: 0,
+      clockIn: '08:08:19 WIB',
+      clockInLoc: 'Head Office (42m)',
+      clockInPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
+      clockOut: '17:12:00 WIB',
+      clockOutLoc: 'Head Office (40m)',
+      clockOutPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80'
+    },
+    {
+      id: 'att-3',
+      date: 'Jumat, 21 Agu 2026',
+      status: 'Terlambat',
+      lateMinutes: 14,
+      clockIn: '08:44:12 WIB',
+      clockInLoc: 'Head Office (68m)',
+      clockInPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80',
+      clockOut: '17:00:45 WIB',
+      clockOutLoc: 'Head Office (30m)',
+      clockOutPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80'
+    },
+    {
+      id: 'att-4',
+      date: 'Kamis, 20 Agu 2026',
+      status: 'Hadir',
+      lateMinutes: 0,
+      clockIn: '08:11:30 WIB',
+      clockInLoc: 'Head Office (20m)',
+      clockInPhoto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80',
+      clockOut: '17:08:22 WIB',
+      clockOutLoc: 'Head Office (25m)',
+      clockOutPhoto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80'
+    }
   ]);
 
   // Trigger camera & GPS modal
@@ -246,6 +301,100 @@ export default function App() {
             <TouchableOpacity style={styles.btnSecondary} onPress={() => setActiveTab('home')}>
               <Text style={styles.btnSecondaryText}>Kembali ke Kamera Absen</Text>
             </TouchableOpacity>
+          </View>
+        )}
+
+        {/* TAB 3: RIWAYAT ABSENSI KARYAWAN (ATTENDANCE HISTORY WITH SELFIES) */}
+        {activeTab === 'history' && (
+          <View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={styles.sectionTitle}>Riwayat Absensi Saya</Text>
+              <View style={{ backgroundColor: '#FFF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: Colors.lineBorder }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.forestGreen }}>Agustus 2026</Text>
+              </View>
+            </View>
+
+            {/* Attendance Summary Bar */}
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+              <View style={{ flex: 1, backgroundColor: '#DCFCE7', padding: 12, borderRadius: Radius.md, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#166534' }}>18</Text>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#15803D', marginTop: 2 }}>HADIR</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: '#FEF3C7', padding: 12, borderRadius: Radius.md, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#92400E' }}>1</Text>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#B45309', marginTop: 2 }}>TERLAMBAT</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: '#FEE2E2', padding: 12, borderRadius: Radius.md, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#991B1B' }}>0</Text>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#B91C1C', marginTop: 2 }}>ALPHA</Text>
+              </View>
+            </View>
+
+            {/* Attendance Daily List */}
+            {attendanceHistory.map((item) => (
+              <View key={item.id} style={{ backgroundColor: '#FFF', borderRadius: Radius.lg, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.lineBorder }}>
+                {/* Header Date & Status */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: Colors.darkInk }}>{item.date}</Text>
+                  <View style={[styles.statusPill, item.status === 'Hadir' ? styles.pillApproved : styles.pillPending]}>
+                    <Text style={[styles.statusText, item.status === 'Hadir' ? styles.textApproved : styles.textPending]}>
+                      {item.status === 'Hadir' ? 'Hadir Tepat Waktu' : `Terlambat (${item.lateMinutes} mnt)`}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Clock-In & Clock-Out Grid with Photos */}
+                <View style={{ flexDirection: 'row', gap: 12 }}>
+                  {/* Clock In Column */}
+                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 10, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN MASUK</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: Colors.darkInk }}>{item.clockIn}</Text>
+                    <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockInLoc}</Text>
+
+                    {/* Selfie Photo Thumbnail */}
+                    <TouchableOpacity
+                      onPress={() => setSelectedPhoto({
+                        title: 'Foto Selfie Absen Masuk',
+                        date: item.date,
+                        time: item.clockIn,
+                        loc: item.clockInLoc,
+                        url: item.clockInPhoto
+                      })}
+                      style={{ height: 90, borderRadius: 8, overflow: 'hidden', backgroundColor: '#CBD5E1' }}
+                    >
+                      <Image source={{ uri: item.clockInPhoto }} style={{ width: '100%', height: '100%' }} />
+                      <View style={{ position: 'absolute', bottom: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                        <Text style={{ color: '#FFF', fontSize: 9, fontWeight: '700' }}>🔍 Lihat</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Clock Out Column */}
+                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 10, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN KELUAR</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: Colors.darkInk }}>{item.clockOut}</Text>
+                    <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockOutLoc}</Text>
+
+                    {/* Selfie Photo Thumbnail */}
+                    <TouchableOpacity
+                      onPress={() => setSelectedPhoto({
+                        title: 'Foto Selfie Absen Keluar',
+                        date: item.date,
+                        time: item.clockOut,
+                        loc: item.clockOutLoc,
+                        url: item.clockOutPhoto
+                      })}
+                      style={{ height: 90, borderRadius: 8, overflow: 'hidden', backgroundColor: '#CBD5E1' }}
+                    >
+                      <Image source={{ uri: item.clockOutPhoto }} style={{ width: '100%', height: '100%' }} />
+                      <View style={{ position: 'absolute', bottom: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                        <Text style={{ color: '#FFF', fontSize: 9, fontWeight: '700' }}>🔍 Lihat</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            ))}
           </View>
         )}
 
@@ -551,6 +700,35 @@ export default function App() {
                 </View>
               </View>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* FULL-SCREEN PHOTO PREVIEW ZOOM MODAL */}
+      <Modal visible={selectedPhoto !== null} animationType="fade" transparent>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ width: '100%', backgroundColor: '#1E293B', borderRadius: Radius.lg, padding: 20, alignItems: 'center' }}>
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '800' }}>{selectedPhoto?.title}</Text>
+              <TouchableOpacity onPress={() => setSelectedPhoto(null)}>
+                <Feather name="x" size={24} color="#FFF" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ width: '100%', height: 260, borderRadius: Radius.md, overflow: 'hidden', marginBottom: 16 }}>
+              <Image source={{ uri: selectedPhoto?.url }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+            </View>
+
+            <View style={{ width: '100%', backgroundColor: '#0F172A', padding: 12, borderRadius: Radius.md, marginBottom: 16 }}>
+              <Text style={{ color: '#94A3B8', fontSize: 11, fontWeight: '700' }}>DETAIL ABSENSI</Text>
+              <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700', marginTop: 4 }}>{selectedPhoto?.date} · {selectedPhoto?.time}</Text>
+              <Text style={{ color: '#CBD5E1', fontSize: 12, marginTop: 2 }}>📍 Lokasi: {selectedPhoto?.loc}</Text>
+              <Text style={{ color: '#10B981', fontSize: 11, fontWeight: '700', marginTop: 6 }}>✓ GPS & Foto Terverifikasi HRIS (Valid)</Text>
+            </View>
+
+            <TouchableOpacity style={[styles.btnPrimary, { width: '100%', backgroundColor: Colors.forestGreen }]} onPress={() => setSelectedPhoto(null)}>
+              <Text style={styles.btnPrimaryText}>Tutup Pratinjau</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
