@@ -9,6 +9,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'reject' | 'history' | 'leave' | 'payslip' | 'profile'>('home');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [clockInSuccess, setClockInSuccess] = useState<boolean>(false);
+  const [clockOutSuccess, setClockOutSuccess] = useState<boolean>(false);
   
   // Form input state for Leave Request
   const [leaveReason, setLeaveReason] = useState<string>('Cuti Tahunan keperluan keluarga');
@@ -32,6 +33,20 @@ export default function App() {
     }
     setClockInSuccess(true);
     Alert.alert('✅ Absen Masuk Berhasil!', 'Kehadiran Anda telah dicatat pada 08:14:05 (Radius 35m dari Head Office).');
+  };
+
+  const handleClockOut = async () => {
+    try {
+      await fetch(`${API_BASE}/attendance/clock-out`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ latitude: -6.2088, longitude: 106.8456 })
+      });
+    } catch (e) {
+      console.log('Mobile API call simulated');
+    }
+    setClockOutSuccess(true);
+    Alert.alert('✅ Absen Keluar Berhasil!', 'Jam keluar Anda telah dicatat pada 17:05:12 (Head Office). Selamat beristirahat!');
   };
 
   const handleSimulateOutsideGeofence = async () => {
@@ -150,16 +165,41 @@ export default function App() {
             </View>
 
             {/* Clock Time & Date */}
-            <Text style={styles.timeText}>08:14:05</Text>
+            <Text style={styles.timeText}>
+              {clockOutSuccess ? '17:05:12' : clockInSuccess ? '17:05:00' : '08:14:05'}
+            </Text>
             <Text style={styles.dateText}>Selasa, 25 Agustus 2026</Text>
 
-            <TouchableOpacity style={styles.btnPrimary} onPress={handleClockIn}>
-              <Text style={styles.btnPrimaryText}>{clockInSuccess ? '✓ Sudah Absen (Hadir 08:14)' : 'Absen Masuk (Verifikasi Selfie)'}</Text>
-            </TouchableOpacity>
+            {clockInSuccess && (
+              <View style={{ marginBottom: 16, backgroundColor: clockOutSuccess ? '#DCFCE7' : '#FEF3C7', padding: 12, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: clockOutSuccess ? '#166534' : '#D97706' }}>
+                <Text style={{ color: clockOutSuccess ? '#166534' : '#92400E', fontWeight: 'bold', fontSize: 13 }}>
+                  {clockOutSuccess ? '✓ Absensi Hari Ini Lengkap' : '✓ Absen Masuk Dicatat (08:14 WIB)'}
+                </Text>
+                <Text style={{ color: clockOutSuccess ? '#15803D' : '#B45309', fontSize: 11, marginTop: 2 }}>
+                  {clockOutSuccess ? 'Absen Masuk: 08:14:05 WIB · Absen Keluar: 17:05:12 WIB' : 'Silakan lakukan Absen Keluar saat jam kerja Anda selesai.'}
+                </Text>
+              </View>
+            )}
 
-            <TouchableOpacity style={styles.btnSecondary} onPress={handleSimulateOutsideGeofence}>
-              <Text style={styles.btnSecondaryText}>Simulasi Skenario Outside Geofence</Text>
-            </TouchableOpacity>
+            {!clockInSuccess ? (
+              <TouchableOpacity style={styles.btnPrimary} onPress={handleClockIn}>
+                <Text style={styles.btnPrimaryText}>Absen Masuk (Verifikasi Selfie)</Text>
+              </TouchableOpacity>
+            ) : !clockOutSuccess ? (
+              <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: '#1E3A8A' }]} onPress={handleClockOut}>
+                <Text style={styles.btnPrimaryText}>Absen Keluar (Verifikasi Selfie)</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: '#64748B' }]} disabled>
+                <Text style={styles.btnPrimaryText}>✓ Absensi Hari Ini Selesai</Text>
+              </TouchableOpacity>
+            )}
+
+            {!clockInSuccess && (
+              <TouchableOpacity style={styles.btnSecondary} onPress={handleSimulateOutsideGeofence}>
+                <Text style={styles.btnSecondaryText}>Simulasi Skenario Outside Geofence</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
 
