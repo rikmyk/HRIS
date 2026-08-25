@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView } from 'react-native';
-import { Camera, History, FileText, CreditCard, User, MapPin, AlertTriangle, CheckCircle2 } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import { Colors, Radius } from './src/theme';
 
 export default function App() {
@@ -68,7 +68,7 @@ export default function App() {
             {/* GPS Pulse Card */}
             <View style={styles.gpsCard}>
               <View style={styles.gpsPulseIcon}>
-                <MapPin size={18} color="#FFF" />
+                <Feather name="map-pin" size={16} color="#FFF" />
               </View>
               <View>
                 <Text style={styles.gpsTitle}>Dalam Radius Geofence</Text>
@@ -115,7 +115,7 @@ export default function App() {
             {/* GPS Outside Card */}
             <View style={[styles.gpsCard, styles.gpsOutsideCard]}>
               <View style={[styles.gpsPulseIcon, { backgroundColor: Colors.danger }]}>
-                <AlertTriangle size={18} color="#FFF" />
+                <Feather name="alert-triangle" size={16} color="#FFF" />
               </View>
               <View>
                 <Text style={[styles.gpsTitle, { color: '#8A3226' }]}>Di Luar Radius Kantor</Text>
@@ -195,11 +195,11 @@ export default function App() {
               <Text style={styles.payslipAmount}>Rp 9.850.000</Text>
               <View style={styles.tagRow}>
                 <View style={styles.psTag}>
-                  <CheckCircle2 size={12} color="#FFF" style={{ marginRight: 4 }} />
+                  <Feather name="check-circle" size={12} color="#FFF" style={{ marginRight: 4 }} />
                   <Text style={styles.psTagText}>Disetujui HR</Text>
                 </View>
                 <View style={styles.psTag}>
-                  <CheckCircle2 size={12} color="#FFF" style={{ marginRight: 4 }} />
+                  <Feather name="check-circle" size={12} color="#FFF" style={{ marginRight: 4 }} />
                   <Text style={styles.psTagText}>Sudah Dibayar 30 Agu</Text>
                 </View>
               </View>
@@ -225,17 +225,16 @@ export default function App() {
         )}
       </ScrollView>
 
-      {/* Bottom Navbar with Clean Lucide React Native Icons per Stitch DS §2.9 */}
+      {/* Bottom Navbar with Expo Vector Feather Icons per Stitch DS §2.9 */}
       <View style={styles.bottomNav}>
         {[
-          { id: 'home', label: 'Absen', Icon: Camera },
-          { id: 'history', label: 'Riwayat', Icon: History },
-          { id: 'leave', label: 'Izin', Icon: FileText },
-          { id: 'payslip', label: 'Slip Gaji', Icon: CreditCard },
-          { id: 'profile', label: 'Profil', Icon: User },
+          { id: 'home', label: 'Absen', iconName: 'camera' as const },
+          { id: 'history', label: 'Riwayat', iconName: 'clock' as const },
+          { id: 'leave', label: 'Izin', iconName: 'file-text' as const },
+          { id: 'payslip', label: 'Slip Gaji', iconName: 'credit-card' as const },
+          { id: 'profile', label: 'Profil', iconName: 'user' as const },
         ].map((tab) => {
           const isActive = activeTab === tab.id || (activeTab === 'reject' && tab.id === 'home');
-          const TabIcon = tab.Icon;
           return (
             <TouchableOpacity
               key={tab.id}
@@ -244,7 +243,7 @@ export default function App() {
               activeOpacity={0.7}
             >
               <View style={[styles.navIconBox, isActive && styles.navIconBoxActive]}>
-                <TabIcon size={18} color={isActive ? Colors.primary : Colors.muted} strokeWidth={isActive ? 2.3 : 1.8} />
+                <Feather name={tab.iconName} size={18} color={isActive ? Colors.primary : Colors.muted} />
               </View>
               <Text style={[styles.navText, isActive && styles.navTextActive]}>
                 {tab.label}
