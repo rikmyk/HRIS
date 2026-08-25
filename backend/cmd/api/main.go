@@ -54,7 +54,7 @@ func main() {
 	leaveHandler := leave.NewHandler()
 	leaveHandler.RegisterRoutes(v1, jwtSecret)
 
-	payrollHandler := payroll.NewHandler()
+	payrollHandler := payroll.NewHandler(storageSvc)
 	payrollHandler.RegisterRoutes(v1, jwtSecret)
 
 	port := os.Getenv("PORT")

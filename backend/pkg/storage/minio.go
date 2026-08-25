@@ -38,3 +38,8 @@ func GeneratePhotoObjectName(employeeID, action string) string {
 	timestamp := time.Now().Format("20060102-150405")
 	return fmt.Sprintf("attendance/%s/%s-%s.jpg", employeeID, action, timestamp)
 }
+
+func GeneratePayslipPDFObjectName(employeeID, periodStr string) string {
+	return fmt.Sprintf("payslips/%s/%s.pdf", periodStr, employeeID)
+}
+

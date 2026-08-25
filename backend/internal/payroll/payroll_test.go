@@ -3,10 +3,13 @@ package payroll
 import (
 	"context"
 	"testing"
+
+	"hris/pkg/storage"
 )
 
 func TestCalculateStandardPayslip(t *testing.T) {
-	svc := NewService()
+	storageMock := storage.NewMockMinIOStorage("localhost:9000", "hris-payslips", false)
+	svc := NewService(storageMock)
 	ctx := context.Background()
 
 	input := CalculationInput{
@@ -42,7 +45,8 @@ func TestCalculateStandardPayslip(t *testing.T) {
 }
 
 func TestCalculatePayslipWithLateDeductions(t *testing.T) {
-	svc := NewService()
+	storageMock := storage.NewMockMinIOStorage("localhost:9000", "hris-payslips", false)
+	svc := NewService(storageMock)
 	ctx := context.Background()
 
 	input := CalculationInput{
@@ -80,7 +84,8 @@ func TestCalculatePayslipWithLateDeductions(t *testing.T) {
 }
 
 func TestCalculatePayslipWithUnpaidLeave(t *testing.T) {
-	svc := NewService()
+	storageMock := storage.NewMockMinIOStorage("localhost:9000", "hris-payslips", false)
+	svc := NewService(storageMock)
 	ctx := context.Background()
 
 	input := CalculationInput{
