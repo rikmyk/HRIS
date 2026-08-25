@@ -25,6 +25,27 @@ import {
 
 const API_BASE = 'http://localhost:8080/v1';
 
+interface OfficeLocationItem {
+  id: string;
+  code: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  radius_meters: number;
+  assigned_employee_count: number;
+}
+
+interface EmployeeItem {
+  id: string;
+  code: string;
+  name: string;
+  department: string;
+  position: string;
+  office_placements: string[]; // List of assigned office location names (multi-placement support)
+  status: string;
+}
+
 interface LeaveRequestItem {
   id: string;
   employee_name: string;
@@ -49,9 +70,79 @@ interface PayslipItem {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'monitoring' | 'approval' | 'payment'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'offices' | 'monitoring' | 'approval' | 'payment'>('dashboard');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Master Data Office Locations
+  const [officeLocations, setOfficeLocations] = useState<OfficeLocationItem[]>([
+    {
+      id: 'off-1',
+      code: 'HO-JKT',
+      name: 'Head Office Jakarta',
+      address: 'Jl. Sudirman No. 45, Jakarta Selatan',
+      latitude: -6.2088,
+      longitude: 106.8456,
+      radius_meters: 150,
+      assigned_employee_count: 140
+    },
+    {
+      id: 'off-2',
+      code: 'BR-BDG',
+      name: 'Bandung Branch Office',
+      address: 'Jl. Asia Afrika No. 12, Bandung',
+      latitude: -6.9147,
+      longitude: 107.6098,
+      radius_meters: 150,
+      assigned_employee_count: 25
+    },
+    {
+      id: 'off-3',
+      code: 'BR-SBY',
+      name: 'Surabaya Branch Office',
+      address: 'Jl. Pemuda No. 88, Surabaya',
+      latitude: -7.2575,
+      longitude: 112.7521,
+      radius_meters: 150,
+      assigned_employee_count: 15
+    }
+  ]);
+
+  // Master Data Employee List with Multi-Office Placement
+  const [employees, setEmployees] = useState<EmployeeItem[]>([
+    {
+      id: 'emp-001',
+      code: 'EMP-2026-001',
+      name: 'Budi Santoso',
+      department: 'Engineering',
+      position: 'Senior Software Engineer',
+      office_placements: ['Head Office Jakarta', 'Bandung Branch Office'], // Double placement example
+      status: 'Permanent'
+    },
+    {
+      id: 'emp-002',
+      code: 'EMP-2026-002',
+      name: 'Dewi Anggraini',
+      department: 'Marketing',
+      position: 'Marketing Specialist',
+      office_placements: ['Head Office Jakarta'],
+      status: 'Permanent'
+    },
+    {
+      id: 'emp-003',
+      code: 'EMP-2026-003',
+      name: 'Rian Pratama',
+      department: 'Sales',
+      position: 'Field Representative',
+      office_placements: ['Bandung Branch Office', 'Surabaya Branch Office'], // Double placement example
+      status: 'Contract'
+    }
+  ]);
+
+  // Modal State for Adding/Editing Employee Placement Assignment
+  const [editingEmployee, setEditingEmployee] = useState<EmployeeItem | null>(null);
+  const [isPlacementModalOpen, setIsPlacementModalOpen] = useState<boolean>(false);
+  const [selectedPlacements, setSelectedPlacements] = useState<string[]>([]);
 
   // Dynamic interactive state for E2E workflows
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestItem[]>([
@@ -257,6 +348,9 @@ export default function App() {
             <div className={`side-link ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
               <Users size={17} /> Karyawan
             </div>
+            <div className={`side-link ${activeTab === 'offices' ? 'active' : ''}`} onClick={() => setActiveTab('offices')}>
+              <Building2 size={17} /> Lokasi Kantor Cabang
+            </div>
             <div className={`side-link ${activeTab === 'monitoring' ? 'active' : ''}`} onClick={() => setActiveTab('monitoring')}>
               <MapPin size={17} /> Monitoring Absensi
             </div>
@@ -352,49 +446,101 @@ export default function App() {
             {activeTab === 'employees' && (
               <>
                 <h2>Manajemen Karyawan</h2>
-                <p className="sub">Daftar seluruh personel, departemen, dan posisi pekerjaan</p>
+                <p className="sub">Daftar seluruh personel, departemen, dan penempatan kantor cabang (Multi-Office Placement)</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                   <div style={{ position: 'relative', width: 280 }}>
                     <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
                     <input type="text" placeholder="Cari nama / NIK..." style={{ padding: '8px 14px 8px 36px', borderRadius: 8, border: '1px solid var(--line)', width: '100%' }} />
                   </div>
-                  <button onClick={() => showToast('Form Tambah Karyawan Baru SIAP (NIK EMP-2026-003)')} className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={15} /> Tambah Karyawan Baru</button>
+                  <button onClick={() => showToast('Form Tambah Karyawan Baru SIAP (NIK EMP-2026-004)')} className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={15} /> Tambah Karyawan Baru</button>
                 </div>
                 <table>
                   <thead>
                     <tr>
                       <th>Kode Karyawan</th>
                       <th>Nama Lengkap</th>
-                      <th>Departemen</th>
-                      <th>Jabatan</th>
-                      <th>Lokasi Kantor</th>
+                      <th>Departemen & Jabatan</th>
+                      <th>Penempatan Kantor Cabang (Multi-Placement)</th>
                       <th>Status</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
+                    {employees.map(emp => (
+                      <tr key={emp.id}>
+                        <td><strong>{emp.code}</strong></td>
+                        <td>{emp.name}</td>
+                        <td>
+                          <div><strong>{emp.department}</strong></div>
+                          <div style={{ fontSize: 11, color: 'var(--muted)' }}>{emp.position}</div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                            {emp.office_placements.map((loc, idx) => (
+                              <span key={idx} className="pill present" style={{ fontSize: 11, background: idx === 0 ? '#DCFCE7' : '#E0F2FE', color: idx === 0 ? '#166534' : '#0369A1' }}>
+                                📍 {loc} {idx === 0 && emp.office_placements.length > 1 ? '(Utama)' : ''}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td><span className="pill present">{emp.status}</span></td>
+                        <td>
+                          <button
+                            onClick={() => {
+                              setEditingEmployee(emp);
+                              setSelectedPlacements(emp.office_placements);
+                              setIsPlacementModalOpen(true);
+                            }}
+                            className="btn-mini primary"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                          >
+                            <Edit3 size={13} /> Atur Kantor Cabang
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            )}
+
+            {activeTab === 'offices' && (
+              <>
+                <h2>Master Data Lokasi Kantor Cabang</h2>
+                <p className="sub">Kelola koordinat GPS dan radius geofence untuk absensi karyawan</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div style={{ position: 'relative', width: 280 }}>
+                    <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
+                    <input type="text" placeholder="Cari nama kantor / cabang..." style={{ padding: '8px 14px 8px 36px', borderRadius: 8, border: '1px solid var(--line)', width: '100%' }} />
+                  </div>
+                  <button onClick={() => showToast('Form Tambah Lokasi Kantor Cabang Baru SIAP')} className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={15} /> Tambah Kantor Cabang</button>
+                </div>
+                <table>
+                  <thead>
                     <tr>
-                      <td><strong>EMP-2026-001</strong></td>
-                      <td>Budi Santoso</td>
-                      <td>Engineering</td>
-                      <td>Senior Software Engineer</td>
-                      <td>Head Office Jakarta</td>
-                      <td><span className="pill present">Permanent</span></td>
-                      <td>
-                        <button onClick={() => showToast('Membuka modal edit Budi Santoso')} className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Edit3 size={13} /> Edit</button>
-                      </td>
+                      <th>Kode Cabang</th>
+                      <th>Nama Kantor Cabang</th>
+                      <th>Alamat</th>
+                      <th>Koordinat GPS (Lat, Lng)</th>
+                      <th>Radius Geofence</th>
+                      <th>Jumlah Karyawan</th>
+                      <th>Aksi</th>
                     </tr>
-                    <tr>
-                      <td><strong>EMP-2026-002</strong></td>
-                      <td>Dewi Anggraini</td>
-                      <td>Marketing</td>
-                      <td>Marketing Specialist</td>
-                      <td>Head Office Jakarta</td>
-                      <td><span className="pill present">Permanent</span></td>
-                      <td>
-                        <button onClick={() => showToast('Membuka modal edit Dewi Anggraini')} className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Edit3 size={13} /> Edit</button>
-                      </td>
-                    </tr>
+                  </thead>
+                  <tbody>
+                    {officeLocations.map(off => (
+                      <tr key={off.id}>
+                        <td><strong>{off.code}</strong></td>
+                        <td><strong>{off.name}</strong></td>
+                        <td style={{ fontSize: 12, maxWidth: 220 }}>{off.address}</td>
+                        <td style={{ fontSize: 12, fontFamily: 'monospace' }}>{off.latitude}, {off.longitude}</td>
+                        <td><span className="pill present">{off.radius_meters} Meter</span></td>
+                        <td><strong>{off.assigned_employee_count} Personel</strong></td>
+                        <td>
+                          <button onClick={() => showToast(`Mengedit radius & koordinat ${off.name}`)} className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Edit3 size={13} /> Edit</button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </>
@@ -554,6 +700,97 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {/* Multi-Office Placement Assignment Modal */}
+      {isPlacementModalOpen && editingEmployee && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, maxWidth: 500, width: '100%', padding: 24, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Building2 size={20} color="var(--primary)" />
+                <h3 style={{ margin: 0, fontSize: 18 }}>Penempatan Kantor Cabang</h3>
+              </div>
+              <button onClick={() => setIsPlacementModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+
+            <div style={{ marginBottom: 16, background: '#F8FAFC', padding: 12, borderRadius: 8 }}>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>{editingEmployee.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--muted)' }}>{editingEmployee.code} · {editingEmployee.department} ({editingEmployee.position})</div>
+            </div>
+
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14 }}>
+              Pilih lokasi kantor cabang tempat karyawan diperbolehkan melakukan absen masuk dan keluar. Karyawan dapat ditempatkan di <strong>lebih dari 1 cabang</strong> (Multi-Office Placement).
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+              {officeLocations.map(off => {
+                const isSelected = selectedPlacements.includes(off.name);
+                return (
+                  <label
+                    key={off.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 14px',
+                      borderRadius: 10,
+                      border: `1.5px solid ${isSelected ? '#2F6F5E' : '#E2E8F0'}`,
+                      background: isSelected ? '#F0FDF4' : '#FFF',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedPlacements([...selectedPlacements, off.name]);
+                        } else {
+                          setSelectedPlacements(selectedPlacements.filter(p => p !== off.name));
+                        }
+                      }}
+                      style={{ width: 18, height: 18, accentColor: '#2F6F5E' }}
+                    />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--dark-ink)' }}>📍 {off.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)' }}>{off.address} · Radius {off.radius_meters}m</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button onClick={() => setIsPlacementModalOpen(false)} className="btn-mini">Batal</button>
+              <button
+                onClick={async () => {
+                  if (selectedPlacements.length === 0) {
+                    showToast('⚠️ Pilih minimal 1 penempatan kantor cabang!');
+                    return;
+                  }
+                  try {
+                    await fetch(`${API_BASE}/employees/${editingEmployee.id}/office-placements`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ office_location_ids: selectedPlacements })
+                    });
+                  } catch (e) {
+                    console.log('API offline, updating UI state locally');
+                  }
+                  setEmployees(prev => prev.map(e => e.id === editingEmployee.id ? { ...e, office_placements: selectedPlacements } : e));
+                  setIsPlacementModalOpen(false);
+                  showToast(`Penempatan kantor cabang ${editingEmployee.name} BERHASIL DIPERBARUI (${selectedPlacements.length} cabang assigned)!`);
+                }}
+                className="btn-mini primary"
+                style={{ padding: '8px 16px' }}
+              >
+                Simpan Penempatan Cabang
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
