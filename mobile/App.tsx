@@ -330,90 +330,82 @@ export default function App() {
               </View>
             </View>
 
-            {/* Attendance Daily List */}
+            {/* Attendance Daily List (Compact & Slim Cards) */}
             {attendanceHistory.map((item) => (
-              <View key={item.id} style={{ backgroundColor: '#FFF', borderRadius: Radius.lg, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.lineBorder }}>
-                {/* Header Date & Status */}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800', color: Colors.darkInk }}>{item.date}</Text>
+              <View key={item.id} style={{ backgroundColor: '#FFF', borderRadius: Radius.md, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: Colors.lineBorder }}>
+                {/* 1. BAGIAN ATAS: Tanggal & Status Badge */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '800', color: Colors.darkInk }}>{item.date}</Text>
                   <View style={[styles.statusPill, item.status === 'Hadir' ? styles.pillApproved : styles.pillPending]}>
                     <Text style={[styles.statusText, item.status === 'Hadir' ? styles.textApproved : styles.textPending]}>
-                      {item.status === 'Hadir' ? 'Hadir Tepat Waktu' : `Terlambat (${item.lateMinutes} mnt)`}
+                      {item.status === 'Hadir' ? 'Hadir' : `Terlambat (${item.lateMinutes}m)`}
                     </Text>
                   </View>
                 </View>
 
-                {/* Clock-In & Clock-Out Grid with Clean Photo Buttons */}
-                <View style={{ flexDirection: 'row', gap: 12 }}>
-                  {/* Clock In Column */}
-                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 12, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0', justifyContent: 'space-between' }}>
-                    <View>
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN MASUK</Text>
-                      <Text style={{ fontSize: 14, fontWeight: '800', color: Colors.darkInk }}>{item.clockIn}</Text>
-                      <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockInLoc}</Text>
-                    </View>
-
-                    {/* Button Foto Absen Masuk */}
-                    <TouchableOpacity
-                      onPress={() => setSelectedPhoto({
-                        title: 'Foto Selfie Absen Masuk',
-                        date: item.date,
-                        time: item.clockIn,
-                        loc: item.clockInLoc,
-                        url: item.clockInPhoto
-                      })}
-                      style={{
-                        backgroundColor: '#FFF',
-                        borderWidth: 1,
-                        borderColor: Colors.forestGreen,
-                        borderRadius: Radius.md,
-                        paddingVertical: 7,
-                        paddingHorizontal: 8,
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        marginTop: 4
-                      }}
-                    >
-                      <Feather name="camera" size={12} color={Colors.forestGreen} style={{ marginRight: 4 }} />
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.forestGreen }}>Foto Masuk</Text>
-                    </TouchableOpacity>
+                {/* 2. BAGIAN TENGAH: Jam Masuk & Jam Keluar Sebaris */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#F8FAFC', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6, marginBottom: 10, borderWidth: 1, borderColor: '#F1F5F9' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Feather name="log-in" size={13} color={Colors.forestGreen} style={{ marginRight: 6 }} />
+                    <Text style={{ fontSize: 12, color: Colors.mutedText }}>Masuk: </Text>
+                    <Text style={{ fontSize: 12, fontWeight: '800', color: Colors.darkInk }}>{item.clockIn}</Text>
                   </View>
-
-                  {/* Clock Out Column */}
-                  <View style={{ flex: 1, backgroundColor: '#F8FAFC', padding: 12, borderRadius: Radius.md, borderWidth: 1, borderColor: '#E2E8F0', justifyContent: 'space-between' }}>
-                    <View>
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 4 }}>ABSEN KELUAR</Text>
-                      <Text style={{ fontSize: 14, fontWeight: '800', color: Colors.darkInk }}>{item.clockOut}</Text>
-                      <Text style={{ fontSize: 10, color: Colors.mutedText, marginTop: 2, marginBottom: 8 }}>{item.clockOutLoc}</Text>
-                    </View>
-
-                    {/* Button Foto Absen Keluar */}
-                    <TouchableOpacity
-                      onPress={() => setSelectedPhoto({
-                        title: 'Foto Selfie Absen Keluar',
-                        date: item.date,
-                        time: item.clockOut,
-                        loc: item.clockOutLoc,
-                        url: item.clockOutPhoto
-                      })}
-                      style={{
-                        backgroundColor: '#FFF',
-                        borderWidth: 1,
-                        borderColor: '#1E3A8A',
-                        borderRadius: Radius.md,
-                        paddingVertical: 7,
-                        paddingHorizontal: 8,
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        marginTop: 4
-                      }}
-                    >
-                      <Feather name="camera" size={12} color="#1E3A8A" style={{ marginRight: 4 }} />
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E3A8A' }}>Foto Keluar</Text>
-                    </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Feather name="log-out" size={13} color="#1E3A8A" style={{ marginRight: 6 }} />
+                    <Text style={{ fontSize: 12, color: Colors.mutedText }}>Keluar: </Text>
+                    <Text style={{ fontSize: 12, fontWeight: '800', color: Colors.darkInk }}>{item.clockOut}</Text>
                   </View>
+                </View>
+
+                {/* 3. BAGIAN BAWAH: Button Foto Masuk & Keluar Sebaris */}
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <TouchableOpacity
+                    onPress={() => setSelectedPhoto({
+                      title: 'Foto Selfie Absen Masuk',
+                      date: item.date,
+                      time: item.clockIn,
+                      loc: item.clockInLoc,
+                      url: item.clockInPhoto
+                    })}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#FFF',
+                      borderWidth: 1,
+                      borderColor: Colors.forestGreen,
+                      borderRadius: 6,
+                      paddingVertical: 6,
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <Feather name="camera" size={12} color={Colors.forestGreen} style={{ marginRight: 5 }} />
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.forestGreen }}>Foto Masuk</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => setSelectedPhoto({
+                      title: 'Foto Selfie Absen Keluar',
+                      date: item.date,
+                      time: item.clockOut,
+                      loc: item.clockOutLoc,
+                      url: item.clockOutPhoto
+                    })}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#FFF',
+                      borderWidth: 1,
+                      borderColor: '#1E3A8A',
+                      borderRadius: 6,
+                      paddingVertical: 6,
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <Feather name="camera" size={12} color="#1E3A8A" style={{ marginRight: 5 }} />
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E3A8A' }}>Foto Keluar</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
