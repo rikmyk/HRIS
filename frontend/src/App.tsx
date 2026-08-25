@@ -1,110 +1,360 @@
 import React, { useState } from 'react';
-import './index.css';
 
-export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dash' | 'emp' | 'live' | 'leave' | 'payroll' | 'reports' | 'settings'>('dash');
+export default function App() {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'monitoring' | 'approval' | 'payment'>('dashboard');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
 
   if (!isLoggedIn) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg)' }}>
-        <div style={{ background: 'var(--surface)', padding: '32px', borderRadius: 'var(--radius)', width: '380px', border: '1px solid var(--line)' }}>
-          <h2 style={{ margin: '0 0 8px 0' }}>HRIS Web Admin Login</h2>
-          <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '24px' }}>Masukkan email & password untuk masuk ke Portal HR</p>
+      <div className="login-split-container" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+        <div style={{ flex: 1, background: 'var(--ink)', color: '#fff', padding: '60px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ width: 44, height: 44, background: 'var(--primary)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 22, color: '#fff', marginBottom: 24 }}>H</div>
+          <h1 style={{ fontFamily: 'Space Grotesk', fontSize: 32, marginBottom: 12 }}>HRIS Admin Portal</h1>
+          <p style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 400, lineHeight: 1.6 }}>
+            Sistem Manajemen Sumber Daya Manusia & Penggajian Terpadu. Kelola kehadiran geofence, izin, dan slip gaji dalam satu dasbor.
+          </p>
+        </div>
+        <div style={{ flex: 1, padding: '60px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 500 }}>
+          <h2 style={{ fontFamily: 'Space Grotesk', fontSize: 24, marginBottom: 8 }}>Masuk Akun Admin</h2>
+          <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 32 }}>Gunakan email kredensial HR atau Super Admin</p>
           
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>EMAIL ADRES</label>
-            <input type="email" defaultValue="hr.admin@nusantara.tech" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--line)', boxSizing: 'border-box' }} />
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>EMAIL ADRES</label>
+            <input type="email" defaultValue="hr.admin@nusantara.tech" style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid var(--line)', background: '#fff', fontSize: 14 }} />
           </div>
 
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>PASSWORD</label>
-            <input type="password" defaultValue="••••••••" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--line)', boxSizing: 'border-box' }} />
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>PASSWORD</label>
+            <input type="password" defaultValue="••••••••" style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid var(--line)', background: '#fff', fontSize: 14 }} />
           </div>
 
-          <button className="btn-primary" style={{ width: '100%' }} onClick={() => setIsLoggedIn(true)}>Masuk Admin Portal</button>
+          <button onClick={() => setIsLoggedIn(true)} className="btn-mini dark" style={{ width: '100%', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 700 }}>
+            Masuk ke Portal Admin
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg)' }}>
-      {/* Admin Sidebar per DS §2.10 */}
-      <aside style={{ width: '220px', backgroundColor: '#FCFBF9', borderRight: '1px solid var(--line)', padding: '24px 16px', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', paddingLeft: '8px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>H</div>
-          <span className="display-font" style={{ fontWeight: 700, fontSize: '18px' }}>HRIS Admin</span>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '24px' }}>
+      <div className="admin-shell" style={{ maxWidth: 1240, margin: '0 auto' }}>
+        {/* Topbar */}
+        <div className="admin-topbar">
+          <div className="brand">
+            <div className="brand-mark">H</div>
+            <span>HRIS Admin</span>
+          </div>
+          <div className="admin-user">
+            <div className="avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 12 }}>SW</div>
+            <span>Sari Wijaya · HR Admin</span>
+            <button onClick={() => setIsLoggedIn(false)} className="btn-mini" style={{ marginLeft: 12 }}>Keluar</button>
+          </div>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-          {[
-            { id: 'dash', label: 'Dashboard' },
-            { id: 'emp', label: 'Karyawan' },
-            { id: 'live', label: 'Monitoring Absensi' },
-            { id: 'leave', label: 'Pengajuan Izin' },
-            { id: 'payroll', label: 'Payroll & Slip Gaji' },
-            { id: 'reports', label: 'Laporan' },
-            { id: 'settings', label: 'Pengaturan Kantor' },
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id as any)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '10px 12px',
-                borderRadius: '9px',
-                border: 'none',
-                backgroundColor: activeTab === item.id ? 'var(--ink)' : 'transparent',
-                color: activeTab === item.id ? '#FFFFFF' : 'var(--ink)',
-                fontWeight: activeTab === item.id ? 600 : 400,
-                fontSize: '14px',
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <button 
-          onClick={() => setIsLoggedIn(false)}
-          style={{ padding: '10px 12px', borderRadius: '9px', border: '1px solid var(--line)', backgroundColor: 'transparent', color: 'var(--danger)', fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}
-        >
-          Keluar (Logout)
-        </button>
-      </aside>
-
-      {/* Main Content Area */}
-      <main style={{ flex: 1, padding: '32px' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '24px' }}>
-              {activeTab === 'dash' && 'Dashboard Overview'}
-              {activeTab === 'emp' && 'Manajemen Karyawan'}
-              {activeTab === 'live' && 'Monitoring Absensi Real-time'}
-              {activeTab === 'leave' && 'Persetujuan Izin & Cuti'}
-              {activeTab === 'payroll' && 'Payroll & Persetujuan Slip Gaji'}
-              {activeTab === 'reports' && 'Laporan System'}
-              {activeTab === 'settings' && 'Pengaturan Kantor & Geofence'}
-            </h1>
-            <span style={{ color: 'var(--muted)', fontSize: '13px' }}>PT HRIS Nusantara Tech</span>
+        {/* Layout */}
+        <div className="admin-layout">
+          {/* Sidebar */}
+          <div className="admin-sidebar">
+            <div className={`side-link ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+              Dashboard
+            </div>
+            <div className={`side-link ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
+              Karyawan
+            </div>
+            <div className={`side-link ${activeTab === 'monitoring' ? 'active' : ''}`} onClick={() => setActiveTab('monitoring')}>
+              Monitoring Absensi
+            </div>
+            <div className={`side-link ${activeTab === 'approval' ? 'active' : ''}`} onClick={() => setActiveTab('approval')}>
+              Approval Slip Gaji
+            </div>
+            <div className={`side-link ${activeTab === 'payment' ? 'active' : ''}`} onClick={() => setActiveTab('payment')}>
+              Penandaan Pembayaran
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span className="pill pill-present">Online Admin</span>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>HR</div>
-          </div>
-        </header>
+          {/* Main View Container */}
+          <div className="admin-main">
+            {activeTab === 'dashboard' && (
+              <>
+                <h2>Dashboard Overview</h2>
+                <p className="sub">Selasa, 25 Agustus 2026</p>
+                <div className="kpi-row">
+                  <div className="kpi-card">
+                    <div className="kpi-label">Hadir Hari Ini</div>
+                    <div className="kpi-value">142 / 150</div>
+                  </div>
+                  <div className="kpi-card">
+                    <div className="kpi-label">Terlambat</div>
+                    <div className="kpi-value warn">9</div>
+                  </div>
+                  <div className="kpi-card">
+                    <div className="kpi-label">Absen Ditolak (di luar radius)</div>
+                    <div className="kpi-value danger">3</div>
+                  </div>
+                  <div className="kpi-card">
+                    <div className="kpi-label">Slip Gaji Belum Dibayar</div>
+                    <div className="kpi-value accent">12</div>
+                  </div>
+                </div>
 
-        <section style={{ backgroundColor: 'var(--surface)', borderRadius: 'var(--radius)', border: '1px solid var(--line)', padding: '24px' }}>
-          <p style={{ color: 'var(--muted)' }}>Halaman <strong>{activeTab.toUpperCase()}</strong> telah terintegrasi dengan fondasi backend Go modular monolith.</p>
-        </section>
-      </main>
+                <h2 style={{ fontSize: 15, marginBottom: 12, marginTop: 24 }}>Pengajuan Izin Terbaru</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Karyawan</th>
+                      <th>Jenis Izin</th>
+                      <th>Tanggal</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Dewi Anggraini</div><div className="d">Marketing</div></div>
+                        </div>
+                      </td>
+                      <td>Sakit dengan Surat Dokter</td>
+                      <td>25 Agu 2026</td>
+                      <td><span className="pill leave">Pending</span></td>
+                      <td>
+                        <button className="btn-mini primary">Approve</button>
+                        <button className="btn-mini">Tolak</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Rian Pratama</div><div className="d">Engineering</div></div>
+                        </div>
+                      </td>
+                      <td>Cuti Tahunan</td>
+                      <td>26–28 Agu 2026</td>
+                      <td><span className="pill leave">Pending</span></td>
+                      <td>
+                        <button className="btn-mini primary">Approve</button>
+                        <button className="btn-mini">Tolak</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className="panel-note">
+                  ℹ️ KPI "Absen Ditolak" menandakan percobaan absen di luar radius geofence — berguna untuk mendeteksi pola anomali lokasi kantor.
+                </div>
+              </>
+            )}
+
+            {activeTab === 'employees' && (
+              <>
+                <h2>Manajemen Karyawan</h2>
+                <p className="sub">Daftar seluruh personel, departemen, dan posisi pekerjaan</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <input type="text" placeholder="Cari nama / NIK..." style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--line)', width: 280 }} />
+                  <button className="btn-mini primary">+ Tambah Karyawan Baru</button>
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Kode Karyawan</th>
+                      <th>Nama Lengkap</th>
+                      <th>Departemen</th>
+                      <th>Jabatan</th>
+                      <th>Lokasi Kantor</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>EMP-2026-001</strong></td>
+                      <td>Budi Santoso</td>
+                      <td>Engineering</td>
+                      <td>Senior Software Engineer</td>
+                      <td>Head Office Jakarta</td>
+                      <td><span className="pill present">Permanent</span></td>
+                      <td>
+                        <button className="btn-mini">Edit</button>
+                        <button className="btn-mini">Hapus</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>EMP-2026-002</strong></td>
+                      <td>Siti Rahma</td>
+                      <td>Human Resources</td>
+                      <td>HR Specialist</td>
+                      <td>Head Office Jakarta</td>
+                      <td><span className="pill present">Permanent</span></td>
+                      <td>
+                        <button className="btn-mini">Edit</button>
+                        <button className="btn-mini">Hapus</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </>
+            )}
+
+            {activeTab === 'monitoring' && (
+              <>
+                <h2>Monitoring Absensi — Real-time</h2>
+                <p className="sub">Kantor Pusat Jakarta · Radius Geofence 100m</p>
+                <div style={{ background: '#EAE6DB', border: '1px solid var(--line)', borderRadius: 14, height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 13, marginBottom: 20 }}>
+                  [ 🗺️ Peta Lokasi Absen Real-time — Pin Hijau (Dalam Radius) & Pin Merah (Percobaan Ditolak) ]
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Karyawan</th>
+                      <th>Jam Absen</th>
+                      <th>Jarak dari Kantor</th>
+                      <th>Foto Selfie</th>
+                      <th>Status Geofence</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Budi Santoso</div><div className="d">Engineering</div></div>
+                        </div>
+                      </td>
+                      <td>08:02:15</td>
+                      <td>35m</td>
+                      <td><div className="mini-avatar" style={{ borderRadius: 6, background: '#2F6F5E' }}></div></td>
+                      <td><span className="pill present">Hadir (Valid)</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Ahmad Fauzi</div><div className="d">Sales Lapangan</div></div>
+                        </div>
+                      </td>
+                      <td>08:41:02</td>
+                      <td>850m</td>
+                      <td>—</td>
+                      <td><span className="pill absent">Ditolak — Luar Radius</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </>
+            )}
+
+            {activeTab === 'approval' && (
+              <>
+                <h2>Approval Slip Gaji — Agustus 2026</h2>
+                <p className="sub">150 karyawan · Cutoff otomatis 20 Agu 2026</p>
+                <div className="kpi-row">
+                  <div className="kpi-card"><div className="kpi-label">Draft Menunggu Review</div><div className="kpi-value accent">23</div></div>
+                  <div className="kpi-card"><div class="kpi-label">Sudah Disetujui</div><div className="kpi-value">115</div></div>
+                  <div className="kpi-card"><div className="kpi-label">Direvisi</div><div className="kpi-value warn">2</div></div>
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Karyawan</th>
+                      <th>Hadir / Telat / Izin / Alpha</th>
+                      <th>Gaji Bersih</th>
+                      <th>Status Slip</th>
+                      <th>Aksi Approval</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Budi Santoso</div><div className="d">Engineering</div></div>
+                        </div>
+                      </td>
+                      <td>18 / 3 / 2 / 1</td>
+                      <td>Rp 9.850.000</td>
+                      <td><span className="pill draft">Draft</span></td>
+                      <td>
+                        <button className="btn-mini primary">Approve</button>
+                        <button className="btn-mini">Rincian</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Dewi Anggraini</div><div className="d">Marketing</div></div>
+                        </div>
+                      </td>
+                      <td>19 / 0 / 1 / 0</td>
+                      <td>Rp 8.500.000</td>
+                      <td><span className="pill approved">Disetujui</span></td>
+                      <td><button className="btn-mini">Lihat PDF</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div style={{ marginTop: 16 }}>
+                  <button className="btn-mini dark">Approve Semua Draft (23)</button>
+                </div>
+              </>
+            )}
+
+            {activeTab === 'payment' && (
+              <>
+                <h2>Penandaan Pembayaran — Agustus 2026</h2>
+                <p className="sub">Slip berstatus "Disetujui" yang telah ditransfer manual melalui Internet Banking</p>
+                <div className="error-banner" style={{ background: '#FDF1DC', borderColor: '#F0DBA6', color: '#7A5A0F', padding: 14, borderRadius: 12, marginBottom: 16 }}>
+                  ℹ️ Sistem <strong>tidak melakukan transfer otomatis</strong>. Lakukan transfer bank perusahaan terlebih dahulu, lalu tandai status pembayaran di bawah ini.
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" defaultChecked /></th>
+                      <th>Karyawan</th>
+                      <th>Gaji Bersih</th>
+                      <th>No. Rekening</th>
+                      <th>Status Pembayaran</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="checkbox" defaultChecked /></td>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Dewi Anggraini</div><div className="d">Marketing</div></div>
+                        </div>
+                      </td>
+                      <td>Rp 8.500.000</td>
+                      <td>BCA · 8801xxxxxx</td>
+                      <td><span className="pill approved">Disetujui</span></td>
+                      <td><button className="btn-mini primary">Tandai Dibayar</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" /></td>
+                      <td>
+                        <div className="row-flex">
+                          <div className="mini-avatar"></div>
+                          <div className="name-cell"><div className="n">Budi Santoso</div><div className="d">Engineering</div></div>
+                        </div>
+                      </td>
+                      <td>Rp 9.850.000</td>
+                      <td>Mandiri · 1330xxxxxx</td>
+                      <td><span className="pill paid">Sudah Dibayar</span></td>
+                      <td style={{ color: 'var(--muted)', fontSize: 12 }}>30 Agu · Ref TRF-001</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div style={{ marginTop: 16 }}>
+                  <button className="btn-mini dark">Tandai Terpilih Sebagai Sudah Dibayar (1)</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default App;
+}
