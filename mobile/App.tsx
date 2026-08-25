@@ -551,31 +551,7 @@ export default function App() {
           </View>
         )}
 
-        {/* TAB 5: RIWAYAT KEHADIRAN */}
-        {activeTab === 'history' && (
-          <View>
-            <Text style={styles.sectionTitle}>Riwayat Kehadiran Bulan Ini</Text>
-            <View style={styles.historyCard}>
-              <View>
-                <Text style={styles.historyType}>Hadir (Valid Geofence)</Text>
-                <Text style={styles.historyDate}>Selasa, 25 Agu 2026 · 08:14 - 17:05</Text>
-              </View>
-              <View style={[styles.statusPill, styles.pillApproved]}>
-                <Text style={[styles.statusText, styles.textApproved]}>Hadir</Text>
-              </View>
-            </View>
 
-            <View style={styles.historyCard}>
-              <View>
-                <Text style={styles.historyType}>Hadir (Terlambat 15m)</Text>
-                <Text style={styles.historyDate}>Senin, 24 Agu 2026 · 08:30 - 17:00</Text>
-              </View>
-              <View style={[styles.statusPill, styles.pillPending]}>
-                <Text style={[styles.statusText, styles.textPending]}>Telat</Text>
-              </View>
-            </View>
-          </View>
-        )}
 
         {/* TAB 6: PROFIL KARYAWAN */}
         {activeTab === 'profile' && (
