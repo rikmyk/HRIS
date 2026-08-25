@@ -1,11 +1,84 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Colors, Radius } from './src/theme';
+
+const API_BASE = 'http://10.0.2.2:8080/v1'; // standard Android emulator loopback / localhost
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'reject' | 'history' | 'leave' | 'payslip' | 'profile'>('home');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const [clockInSuccess, setClockInSuccess] = useState<boolean>(false);
+  
+  // Form input state for Leave Request
+  const [leaveReason, setLeaveReason] = useState<string>('Cuti Tahunan keperluan keluarga');
+  const [leaveDays, setLeaveDays] = useState<string>('3');
+
+  const [leaveHistory, setLeaveHistory] = useState([
+    { id: '1', type: 'Sakit dengan Surat Dokter', date: '12 Jul 2026', days: '2 Hari', status: 'Disetujui' },
+    { id: '2', type: 'Cuti Tahunan', date: '01 Jun 2026', days: '1 Hari', status: 'Disetujui' }
+  ]);
+
+  // Handlers for Mobile Actions
+  const handleClockIn = async () => {
+    try {
+      await fetch(`${API_BASE}/attendance/clock-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ latitude: -6.2088, longitude: 106.8456 })
+      });
+    } catch (e) {
+      console.log('Mobile API call simulated');
+    }
+    setClockInSuccess(true);
+    Alert.alert('✅ Absen Masuk Berhasil!', 'Kehadiran Anda telah dicatat pada 08:14:05 (Radius 35m dari Head Office).');
+  };
+
+  const handleSimulateOutsideGeofence = async () => {
+    try {
+      await fetch(`${API_BASE}/attendance/clock-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ latitude: -6.2200, longitude: 106.8500 }) // Outside geofence coordinates
+      });
+    } catch (e) {
+      console.log('Mobile API call simulated');
+    }
+    setActiveTab('reject');
+    Alert.alert('⚠️ Absen Ditolak (Luar Radius)', 'Sistem mendeteksi posisi Anda 850m dari lokasi kantor. Radius maksimum: 100m.');
+  };
+
+  const handleSubmitLeave = async () => {
+    if (!leaveReason.trim()) {
+      Alert.alert('Peringatan', 'Harap isi alasan pengajuan izin');
+      return;
+    }
+    try {
+      await fetch(`${API_BASE}/leave/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          leave_type_id: 'lt-01',
+          start_date: '2026-08-26',
+          end_date: '2026-08-28',
+          reason: leaveReason
+        })
+      });
+    } catch (e) {
+      console.log('Mobile API call simulated');
+    }
+
+    const newItem = {
+      id: String(Date.now()),
+      type: 'Cuti Tahunan',
+      date: '26–28 Agu 2026',
+      days: `${leaveDays} Hari`,
+      status: 'Pending'
+    };
+
+    setLeaveHistory([newItem, ...leaveHistory]);
+    Alert.alert('✅ Pengajuan Berhasil!', 'Pengajuan izin telah dikirim ke Manager untuk persetujuan.');
+  };
 
   if (!isLoggedIn) {
     return (
@@ -19,12 +92,12 @@ export default function App() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>EMAIL ADRES</Text>
-            <TextInput style={styles.input} value="budi.santoso@nusantara.tech" />
+            <TextInput style={styles.input} defaultValue="budi.santoso@nusantara.tech" />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>PASSWORD</Text>
-            <TextInput style={styles.input} secureTextEntry value="••••••••" />
+            <TextInput style={styles.input} secureTextEntry defaultValue="••••••••" />
           </View>
 
           <TouchableOpacity style={styles.btnPrimary} onPress={() => setIsLoggedIn(true)}>
@@ -80,11 +153,11 @@ export default function App() {
             <Text style={styles.timeText}>08:14:05</Text>
             <Text style={styles.dateText}>Selasa, 25 Agustus 2026</Text>
 
-            <TouchableOpacity style={styles.btnPrimary}>
-              <Text style={styles.btnPrimaryText}>Absen Masuk (Verifikasi Selfie)</Text>
+            <TouchableOpacity style={styles.btnPrimary} onPress={handleClockIn}>
+              <Text style={styles.btnPrimaryText}>{clockInSuccess ? '✓ Sudah Absen (Hadir 08:14)' : 'Absen Masuk (Verifikasi Selfie)'}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btnSecondary} onPress={() => setActiveTab('reject')}>
+            <TouchableOpacity style={styles.btnSecondary} onPress={handleSimulateOutsideGeofence}>
               <Text style={styles.btnSecondaryText}>Simulasi Skenario Outside Geofence</Text>
             </TouchableOpacity>
           </View>
@@ -100,227 +173,240 @@ export default function App() {
               </Text>
             </View>
 
-            {/* Camera Box Disabled State */}
-            <View style={[styles.cameraBox, { backgroundColor: '#1A202C' }]}>
-              <View style={styles.camTopline}>
-                <View style={[styles.badgeLive, { backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>
-                  <View style={[styles.dotGreen, { backgroundColor: '#EF4444' }]} />
-                  <Text style={[styles.badgeText, { color: '#F87171' }]}>Di Luar Area Geofence</Text>
-                </View>
-              </View>
-              <View style={[styles.faceGuide, { borderColor: 'rgba(239, 68, 68, 0.4)' }]} />
-              <Text style={styles.camHint}>Dekati area kantor untuk mengaktifkan absen</Text>
+            {/* Map Simulation Box */}
+            <View style={styles.mapBox}>
+              <Feather name="alert-triangle" size={32} color="#8A3226" />
+              <Text style={styles.mapTitle}>Di Luar Radius Kantor</Text>
+              <Text style={styles.mapSub}>Jarak Anda: 850m | Radius Maks: 100m</Text>
             </View>
 
-            {/* GPS Outside Card */}
-            <View style={[styles.gpsCard, styles.gpsOutsideCard]}>
-              <View style={[styles.gpsPulseIcon, { backgroundColor: Colors.danger }]}>
-                <Feather name="alert-triangle" size={16} color="#FFF" />
-              </View>
-              <View>
-                <Text style={[styles.gpsTitle, { color: '#8A3226' }]}>Di Luar Radius Kantor</Text>
-                <Text style={styles.gpsSub}>Jarak 850m · Batas maksimal 100m</Text>
-              </View>
-            </View>
-
-            {/* Clock Time & Date */}
-            <Text style={styles.timeText}>08:14:05</Text>
-            <Text style={styles.dateText}>Selasa, 25 Agustus 2026</Text>
-
-            <TouchableOpacity style={styles.btnDisabled} disabled>
-              <Text style={styles.btnDisabledText}>Absen Masuk (Terkunci)</Text>
+            <TouchableOpacity style={styles.btnPrimaryDisabled} disabled>
+              <Text style={styles.btnDisabledText}>Absen Masuk Ditolak</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.btnSecondary} onPress={() => setActiveTab('home')}>
-              <Text style={styles.btnSecondaryText}>Kembali ke Absen Normal</Text>
+              <Text style={styles.btnSecondaryText}>Kembali ke Kamera Absen</Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {/* TAB 3: RIWAYAT ABSENSI */}
-        {activeTab === 'history' && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Riwayat Absensi Bulan Ini</Text>
-            <View style={styles.historyRow}>
-              <View>
-                <Text style={styles.historyDate}>Selasa, 25 Aug</Text>
-                <Text style={styles.historyTime}>08:14 – 17:05</Text>
-              </View>
-              <View style={[styles.pill, styles.pillPresent]}><Text style={styles.pillTextPresent}>Hadir</Text></View>
-            </View>
-            <View style={styles.historyRow}>
-              <View>
-                <Text style={styles.historyDate}>Senin, 24 Aug</Text>
-                <Text style={styles.historyTime}>08:42 – 17:10</Text>
-              </View>
-              <View style={[styles.pill, styles.pillLate]}><Text style={styles.pillTextLate}>Telat 42m</Text></View>
-            </View>
-            <View style={styles.historyRow}>
-              <View>
-                <Text style={styles.historyDate}>Jumat, 21 Aug</Text>
-                <Text style={styles.historyTime}>Cuti Tahunan</Text>
-              </View>
-              <View style={[styles.pill, styles.pillLeave]}><Text style={styles.pillTextLeave}>Cuti</Text></View>
-            </View>
-          </View>
-        )}
-
-        {/* TAB 4: AJUKAN IZIN (T030) */}
+        {/* TAB 3: LEAVE REQUEST & HISTORY */}
         {activeTab === 'leave' && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Ajukan Permohonan Izin / Cuti</Text>
+          <View>
+            <Text style={styles.sectionTitle}>Form Pengajuan Izin & Cuti</Text>
+            
             <View style={styles.inputGroup}>
               <Text style={styles.label}>JENIS IZIN</Text>
-              <TextInput style={styles.input} value="Cuti Tahunan" />
+              <View style={styles.readOnlyBox}>
+                <Text style={styles.readOnlyText}>Cuti Tahunan (Sisa Quota: 9 Hari)</Text>
+              </View>
             </View>
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>TANGGAL MULAI - SELESAI</Text>
-              <TextInput style={styles.input} value="26 Agu 2026 - 28 Agu 2026" />
+              <Text style={styles.label}>DURASI (HARI)</Text>
+              <TextInput style={styles.input} value={leaveDays} onChangeText={setLeaveDays} keyboardType="numeric" />
             </View>
+
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>ALASAN / CATATAN</Text>
-              <TextInput style={[styles.input, { height: 70 }]} multiline value="Keperluan keluarga di luar kota" />
+              <Text style={styles.label}>ALASAN PENGAJUAN</Text>
+              <TextInput 
+                style={[styles.input, { height: 70, textAlignVertical: 'top' }]} 
+                multiline 
+                value={leaveReason} 
+                onChangeText={setLeaveReason} 
+              />
             </View>
-            <TouchableOpacity style={styles.btnPrimary}>
+
+            <TouchableOpacity style={styles.btnPrimary} onPress={handleSubmitLeave}>
               <Text style={styles.btnPrimaryText}>Kirim Pengajuan Izin</Text>
             </TouchableOpacity>
+
+            <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Riwayat Pengajuan Izin</Text>
+            {leaveHistory.map((item) => (
+              <View key={item.id} style={styles.historyCard}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.historyType}>{item.type}</Text>
+                  <Text style={styles.historyDate}>{item.date} · {item.days}</Text>
+                </View>
+                <View style={[styles.statusPill, item.status === 'Disetujui' ? styles.pillApproved : styles.pillPending]}>
+                  <Text style={[styles.statusText, item.status === 'Disetujui' ? styles.textApproved : styles.textPending]}>{item.status}</Text>
+                </View>
+              </View>
+            ))}
           </View>
         )}
 
-        {/* TAB 5: SLIP GAJI */}
+        {/* TAB 4: PAYSLIP LIST & DETAIL */}
         {activeTab === 'payslip' && (
           <View>
-            <View style={styles.payslipCard}>
-              <Text style={styles.payslipPeriod}>Gaji Bersih · Agustus 2026</Text>
-              <Text style={styles.payslipAmount}>Rp 9.850.000</Text>
-              <View style={styles.tagRow}>
-                <View style={styles.psTag}>
-                  <Feather name="check-circle" size={12} color="#FFF" style={{ marginRight: 4 }} />
-                  <Text style={styles.psTagText}>Disetujui HR</Text>
+            <Text style={styles.sectionTitle}>Slip Gaji Karyawan</Text>
+
+            {/* Premium Payslip Hero Card */}
+            <View style={styles.payslipHero}>
+              <Text style={styles.payslipPeriod}>Agustus 2026</Text>
+              <Text style={styles.payslipThpLabel}>GAJI BERSIH (TAKE HOME PAY)</Text>
+              <Text style={styles.payslipThpAmount}>Rp 9.850.000</Text>
+              
+              <View style={styles.payslipTagsRow}>
+                <View style={[styles.statusPill, styles.pillApproved]}>
+                  <Text style={[styles.statusText, styles.textApproved]}>Disetujui</Text>
                 </View>
-                <View style={styles.psTag}>
-                  <Feather name="check-circle" size={12} color="#FFF" style={{ marginRight: 4 }} />
-                  <Text style={styles.psTagText}>Sudah Dibayar 30 Agu</Text>
+                <View style={[styles.statusPill, styles.pillPaid]}>
+                  <Text style={[styles.statusText, styles.textPaid]}>Sudah Dibayar</Text>
                 </View>
               </View>
             </View>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Rincian Take Home Pay</Text>
-              <View style={styles.breakdownRow}><Text style={styles.bLabel}>Gaji Pokok</Text><Text style={styles.bValue}>Rp 9.000.000</Text></View>
-              <View style={styles.breakdownRow}><Text style={styles.bLabel}>Tunjangan Transport</Text><Text style={styles.bValue}>Rp 1.000.000</Text></View>
-              <View style={styles.breakdownRow}><Text style={styles.bLabel}>Potongan Telat</Text><Text style={[styles.bValue, { color: Colors.danger }]}>- Rp 150.000</Text></View>
+
+            {/* Breakdown Components */}
+            <View style={styles.breakdownCard}>
+              <Text style={styles.breakdownTitle}>Rincian Komponen</Text>
+              
+              <View style={styles.breakdownRow}>
+                <Text style={styles.breakdownItem}>Gaji Pokok</Text>
+                <Text style={styles.breakdownVal}>Rp 9.000.000</Text>
+              </View>
+
+              <View style={styles.breakdownRow}>
+                <Text style={styles.breakdownItem}>Tunjangan Transport</Text>
+                <Text style={styles.breakdownVal}>Rp 1.000.000</Text>
+              </View>
+
+              <View style={styles.breakdownRow}>
+                <Text style={styles.breakdownItem}>Potongan Keterlambatan (30m)</Text>
+                <Text style={[styles.breakdownVal, { color: '#8A3226' }]}>-Rp 150.000</Text>
+              </View>
+
+              <TouchableOpacity style={[styles.btnPrimary, { marginTop: 16 }]} onPress={() => Alert.alert('Mengunduh Slip Gaji PDF', 'Slip_Gaji_Agustus_2026_Budi_Santoso.pdf sedang diunduh...')}>
+                <Text style={styles.btnPrimaryText}>Unduh File PDF Slip Gaji</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
 
-        {/* TAB 6: PROFIL */}
-        {activeTab === 'profile' && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Profil Personel Karyawan</Text>
-            <Text style={styles.infoLabel}>NIK: <Text style={styles.infoVal}>EMP-2026-001</Text></Text>
-            <Text style={styles.infoLabel}>NAMA: <Text style={styles.infoVal}>Budi Santoso</Text></Text>
-            <Text style={styles.infoLabel}>DEPARTEMEN: <Text style={styles.infoVal}>Engineering</Text></Text>
-            <Text style={styles.infoLabel}>JABATAN: <Text style={styles.infoVal}>Senior Software Engineer</Text></Text>
+        {/* TAB 5: PROFILE & HISTORY */}
+        {activeTab === 'history' && (
+          <View>
+            <Text style={styles.sectionTitle}>Riwayat Kehadiran Bulan Ini</Text>
+            <View style={styles.historyCard}>
+              <View>
+                <Text style={styles.historyType}>Hadir (Valid Geofence)</Text>
+                <Text style={styles.historyDate}>Selasa, 25 Agu 2026 · 08:14 - 17:05</Text>
+              </View>
+              <View style={[styles.statusPill, styles.pillApproved]}>
+                <Text style={[styles.statusText, styles.textApproved]}>Hadir</Text>
+              </View>
+            </View>
+
+            <View style={styles.historyCard}>
+              <View>
+                <Text style={styles.historyType}>Hadir (Terlambat 15m)</Text>
+                <Text style={styles.historyDate}>Senin, 24 Agu 2026 · 08:30 - 17:00</Text>
+              </View>
+              <View style={[styles.statusPill, styles.pillPending]}>
+                <Text style={[styles.statusText, styles.textPending]}>Telat</Text>
+              </View>
+            </View>
           </View>
         )}
       </ScrollView>
 
-      {/* Bottom Navbar with Expo Vector Feather Icons per Stitch DS §2.9 */}
+      {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-        {[
-          { id: 'home', label: 'Absen', iconName: 'camera' as const },
-          { id: 'history', label: 'Riwayat', iconName: 'clock' as const },
-          { id: 'leave', label: 'Izin', iconName: 'file-text' as const },
-          { id: 'payslip', label: 'Slip Gaji', iconName: 'credit-card' as const },
-          { id: 'profile', label: 'Profil', iconName: 'user' as const },
-        ].map((tab) => {
-          const isActive = activeTab === tab.id || (activeTab === 'reject' && tab.id === 'home');
-          return (
-            <TouchableOpacity
-              key={tab.id}
-              onPress={() => setActiveTab(tab.id as any)}
-              style={styles.navItem}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.navIconBox, isActive && styles.navIconBoxActive]}>
-                <Feather name={tab.iconName} size={18} color={isActive ? Colors.primary : Colors.muted} />
-              </View>
-              <Text style={[styles.navText, isActive && styles.navTextActive]}>
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('home')}>
+          <Feather name="camera" size={20} color={activeTab === 'home' ? Colors.forestGreen : Colors.mutedText} />
+          <Text style={[styles.navText, activeTab === 'home' && styles.navActiveText]}>Absen</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('history')}>
+          <Feather name="clock" size={20} color={activeTab === 'history' ? Colors.forestGreen : Colors.mutedText} />
+          <Text style={[styles.navText, activeTab === 'history' && styles.navActiveText]}>Riwayat</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('leave')}>
+          <Feather name="file-text" size={20} color={activeTab === 'leave' ? Colors.forestGreen : Colors.mutedText} />
+          <Text style={[styles.navText, activeTab === 'leave' && styles.navActiveText]}>Izin</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('payslip')}>
+          <Feather name="credit-card" size={20} color={activeTab === 'payslip' ? Colors.forestGreen : Colors.mutedText} />
+          <Text style={[styles.navText, activeTab === 'payslip' && styles.navActiveText]}>Slip Gaji</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem} onPress={() => setIsLoggedIn(false)}>
+          <Feather name="user" size={20} color={Colors.mutedText} />
+          <Text style={styles.navText}>Profil</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.line },
-  welcomeText: { fontSize: 12, color: Colors.muted },
-  nameText: { fontSize: 18, fontWeight: '700', color: Colors.ink },
-  avatar: { width: 38, height: 38, borderRadius: 19, backgroundColor: Colors.accent, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontWeight: '700', color: Colors.ink },
-  content: { padding: 18 },
-  cameraBox: { backgroundColor: '#151C24', borderRadius: 18, height: 260, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 14 },
-  camTopline: { position: 'absolute', top: 12, left: 12, right: 12, flexDirection: 'row', justifyContent: 'space-between' },
-  badgeLive: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  dotGreen: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#4ADE80', marginRight: 6 },
-  badgeText: { color: '#FFF', fontSize: 10, fontWeight: '600' },
-  faceGuide: { width: 120, height: 150, borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.55)', borderStyle: 'dashed', borderRadius: 60 },
-  camHint: { position: 'absolute', bottom: 12, color: '#FFF', fontSize: 11, opacity: 0.85 },
-  gpsCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0F7F4', borderWidth: 1, borderColor: '#CFE6DC', padding: 12, borderRadius: 14, marginBottom: 16 },
-  gpsOutsideCard: { backgroundColor: '#FBEEEC', borderColor: '#F0C7C0' },
-  gpsPulseIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  gpsTitle: { fontSize: 13, fontWeight: '700', color: Colors.ink },
-  gpsSub: { fontSize: 11.5, color: Colors.muted },
-  timeText: { textAlign: 'center', fontSize: 34, fontWeight: '800', color: Colors.ink },
-  dateText: { textAlign: 'center', fontSize: 12.5, color: Colors.muted, marginBottom: 18 },
-  btnPrimary: { backgroundColor: Colors.primary, paddingVertical: 15, borderRadius: 14, alignItems: 'center', elevation: 4 },
-  btnPrimaryText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
-  btnSecondary: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.line, paddingVertical: 12, borderRadius: 14, alignItems: 'center', marginTop: 10 },
-  btnSecondaryText: { color: Colors.ink, fontWeight: '600', fontSize: 13 },
-  btnDisabled: { backgroundColor: '#C7C2B5', paddingVertical: 15, borderRadius: 14, alignItems: 'center' },
-  btnDisabledText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
-  errorBanner: { backgroundColor: '#FBEEEC', borderWidth: 1, borderColor: '#F0C7C0', padding: 12, borderRadius: 12, marginBottom: 14 },
-  errorBannerText: { color: '#8A3226', fontSize: 12, lineHeight: 18 },
-  card: { backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 18, borderWidth: 1, borderColor: Colors.line, marginBottom: 16 },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: Colors.ink, marginBottom: 14 },
-  historyRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.line },
-  historyDate: { fontWeight: '600', color: Colors.ink, fontSize: 13 },
-  historyTime: { color: Colors.muted, fontSize: 11.5, marginTop: 2 },
-  pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  pillPresent: { backgroundColor: '#E4F3EC' },
-  pillTextPresent: { color: Colors.primaryDark, fontSize: 10.5, fontWeight: '700' },
-  pillLate: { backgroundColor: '#FDF1DC' },
-  pillTextLate: { color: '#9A6714', fontSize: 10.5, fontWeight: '700' },
-  pillLeave: { backgroundColor: '#E9EEF7' },
-  pillTextLeave: { color: '#2F4E8A', fontSize: 10.5, fontWeight: '700' },
-  payslipCard: { backgroundColor: Colors.ink, borderRadius: Radius.card, padding: 20, marginBottom: 16 },
-  payslipPeriod: { color: Colors.line, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 },
-  payslipAmount: { color: '#FFF', fontSize: 26, fontWeight: '800', marginVertical: 8 },
-  tagRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
-  psTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  psTagText: { color: '#FFF', fontSize: 10.5, fontWeight: '600' },
-  breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.line },
-  bLabel: { fontSize: 12.5, color: Colors.ink },
-  bValue: { fontSize: 12.5, fontWeight: '600', color: Colors.ink },
-  bottomNav: { flexDirection: 'row', backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.line, paddingVertical: 8, paddingHorizontal: 4 },
-  navItem: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  navIconBox: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#F5F3EE', alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  navIconBoxActive: { backgroundColor: '#E4F3EC' },
-  navText: { fontSize: 11, color: Colors.muted, fontWeight: '500' },
-  navTextActive: { color: Colors.primary, fontWeight: '700' },
-  loginCard: { margin: 20, backgroundColor: Colors.surface, padding: 24, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.line, marginTop: 60 },
-  logoBadge: { width: 44, height: 44, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  logoText: { color: '#FFF', fontWeight: '800', fontSize: 20 },
-  loginTitle: { fontSize: 20, fontWeight: '700', color: Colors.ink },
-  loginSub: { fontSize: 13, color: Colors.muted, marginBottom: 20 },
-  inputGroup: { marginBottom: 16 },
-  input: { borderWidth: 1, borderColor: Colors.line, borderRadius: 8, padding: 10, backgroundColor: '#FAFAFA' },
-  label: { fontSize: 11, fontWeight: '700', color: Colors.ink, marginBottom: 6 },
-  infoLabel: { fontSize: 13, color: Colors.muted, marginVertical: 4 },
-  infoVal: { fontWeight: '700', color: Colors.ink },
+  container: { flex: 1, backgroundColor: Colors.creamBg },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: Colors.lineBorder },
+  welcomeText: { fontSize: 12, color: Colors.mutedText, textTransform: 'uppercase', fontWeight: '700' },
+  nameText: { fontSize: 18, fontWeight: '800', color: Colors.darkInk },
+  avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.forestGreen, justifyContent: 'center', alignItems: 'center' },
+  avatarText: { color: '#FFF', fontWeight: '700', fontSize: 13 },
+  content: { padding: 20, paddingBottom: 100 },
+  cameraBox: { height: 200, backgroundColor: '#1E293B', borderRadius: Radius.lg, justifyContent: 'space-between', padding: 14, alignItems: 'center' },
+  camTopline: { width: '100%', flexDirection: 'row', justifyContent: 'flex-start' },
+  badgeLive: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  dotGreen: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981', marginRight: 6 },
+  badgeText: { color: '#FFF', fontSize: 11, fontWeight: '600' },
+  faceGuide: { width: 100, height: 110, borderRadius: 50, borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)', borderStyle: 'dashed' },
+  camHint: { color: '#94A3B8', fontSize: 12, marginBottom: 4 },
+  gpsCard: { marginTop: 14, backgroundColor: '#FFF', borderRadius: Radius.md, padding: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.lineBorder },
+  gpsPulseIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.forestGreen, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  gpsTitle: { fontSize: 13, fontWeight: '700', color: Colors.darkInk },
+  gpsSub: { fontSize: 11, color: Colors.mutedText },
+  timeText: { fontSize: 36, fontWeight: '800', color: Colors.darkInk, textAlign: 'center', marginTop: 16 },
+  dateText: { fontSize: 13, color: Colors.mutedText, textAlign: 'center', marginBottom: 20 },
+  btnPrimary: { backgroundColor: Colors.forestGreen, paddingVertical: 14, borderRadius: Radius.md, alignItems: 'center' },
+  btnPrimaryText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+  btnSecondary: { marginTop: 10, paddingVertical: 12, borderRadius: Radius.md, alignItems: 'center', borderWidth: 1, borderColor: Colors.lineBorder },
+  btnSecondaryText: { color: Colors.darkInk, fontWeight: '600', fontSize: 13 },
+  errorBanner: { backgroundColor: '#FADBD8', padding: 14, borderRadius: Radius.md, borderWidth: 1, borderColor: '#F5B7B1', marginBottom: 16 },
+  errorBannerText: { color: '#78281F', fontSize: 13, lineHeight: 18 },
+  mapBox: { height: 160, backgroundColor: '#FADBD8', borderRadius: Radius.lg, justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: '#F5B7B1' },
+  mapTitle: { fontSize: 15, fontWeight: '700', color: '#78281F', marginTop: 8 },
+  mapSub: { fontSize: 12, color: '#78281F' },
+  btnPrimaryDisabled: { backgroundColor: '#E2E8F0', paddingVertical: 14, borderRadius: Radius.md, alignItems: 'center' },
+  btnDisabledText: { color: '#94A3B8', fontWeight: '700', fontSize: 14 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.darkInk, marginBottom: 14 },
+  inputGroup: { marginBottom: 14 },
+  label: { fontSize: 11, fontWeight: '700', color: Colors.mutedText, marginBottom: 6 },
+  input: { backgroundColor: '#FFF', borderWidth: 1, borderColor: Colors.lineBorder, borderRadius: Radius.md, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
+  readOnlyBox: { backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: Colors.lineBorder, borderRadius: Radius.md, paddingHorizontal: 12, paddingVertical: 12 },
+  readOnlyText: { fontSize: 13, color: Colors.darkInk, fontWeight: '600' },
+  historyCard: { backgroundColor: '#FFF', padding: 14, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.lineBorder, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  historyType: { fontSize: 14, fontWeight: '700', color: Colors.darkInk },
+  historyDate: { fontSize: 12, color: Colors.mutedText, marginTop: 2 },
+  statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  pillApproved: { backgroundColor: '#D4EFDF' },
+  pillPending: { backgroundColor: '#FCF3CF' },
+  pillPaid: { backgroundColor: '#D6EAF8' },
+  statusText: { fontSize: 11, fontWeight: '700' },
+  textApproved: { color: '#196F3D' },
+  textPending: { color: '#B7950B' },
+  textPaid: { color: '#1B4F72' },
+  payslipHero: { backgroundColor: '#1E293B', padding: 20, borderRadius: Radius.lg, marginBottom: 16 },
+  payslipPeriod: { color: '#94A3B8', fontSize: 12, fontWeight: '700' },
+  payslipThpLabel: { color: '#CBD5E1', fontSize: 10, fontWeight: '800', marginTop: 12 },
+  payslipThpAmount: { color: '#FFF', fontSize: 28, fontWeight: '800', marginTop: 4 },
+  payslipTagsRow: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  breakdownCard: { backgroundColor: '#FFF', padding: 16, borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.lineBorder },
+  breakdownTitle: { fontSize: 14, fontWeight: '700', marginBottom: 12 },
+  breakdownRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  breakdownItem: { fontSize: 13, color: Colors.darkInk },
+  breakdownVal: { fontSize: 13, fontWeight: '700', color: Colors.darkInk },
+  bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 64, backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: Colors.lineBorder, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
+  navItem: { alignItems: 'center', justifyContent: 'center' },
+  navText: { fontSize: 10, color: Colors.mutedText, marginTop: 4 },
+  navActiveText: { color: Colors.forestGreen, fontWeight: '700' },
+  loginCard: { flex: 1, justifyContent: 'center', padding: 24 },
+  logoBadge: { width: 44, height: 44, borderRadius: 12, backgroundColor: Colors.forestGreen, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+  logoText: { color: '#FFF', fontSize: 22, fontWeight: '800' },
+  loginTitle: { fontSize: 24, fontWeight: '800', color: Colors.darkInk, marginBottom: 6 },
+  loginSub: { fontSize: 13, color: Colors.mutedText, marginBottom: 24 }
 });
