@@ -116,7 +116,7 @@ export default function App() {
           <Text style={styles.welcomeText}>Selamat Pagi 👋</Text>
           <Text style={styles.nameText}>Budi Santoso</Text>
         </View>
-        <TouchableOpacity style={styles.avatar} onPress={() => setIsLoggedIn(false)}>
+        <TouchableOpacity style={styles.avatar} onPress={() => setActiveTab('profile')}>
           <Text style={styles.avatarText}>BS</Text>
         </TouchableOpacity>
       </View>
@@ -283,7 +283,7 @@ export default function App() {
           </View>
         )}
 
-        {/* TAB 5: PROFILE & HISTORY */}
+        {/* TAB 5: RIWAYAT KEHADIRAN */}
         {activeTab === 'history' && (
           <View>
             <Text style={styles.sectionTitle}>Riwayat Kehadiran Bulan Ini</Text>
@@ -305,6 +305,47 @@ export default function App() {
               <View style={[styles.statusPill, styles.pillPending]}>
                 <Text style={[styles.statusText, styles.textPending]}>Telat</Text>
               </View>
+            </View>
+          </View>
+        )}
+
+        {/* TAB 6: PROFIL KARYAWAN */}
+        {activeTab === 'profile' && (
+          <View>
+            <Text style={styles.sectionTitle}>Profil Karyawan</Text>
+
+            <View style={styles.breakdownCard}>
+              <View style={{ alignItems: 'center', marginVertical: 16 }}>
+                <View style={[styles.avatar, { width: 64, height: 64, borderRadius: 32, marginBottom: 12 }]}>
+                  <Text style={{ color: '#FFF', fontSize: 24, fontWeight: '800' }}>BS</Text>
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: Colors.darkInk }}>Budi Santoso</Text>
+                <Text style={{ fontSize: 13, color: Colors.mutedText, marginTop: 2 }}>Senior Software Engineer</Text>
+              </View>
+
+              <View style={styles.breakdownRow}>
+                <Text style={styles.breakdownItem}>NIK Karyawan</Text>
+                <Text style={styles.breakdownVal}>EMP-2026-001</Text>
+              </View>
+
+              <View style={styles.breakdownRow}>
+                <Text style={styles.breakdownItem}>Email</Text>
+                <Text style={styles.breakdownVal}>budi.santoso@nusantara.tech</Text>
+              </View>
+
+              <View style={styles.breakdownRow}>
+                <Text style={styles.breakdownItem}>Departemen</Text>
+                <Text style={styles.breakdownVal}>Engineering</Text>
+              </View>
+
+              <View style={styles.breakdownRow}>
+                <Text style={styles.breakdownItem}>Lokasi Kerja</Text>
+                <Text style={styles.breakdownVal}>Head Office Jakarta</Text>
+              </View>
+
+              <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: Colors.danger, marginTop: 20 }]} onPress={() => setIsLoggedIn(false)}>
+                <Text style={styles.btnPrimaryText}>Keluar dari Akun</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -332,9 +373,9 @@ export default function App() {
           <Text style={[styles.navText, activeTab === 'payslip' && styles.navActiveText]}>Slip Gaji</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setIsLoggedIn(false)}>
-          <Feather name="user" size={20} color={Colors.mutedText} />
-          <Text style={styles.navText}>Profil</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('profile')}>
+          <Feather name="user" size={20} color={activeTab === 'profile' ? Colors.forestGreen : Colors.mutedText} />
+          <Text style={[styles.navText, activeTab === 'profile' && styles.navActiveText]}>Profil</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
