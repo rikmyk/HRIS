@@ -308,12 +308,7 @@ export default function App() {
         {/* TAB 3: RIWAYAT ABSENSI KARYAWAN (ATTENDANCE HISTORY WITH SELFIES) */}
         {activeTab === 'history' && (
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <Text style={styles.sectionTitle}>Riwayat Absensi Saya</Text>
-              <View style={{ backgroundColor: '#FFF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: Colors.lineBorder }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.forestGreen }}>Agustus 2026</Text>
-              </View>
-            </View>
+            <Text style={[styles.sectionTitle, { marginBottom: 14 }]}>Riwayat Absensi Saya</Text>
 
             {/* 3-Tab Filter Selector: 7 Hari | Bulan Ini | 30 Hari */}
             <View style={{ flexDirection: 'row', backgroundColor: '#E2E8F0', padding: 3, borderRadius: Radius.md, marginBottom: 14 }}>
