@@ -1,4 +1,26 @@
 import React, { useState } from 'react';
+import {
+  LayoutDashboard,
+  Users,
+  MapPin,
+  FileCheck,
+  CreditCard,
+  LogOut,
+  UserCheck,
+  Clock,
+  AlertTriangle,
+  FileText,
+  Search,
+  Plus,
+  Check,
+  X,
+  Edit3,
+  Trash2,
+  Info,
+  ShieldAlert,
+  Building2,
+  Calendar
+} from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'monitoring' | 'approval' | 'payment'>('dashboard');
@@ -28,7 +50,7 @@ export default function App() {
             <input type="password" defaultValue="••••••••" style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid var(--line)', background: '#fff', fontSize: 14 }} />
           </div>
 
-          <button onClick={() => setIsLoggedIn(true)} className="btn-mini dark" style={{ width: '100%', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 700 }}>
+          <button onClick={() => setIsLoggedIn(true)} className="btn-mini dark" style={{ width: '100%', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             Masuk ke Portal Admin
           </button>
         </div>
@@ -48,7 +70,9 @@ export default function App() {
           <div className="admin-user">
             <div className="avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 12 }}>SW</div>
             <span>Sari Wijaya · HR Admin</span>
-            <button onClick={() => setIsLoggedIn(false)} className="btn-mini" style={{ marginLeft: 12 }}>Keluar</button>
+            <button onClick={() => setIsLoggedIn(false)} className="btn-mini" style={{ marginLeft: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <LogOut size={14} /> Keluar
+            </button>
           </div>
         </div>
 
@@ -57,19 +81,19 @@ export default function App() {
           {/* Sidebar */}
           <div className="admin-sidebar">
             <div className={`side-link ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-              Dashboard
+              <LayoutDashboard size={17} /> Dashboard
             </div>
             <div className={`side-link ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
-              Karyawan
+              <Users size={17} /> Karyawan
             </div>
             <div className={`side-link ${activeTab === 'monitoring' ? 'active' : ''}`} onClick={() => setActiveTab('monitoring')}>
-              Monitoring Absensi
+              <MapPin size={17} /> Monitoring Absensi
             </div>
             <div className={`side-link ${activeTab === 'approval' ? 'active' : ''}`} onClick={() => setActiveTab('approval')}>
-              Approval Slip Gaji
+              <FileCheck size={17} /> Approval Slip Gaji
             </div>
             <div className={`side-link ${activeTab === 'payment' ? 'active' : ''}`} onClick={() => setActiveTab('payment')}>
-              Penandaan Pembayaran
+              <CreditCard size={17} /> Penandaan Pembayaran
             </div>
           </div>
 
@@ -78,22 +102,30 @@ export default function App() {
             {activeTab === 'dashboard' && (
               <>
                 <h2>Dashboard Overview</h2>
-                <p className="sub">Selasa, 25 Agustus 2026</p>
+                <p className="sub" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Calendar size={14} /> Selasa, 25 Agustus 2026</p>
                 <div className="kpi-row">
                   <div className="kpi-card">
-                    <div className="kpi-label">Hadir Hari Ini</div>
+                    <div className="kpi-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <UserCheck size={15} color="var(--primary-dark)" /> Hadir Hari Ini
+                    </div>
                     <div className="kpi-value">142 / 150</div>
                   </div>
                   <div className="kpi-card">
-                    <div className="kpi-label">Terlambat</div>
+                    <div className="kpi-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Clock size={15} color="#9A6714" /> Terlambat
+                    </div>
                     <div className="kpi-value warn">9</div>
                   </div>
                   <div className="kpi-card">
-                    <div className="kpi-label">Absen Ditolak (di luar radius)</div>
+                    <div className="kpi-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <AlertTriangle size={15} color="#8A3226" /> Absen Ditolak (di luar radius)
+                    </div>
                     <div className="kpi-value danger">3</div>
                   </div>
                   <div className="kpi-card">
-                    <div className="kpi-label">Slip Gaji Belum Dibayar</div>
+                    <div className="kpi-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <FileText size={15} color="#2F4E8A" /> Slip Gaji Belum Dibayar
+                    </div>
                     <div className="kpi-value accent">12</div>
                   </div>
                 </div>
@@ -121,8 +153,8 @@ export default function App() {
                       <td>25 Agu 2026</td>
                       <td><span className="pill leave">Pending</span></td>
                       <td>
-                        <button className="btn-mini primary">Approve</button>
-                        <button className="btn-mini">Tolak</button>
+                        <button className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Check size={13} /> Approve</button>
+                        <button className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><X size={13} /> Tolak</button>
                       </td>
                     </tr>
                     <tr>
@@ -136,14 +168,15 @@ export default function App() {
                       <td>26–28 Agu 2026</td>
                       <td><span className="pill leave">Pending</span></td>
                       <td>
-                        <button className="btn-mini primary">Approve</button>
-                        <button className="btn-mini">Tolak</button>
+                        <button className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Check size={13} /> Approve</button>
+                        <button className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><X size={13} /> Tolak</button>
                       </td>
                     </tr>
                   </tbody>
                 </table>
-                <div className="panel-note">
-                  ℹ️ KPI "Absen Ditolak" menandakan percobaan absen di luar radius geofence — berguna untuk mendeteksi pola anomali lokasi kantor.
+                <div className="panel-note" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Info size={16} color="var(--primary-dark)" />
+                  KPI "Absen Ditolak" menandakan percobaan absen di luar radius geofence — berguna untuk mendeteksi pola anomali lokasi kantor.
                 </div>
               </>
             )}
@@ -153,8 +186,11 @@ export default function App() {
                 <h2>Manajemen Karyawan</h2>
                 <p className="sub">Daftar seluruh personel, departemen, dan posisi pekerjaan</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <input type="text" placeholder="Cari nama / NIK..." style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--line)', width: 280 }} />
-                  <button className="btn-mini primary">+ Tambah Karyawan Baru</button>
+                  <div style={{ position: 'relative', width: 280 }}>
+                    <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
+                    <input type="text" placeholder="Cari nama / NIK..." style={{ padding: '8px 14px 8px 36px', borderRadius: 8, border: '1px solid var(--line)', width: '100%' }} />
+                  </div>
+                  <button className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={15} /> Tambah Karyawan Baru</button>
                 </div>
                 <table>
                   <thead>
@@ -177,8 +213,8 @@ export default function App() {
                       <td>Head Office Jakarta</td>
                       <td><span className="pill present">Permanent</span></td>
                       <td>
-                        <button className="btn-mini">Edit</button>
-                        <button className="btn-mini">Hapus</button>
+                        <button className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Edit3 size={13} /> Edit</button>
+                        <button className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#8A3226' }}><Trash2 size={13} /> Hapus</button>
                       </td>
                     </tr>
                     <tr>
@@ -189,8 +225,8 @@ export default function App() {
                       <td>Head Office Jakarta</td>
                       <td><span className="pill present">Permanent</span></td>
                       <td>
-                        <button className="btn-mini">Edit</button>
-                        <button className="btn-mini">Hapus</button>
+                        <button className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Edit3 size={13} /> Edit</button>
+                        <button className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#8A3226' }}><Trash2 size={13} /> Hapus</button>
                       </td>
                     </tr>
                   </tbody>
@@ -201,9 +237,9 @@ export default function App() {
             {activeTab === 'monitoring' && (
               <>
                 <h2>Monitoring Absensi — Real-time</h2>
-                <p className="sub">Kantor Pusat Jakarta · Radius Geofence 100m</p>
-                <div style={{ background: '#EAE6DB', border: '1px solid var(--line)', borderRadius: 14, height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 13, marginBottom: 20 }}>
-                  [ 🗺️ Peta Lokasi Absen Real-time — Pin Hijau (Dalam Radius) & Pin Merah (Percobaan Ditolak) ]
+                <p className="sub" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Building2 size={14} /> Kantor Pusat Jakarta · Radius Geofence 100m</p>
+                <div style={{ background: '#EAE6DB', border: '1px solid var(--line)', borderRadius: 14, height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 13, marginBottom: 20, gap: 8 }}>
+                  <MapPin size={18} color="var(--primary)" /> Peta Lokasi Absen Real-time — Pin Hijau (Dalam Radius) & Pin Merah (Percobaan Ditolak)
                 </div>
                 <table>
                   <thead>
@@ -276,7 +312,7 @@ export default function App() {
                       <td>Rp 9.850.000</td>
                       <td><span className="pill draft">Draft</span></td>
                       <td>
-                        <button className="btn-mini primary">Approve</button>
+                        <button className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Check size={13} /> Approve</button>
                         <button className="btn-mini">Rincian</button>
                       </td>
                     </tr>
@@ -290,12 +326,12 @@ export default function App() {
                       <td>19 / 0 / 1 / 0</td>
                       <td>Rp 8.500.000</td>
                       <td><span className="pill approved">Disetujui</span></td>
-                      <td><button className="btn-mini">Lihat PDF</button></td>
+                      <td><button className="btn-mini" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><FileText size={13} /> Lihat PDF</button></td>
                     </tr>
                   </tbody>
                 </table>
                 <div style={{ marginTop: 16 }}>
-                  <button className="btn-mini dark">Approve Semua Draft (23)</button>
+                  <button className="btn-mini dark" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} /> Approve Semua Draft (23)</button>
                 </div>
               </>
             )}
@@ -304,8 +340,11 @@ export default function App() {
               <>
                 <h2>Penandaan Pembayaran — Agustus 2026</h2>
                 <p className="sub">Slip berstatus "Disetujui" yang telah ditransfer manual melalui Internet Banking</p>
-                <div className="error-banner" style={{ background: '#FDF1DC', borderColor: '#F0DBA6', color: '#7A5A0F', padding: 14, borderRadius: 12, marginBottom: 16 }}>
-                  ℹ️ Sistem <strong>tidak melakukan transfer otomatis</strong>. Lakukan transfer bank perusahaan terlebih dahulu, lalu tandai status pembayaran di bawah ini.
+                <div className="error-banner" style={{ background: '#FDF1DC', borderColor: '#F0DBA6', color: '#7A5A0F', padding: 14, borderRadius: 12, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <ShieldAlert size={18} color="#7A5A0F" />
+                  <div>
+                    Sistem <strong>tidak melakukan transfer otomatis</strong>. Lakukan transfer bank perusahaan terlebih dahulu, lalu tandai status pembayaran di bawah ini.
+                  </div>
                 </div>
                 <table>
                   <thead>
@@ -330,7 +369,7 @@ export default function App() {
                       <td>Rp 8.500.000</td>
                       <td>BCA · 8801xxxxxx</td>
                       <td><span className="pill approved">Disetujui</span></td>
-                      <td><button className="btn-mini primary">Tandai Dibayar</button></td>
+                      <td><button className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Check size={13} /> Tandai Dibayar</button></td>
                     </tr>
                     <tr>
                       <td><input type="checkbox" /></td>
@@ -348,7 +387,7 @@ export default function App() {
                   </tbody>
                 </table>
                 <div style={{ marginTop: 16 }}>
-                  <button className="btn-mini dark">Tandai Terpilih Sebagai Sudah Dibayar (1)</button>
+                  <button className="btn-mini dark" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} /> Tandai Terpilih Sebagai Sudah Dibayar (1)</button>
                 </div>
               </>
             )}
