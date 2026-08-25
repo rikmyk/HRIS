@@ -8,6 +8,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+
+	"hris/internal/attendance"
+	"hris/internal/leave"
+	"hris/internal/payroll"
+	"hris/pkg/storage"
 )
 
 func main() {
@@ -17,6 +22,11 @@ func main() {
 
 	app.Use(logger.New())
 	app.Use(recover.New())
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "super-secret-hris-jwt-key-2026"
+	}
 
 	// Health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {
@@ -33,6 +43,19 @@ func main() {
 			"message": "HRIS API v1 Root",
 		})
 	})
+
+	// Storage Service Mock/MinIO Client
+	storageSvc := storage.NewMockMinIOStorage("localhost:9000", "hris-photos", false)
+
+	// Register Handlers
+	attendanceHandler := attendance.NewHandler(storageSvc)
+	attendanceHandler.RegisterRoutes(v1, jwtSecret)
+
+	leaveHandler := leave.NewHandler()
+	leaveHandler.RegisterRoutes(v1, jwtSecret)
+
+	payrollHandler := payroll.NewHandler()
+	payrollHandler.RegisterRoutes(v1, jwtSecret)
 
 	port := os.Getenv("PORT")
 	if port == "" {
