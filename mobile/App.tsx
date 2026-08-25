@@ -17,8 +17,9 @@ export default function App() {
   const [isRequestingPermissions, setIsRequestingPermissions] = useState<boolean>(false);
   const [isPhotoCaptured, setIsPhotoCaptured] = useState<boolean>(false);
   
-  // Photo Detail Modal State
+  // Photo Detail Modal State & History Filter State
   const [selectedPhoto, setSelectedPhoto] = useState<{ title: string; date: string; url: string; loc: string; time: string } | null>(null);
+  const [historyFilter, setHistoryFilter] = useState<'7days' | 'month' | '30days'>('month');
 
   // Form input state for Leave Request
   const [leaveReason, setLeaveReason] = useState<string>('Cuti Tahunan keperluan keluarga');
@@ -307,31 +308,77 @@ export default function App() {
         {/* TAB 3: RIWAYAT ABSENSI KARYAWAN (ATTENDANCE HISTORY WITH SELFIES) */}
         {activeTab === 'history' && (
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <Text style={styles.sectionTitle}>Riwayat Absensi Saya</Text>
-              <View style={{ backgroundColor: '#FFF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: Colors.lineBorder }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.forestGreen }}>Agustus 2026</Text>
+              <View style={{ backgroundColor: '#FFF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: Colors.lineBorder }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.forestGreen }}>Agustus 2026</Text>
               </View>
             </View>
 
-            {/* Attendance Summary Bar */}
-            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-              <View style={{ flex: 1, backgroundColor: '#DCFCE7', padding: 12, borderRadius: Radius.md, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#166534' }}>18</Text>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#15803D', marginTop: 2 }}>HADIR</Text>
+            {/* 3-Tab Filter Selector: 7 Hari | Bulan Ini | 30 Hari */}
+            <View style={{ flexDirection: 'row', backgroundColor: '#E2E8F0', padding: 3, borderRadius: Radius.md, marginBottom: 14 }}>
+              <TouchableOpacity
+                onPress={() => setHistoryFilter('7days')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 7,
+                  alignItems: 'center',
+                  borderRadius: 6,
+                  backgroundColor: historyFilter === '7days' ? Colors.forestGreen : 'transparent'
+                }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '700', color: historyFilter === '7days' ? '#FFF' : Colors.mutedText }}>7 Hari</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setHistoryFilter('month')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 7,
+                  alignItems: 'center',
+                  borderRadius: 6,
+                  backgroundColor: historyFilter === 'month' ? Colors.forestGreen : 'transparent'
+                }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '700', color: historyFilter === 'month' ? '#FFF' : Colors.mutedText }}>Bulan Ini</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setHistoryFilter('30days')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 7,
+                  alignItems: 'center',
+                  borderRadius: 6,
+                  backgroundColor: historyFilter === '30days' ? Colors.forestGreen : 'transparent'
+                }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '700', color: historyFilter === '30days' ? '#FFF' : Colors.mutedText }}>30 Hari</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Attendance Summary Bar (Dynamic by Filter) */}
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
+              <View style={{ flex: 1, backgroundColor: '#DCFCE7', padding: 10, borderRadius: Radius.md, alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#166534' }}>
+                  {historyFilter === '7days' ? '5' : historyFilter === 'month' ? '18' : '22'}
+                </Text>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#15803D', marginTop: 2 }}>HADIR</Text>
               </View>
-              <View style={{ flex: 1, backgroundColor: '#FEF3C7', padding: 12, borderRadius: Radius.md, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#92400E' }}>1</Text>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#B45309', marginTop: 2 }}>TERLAMBAT</Text>
+              <View style={{ flex: 1, backgroundColor: '#FEF3C7', padding: 10, borderRadius: Radius.md, alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#92400E' }}>
+                  {historyFilter === '7days' ? '0' : '1'}
+                </Text>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#B45309', marginTop: 2 }}>TERLAMBAT</Text>
               </View>
-              <View style={{ flex: 1, backgroundColor: '#FEE2E2', padding: 12, borderRadius: Radius.md, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#991B1B' }}>0</Text>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#B91C1C', marginTop: 2 }}>ALPHA</Text>
+              <View style={{ flex: 1, backgroundColor: '#FEE2E2', padding: 10, borderRadius: Radius.md, alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#991B1B' }}>0</Text>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#B91C1C', marginTop: 2 }}>ALPHA</Text>
               </View>
             </View>
 
-            {/* Attendance Daily List (Compact & Slim Cards) */}
-            {attendanceHistory.map((item) => (
+            {/* Attendance Daily List (Single unified list filtered by tab) */}
+            {(historyFilter === '7days' ? attendanceHistory.slice(0, 2) : attendanceHistory).map((item) => (
               <View key={item.id} style={{ backgroundColor: '#FFF', borderRadius: Radius.md, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: Colors.lineBorder }}>
                 {/* 1. BAGIAN ATAS: Tanggal & Status Badge */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
