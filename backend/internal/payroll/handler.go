@@ -1,8 +1,6 @@
 package payroll
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"hris/internal/auth"
 	"hris/pkg/storage"
@@ -40,17 +38,18 @@ func (h *Handler) RegisterRoutes(router fiber.Router, jwtSecret string) {
 
 func (h *Handler) DownloadPayslipPDF(c *fiber.Ctx) error {
 	psID := c.Params("id")
-	pdfBytes, err := h.service.GeneratePDFBytes(c.Context(), psID)
+	htmlBytes, err := h.service.GeneratePDFBytes(c.Context(), psID)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"error":   fiber.Map{"code": "PDF_GEN_FAILED", "message": err.Error()},
+			"error":   fiber.Map{"code": "PAYSLIP_GEN_FAILED", "message": err.Error()},
 		})
 	}
 
-	c.Set("Content-Type", "application/pdf")
-	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"Slip_Gaji_%s.pdf\"", psID))
-	return c.Send(pdfBytes)
+	// Serve as HTML so the browser can render the styled payslip.
+	// Users can Print → Save as PDF (Ctrl+P) for high-quality PDF output.
+	c.Set("Content-Type", "text/html; charset=utf-8")
+	return c.Send(htmlBytes)
 }
 
 func (h *Handler) GetSalaryStructure(c *fiber.Ctx) error {
