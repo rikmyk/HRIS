@@ -37,8 +37,8 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '24px' }}>
-      <div className="admin-shell" style={{ maxWidth: 1240, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', width: '100vw', margin: 0, padding: 0, overflow: 'hidden' }}>
+      <div className="admin-shell">
         {/* Topbar */}
         <div className="admin-topbar">
           <div className="brand">
