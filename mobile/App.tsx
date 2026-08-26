@@ -464,29 +464,38 @@ export default function App() {
           console.log('Using default demo token fallback');
         }
 
-        const res = await fetch(`${baseUrl}/attendance/history`, {
+        const res = await fetch(`${baseUrl}/attendance/records`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const json = await res.json();
         if (json && json.success && Array.isArray(json.data) && json.data.length > 0) {
-          const mapped = json.data.map((item: any, idx: number) => {
-            const clockInTimeStr = item.clock_in_time ? formatTime(new Date(item.clock_in_time)) + ' WIB' : (item.clockIn || '08:14:00 WIB');
-            const clockOutTimeStr = item.clock_out_time ? formatTime(new Date(item.clock_out_time)) + ' WIB' : (item.clockOut || '-');
-            const formattedDateStr = item.attendance_date || item.date || formatDate(new Date());
-            return {
-              id: item.id || `att-${idx}-${Date.now()}`,
-              date: formattedDateStr,
-              status: item.status === 'present' ? 'Hadir' : (item.status === 'late' ? 'Terlambat' : 'Hadir'),
-              lateMinutes: item.late_minutes || item.lateMinutes || 0,
-              clockIn: clockInTimeStr,
-              clockInLoc: item.clockInLoc || 'Head Office (25m)',
-              clockInPhoto: item.clock_in_photo_url || item.clockInPhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80',
-              clockOut: clockOutTimeStr,
-              clockOutLoc: item.clockOutLoc || (clockOutTimeStr !== '-' ? 'Head Office (30m)' : '-'),
-              clockOutPhoto: item.clock_out_photo_url || item.clockOutPhoto || '-'
-            };
-          });
-          setAttendanceHistory(mapped);
+          const myRecords = json.data.filter((item: any) => 
+            item.employee_code === 'EMP-2026-001' || item.employee_name === 'Budi Santoso'
+          );
+          if (myRecords.length > 0) {
+            const mappedBackend = myRecords.map((item: any, idx: number) => ({
+              id: item.id || `att-bg-${idx}`,
+              date: item.date || formatDate(new Date()),
+              status: item.status === 'valid' ? 'Hadir' : (item.status === 'rejected_geofence' ? 'Ditolak' : 'Hadir'),
+              lateMinutes: 0,
+              clockIn: item.clock_in_time || '08:00:00 WIB',
+              clockInLoc: item.office_name ? `${item.office_name} (${item.clock_in_distance || '35m'})` : 'Head Office (35m)',
+              clockInPhoto: item.clock_in_photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80',
+              clockOut: item.clock_out_time || '-',
+              clockOutLoc: item.clock_out_time && item.clock_out_time !== '-' ? `${item.office_name} (${item.clock_out_distance || '30m'})` : '-',
+              clockOutPhoto: item.clock_out_photo || '-'
+            }));
+
+            setAttendanceHistory(prev => {
+              const combined = [...mappedBackend];
+              prev.forEach((prevItem: any) => {
+                if (!combined.some(c => c.id === prevItem.id || c.date === prevItem.date)) {
+                  combined.push(prevItem);
+                }
+              });
+              return combined;
+            });
+          }
         }
       } catch (e) {
         console.log('Mobile initial attendance API sync completed or using offline cache');
@@ -529,7 +538,7 @@ export default function App() {
       }
     };
 
-    // Load Leave Requests History from Backend DB
+    // Load Leave Requests History from Backend DB (with real-time status update)
     const fetchBackendLeaves = async () => {
       try {
         const baseUrl = getApiBaseUrl();
@@ -547,14 +556,51 @@ export default function App() {
         });
         const json = await res.json();
         if (json && json.success && Array.isArray(json.data) && json.data.length > 0) {
-          const mapped = json.data.map((item: any, idx: number) => ({
-            id: item.id || `lr-${idx}`,
-            type: item.leave_type_name || 'Cuti Tahunan',
-            date: `${item.start_date || '2026-08-26'} - ${item.end_date || '2026-08-28'}`,
-            days: `${item.days_count || 1} Hari`,
-            status: item.status === 'approved' ? 'Disetujui' : (item.status === 'rejected' ? 'Ditolak' : 'Pending')
-          }));
-          setLeaveHistory(mapped);
+          const myLeaves = json.data.filter((item: any) => 
+            !item.employee_id || item.employee_id === 'emp-001' || item.employee_code === 'EMP-2026-001' || item.employee_name === 'Budi Santoso'
+          );
+
+          if (myLeaves.length > 0) {
+            setLeaveHistory(prev => {
+              const nextList = [...prev];
+              myLeaves.forEach((bItem: any) => {
+                const statusMap: Record<string, string> = {
+                  'approved': 'Disetujui',
+                  'rejected': 'Ditolak',
+                  'pending': 'Pending'
+                };
+                const statusStr = statusMap[bItem.status] || 'Pending';
+                const dateStr = bItem.start_date === bItem.end_date 
+                  ? (bItem.start_date || '2026-08-26') 
+                  : `${bItem.start_date || '2026-08-26'} - ${bItem.end_date || '2026-08-28'}`;
+                const typeStr = bItem.leave_type_name || 'Cuti Tahunan';
+                const daysStr = `${bItem.days_count || 1} Hari`;
+
+                const matchIdx = nextList.findIndex((p: any) => 
+                  p.id === bItem.id || (p.type === typeStr && (p.date === dateStr || p.date.includes(bItem.start_date || '2026')))
+                );
+
+                if (matchIdx >= 0) {
+                  nextList[matchIdx] = {
+                    ...nextList[matchIdx],
+                    id: bItem.id,
+                    status: statusStr,
+                    days: daysStr,
+                    type: typeStr
+                  };
+                } else {
+                  nextList.unshift({
+                    id: bItem.id || `lr-${Date.now()}`,
+                    type: typeStr,
+                    date: dateStr,
+                    days: daysStr,
+                    status: statusStr
+                  });
+                }
+              });
+              return nextList;
+            });
+          }
         }
       } catch (e) {
         console.log('Mobile leave API sync complete');
@@ -627,6 +673,13 @@ export default function App() {
     fetchBackendLeaves();
     fetchBackendPayslips();
     fetchOfficeLocations();
+
+    const liveSyncTimer = setInterval(() => {
+      fetchBackendLeaves();
+      fetchBackendAttendanceHistory();
+    }, 3000);
+
+    return () => clearInterval(liveSyncTimer);
   }, []);
 
   // Trigger camera & GPS modal with fast location lookup
