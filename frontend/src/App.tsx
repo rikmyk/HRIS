@@ -1581,38 +1581,38 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 3: INTERACTIVE SELFIE PHOTO & GPS ZOOM MODAL */}
+      {/* MODAL 3: INTERACTIVE SELFIE PHOTO & GPS ZOOM MODAL - MOBILE THEME ALIGNED */}
       {selectedPhotoModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#fff', borderRadius: 16, maxWidth: 640, width: '100%', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
-            <div style={{ padding: '16px 20px', background: 'var(--ink)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: '#FFF', borderRadius: 16, maxWidth: 640, width: '100%', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.25)', border: '1.5px solid #2F6F5E' }}>
+            <div style={{ padding: '16px 20px', background: '#2F6F5E', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #245749' }}>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 16 }}>Verifikasi Foto Selfie Absen Masuk & Keluar</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{selectedPhotoModal.employee_name} ({selectedPhotoModal.employee_code}) · {selectedPhotoModal.date}</div>
+                <div style={{ fontWeight: 800, fontSize: 16, fontFamily: 'Space Grotesk' }}>Verifikasi Foto Selfie Absen Masuk & Keluar</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 2 }}>{selectedPhotoModal.employee_name} ({selectedPhotoModal.employee_code}) · {selectedPhotoModal.date}</div>
               </div>
-              <button onClick={() => setSelectedPhotoModal(null)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={20} /></button>
+              <button onClick={() => setSelectedPhotoModal(null)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={18} /></button>
             </div>
 
-            <div style={{ padding: 20 }}>
+            <div style={{ padding: 20, background: '#FBF9F5' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 {/* Clock In Photo Box */}
-                <div style={{ border: '1px solid var(--line)', borderRadius: 12, padding: 10, background: '#F8FAFC' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--forest)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, background: '#FFFFFF', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: '#166534', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                     🟢 Foto Selfie Absen Masuk
                   </div>
-                  <div style={{ height: 180, borderRadius: 8, overflow: 'hidden', background: '#E2E8F0', marginBottom: 8 }}>
+                  <div style={{ height: 190, borderRadius: 8, overflow: 'hidden', background: '#E2E8F0', marginBottom: 10, border: '1px solid #E2E8F0' }}>
                     <img src={selectedPhotoModal.clock_in_photo} alt="Selfie Masuk" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--ink)', fontWeight: 600 }}>⏰ Jam: {selectedPhotoModal.clock_in_time}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>📍 Radius: {selectedPhotoModal.clock_in_distance}</div>
+                  <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 700 }}>⏰ Jam: {selectedPhotoModal.clock_in_time}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>📍 Radius: {selectedPhotoModal.clock_in_distance}</div>
                 </div>
 
                 {/* Clock Out Photo Box */}
-                <div style={{ border: '1px solid var(--line)', borderRadius: 12, padding: 10, background: '#F8FAFC' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#C24A3B', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, background: '#FFFFFF', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: '#B91C1C', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                     🔴 Foto Selfie Absen Keluar
                   </div>
-                  <div style={{ height: 180, borderRadius: 8, overflow: 'hidden', background: '#E2E8F0', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ height: 190, borderRadius: 8, overflow: 'hidden', background: '#E2E8F0', marginBottom: 10, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {selectedPhotoModal.clock_out_photo ? (
                       <img src={selectedPhotoModal.clock_out_photo} alt="Selfie Keluar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
@@ -1621,25 +1621,41 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--ink)', fontWeight: 600 }}>⏰ Jam: {selectedPhotoModal.clock_out_time}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>📍 Radius: {selectedPhotoModal.clock_out_distance}</div>
+                  <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 700 }}>⏰ Jam: {selectedPhotoModal.clock_out_time}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>📍 Radius: {selectedPhotoModal.clock_out_distance}</div>
                 </div>
               </div>
 
-              <div style={{ background: '#F1F5F9', borderRadius: 10, padding: 12, border: '1px solid var(--line)', marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>Penempatan Kantor:</span>
-                  <strong style={{ fontSize: 12 }}>📍 {selectedPhotoModal.office_name}</strong>
+              <div style={{ background: selectedPhotoModal.status === 'valid' ? '#F0FDF4' : '#FEF2F2', borderRadius: 12, padding: 14, border: `1px solid ${selectedPhotoModal.status === 'valid' ? '#BBF7D0' : '#FECACA'}`, marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Penempatan Kantor Cabang:</span>
+                  <strong style={{ fontSize: 13, color: 'var(--ink)' }}>📍 {selectedPhotoModal.office_name}</strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>Status Validasi GPS:</span>
-                  <span className={`pill ${selectedPhotoModal.status === 'valid' ? 'present' : 'absent'}`}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Status Validasi Geofence & GPS:</span>
+                  <span className={`pill ${selectedPhotoModal.status === 'valid' ? 'present' : 'absent'}`} style={{ fontWeight: 700, fontSize: 11 }}>
                     {selectedPhotoModal.status === 'valid' ? '✓ Valid Dalam Radius' : '⚠️ Ditolak (Luar Radius)'}
                   </span>
                 </div>
               </div>
 
-              <button onClick={() => setSelectedPhotoModal(null)} className="btn-mini dark" style={{ width: '100%', padding: '10px' }}>
+              <button
+                onClick={() => setSelectedPhotoModal(null)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: 10,
+                  background: '#2F6F5E',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: 14,
+                  fontFamily: 'Space Grotesk',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(47,111,94,0.25)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
                 Tutup Pratinjau Foto
               </button>
             </div>
