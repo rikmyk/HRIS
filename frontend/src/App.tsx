@@ -742,10 +742,9 @@ export default function App() {
             <span>HRIS Admin</span>
           </div>
 
-          {/* Center: Live Timestamp Clock (Muted Style) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 500, color: 'var(--muted)', background: '#F8FAFC', padding: '4px 12px', borderRadius: 20, border: '1px solid var(--line)' }}>
-            <Clock size={13} color="var(--muted)" />
-            <span>{formatTimeOnly(currentDateTime)}</span>
+          {/* Center: Live Timestamp Clock (Plain Muted Text Only) */}
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--muted)', letterSpacing: '0.2px' }}>
+            {formatTimeOnly(currentDateTime)}
           </div>
 
           {/* Right: Live Date */}
