@@ -667,34 +667,9 @@ export default function App() {
             <span>HRIS Admin</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {/* Theme Toggle Button */}
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                background: '#F1F5F9',
-                border: '1px solid var(--line)',
-                borderRadius: 20,
-                padding: '4px 10px',
-                cursor: 'pointer',
-                fontSize: 12,
-                fontWeight: 700
-              }}
-            >
-              {isDarkMode ? <Moon size={15} color="var(--ink)" /> : <Sun size={15} color="var(--accent)" />}
-              <span>{isDarkMode ? 'Mode Gelap' : 'Mode Terang'}</span>
-            </button>
-
-            <div className="admin-user">
-              <div className="avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 12 }}>SW</div>
-              <span>Sari Wijaya · HR Admin</span>
-              <button onClick={() => setIsLoggedIn(false)} className="btn-mini" style={{ marginLeft: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <LogOut size={14} /> Keluar
-              </button>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+            <span>Sistem HRIS Terintegrasi Real-time</span>
           </div>
         </div>
 
@@ -702,26 +677,87 @@ export default function App() {
         <div className="admin-layout">
           {/* Sidebar */}
           <div className="admin-sidebar">
-            <div className={`side-link ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-              <LayoutDashboard size={17} /> Dashboard
+            <div>
+              <div className={`side-link ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+                <LayoutDashboard size={17} /> Dashboard
+              </div>
+              <div className={`side-link ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
+                <Users size={17} /> Karyawan & Penetapan Gaji
+              </div>
+              <div className={`side-link ${activeTab === 'offices' ? 'active' : ''}`} onClick={() => setActiveTab('offices')}>
+                <Building2 size={17} /> Lokasi Kantor Cabang
+              </div>
+              <div className={`side-link ${activeTab === 'monitoring' ? 'active' : ''}`} onClick={() => setActiveTab('monitoring')}>
+                <MapPin size={17} /> Monitoring Absensi & Foto
+              </div>
+              <div className={`side-link ${activeTab === 'leave' ? 'active' : ''}`} onClick={() => setActiveTab('leave')}>
+                <FileText size={17} /> Pengajuan Izin
+              </div>
+              <div className={`side-link ${activeTab === 'approval' ? 'active' : ''}`} onClick={() => setActiveTab('approval')}>
+                <FileCheck size={17} /> Approval Slip Gaji
+              </div>
+              <div className={`side-link ${activeTab === 'payment' ? 'active' : ''}`} onClick={() => setActiveTab('payment')}>
+                <CreditCard size={17} /> Penandaan Pembayaran
+              </div>
             </div>
-            <div className={`side-link ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
-              <Users size={17} /> Karyawan & Penetapan Gaji
-            </div>
-            <div className={`side-link ${activeTab === 'offices' ? 'active' : ''}`} onClick={() => setActiveTab('offices')}>
-              <Building2 size={17} /> Lokasi Kantor Cabang
-            </div>
-            <div className={`side-link ${activeTab === 'monitoring' ? 'active' : ''}`} onClick={() => setActiveTab('monitoring')}>
-              <MapPin size={17} /> Monitoring Absensi & Foto
-            </div>
-            <div className={`side-link ${activeTab === 'leave' ? 'active' : ''}`} onClick={() => setActiveTab('leave')}>
-              <FileText size={17} /> Pengajuan Izin
-            </div>
-            <div className={`side-link ${activeTab === 'approval' ? 'active' : ''}`} onClick={() => setActiveTab('approval')}>
-              <FileCheck size={17} /> Approval Slip Gaji
-            </div>
-            <div className={`side-link ${activeTab === 'payment' ? 'active' : ''}`} onClick={() => setActiveTab('payment')}>
-              <CreditCard size={17} /> Penandaan Pembayaran
+
+            {/* Bottom User Profile, Mode Terang & Keluar Button */}
+            <div style={{ paddingTop: 16, borderTop: '1.5px solid var(--line)', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* User Profile Card */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F8FAFC', borderRadius: 10, border: '1.5px solid var(--line)' }}>
+                <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#2F6F5E', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, border: '1px solid #1E4D40', flexShrink: 0 }}>
+                  SW
+                </div>
+                <div style={{ overflow: 'hidden' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Sari Wijaya</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>HR Admin</div>
+                </div>
+              </div>
+
+              {/* Theme Toggle Button */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'center',
+                  gap: 8,
+                  background: '#FFFFFF',
+                  border: '1.5px solid var(--line)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: 'var(--ink)',
+                  width: '100%',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {isDarkMode ? <Moon size={15} color="var(--ink)" /> : <Sun size={15} color="var(--accent)" />}
+                <span>{isDarkMode ? 'Mode Gelap' : 'Mode Terang'}</span>
+              </button>
+
+              {/* LogOut Button */}
+              <button
+                onClick={() => setIsLoggedIn(false)}
+                className="btn-mini"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justify: 'center',
+                  gap: 6,
+                  color: '#C24A3B',
+                  borderColor: '#FCA5A5',
+                  background: '#FEF2F2',
+                  fontWeight: 700,
+                  marginRight: 0
+                }}
+              >
+                <LogOut size={14} /> Keluar
+              </button>
             </div>
           </div>
 
