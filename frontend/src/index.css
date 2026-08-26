@@ -1,0 +1,405 @@
+/* HRIS Design System Core CSS Tokens — Synchronized with MCP Stitch Project 9799461084223022655 */
+
+:root {
+  --ink:          #1B2430;  /* Dark navy — primary text, active states, dark buttons */
+  --primary:      #2F6F5E;  /* Forest green — primary CTA, GPS in-range, nav active */
+  --primary-dark: #204F42;  /* Darker green — pill text on light-green bg */
+  --accent:       #E8A33D;  /* Amber — KPI highlights, avatar bg, brand accent */
+  --bg:           #F5F3EE;  /* Warm off-white — page background */
+  --surface:      #FFFFFF;  /* White — cards, modals, phone screen */
+  --danger:       #C24A3B;  /* Red-brown — errors, outside-geofence, rejected status */
+  --muted:        #6B7280;  /* Grey — secondary text, labels, disabled states */
+  --line:         #E5E1D8;  /* Warm grey line — borders, dividers, table lines */
+  --radius:       14px;     /* Default corner radius */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .display-font {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Typography Tokens per Stitch Design MD */
+.headline-lg {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+}
+
+.headline-md {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+.headline-sm {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.body-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+}
+
+.body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.body-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+/* Button Components per Stitch DS */
+.btn-primary {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 20px -8px rgba(47, 111, 94, 0.55);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-mini {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-mini:hover {
+  border-color: var(--primary);
+}
+
+.btn-mini.primary {
+  background: var(--primary);
+  color: #FFF;
+  border-color: var(--primary);
+}
+
+.btn-mini.dark {
+  background: var(--ink);
+  color: #FFF;
+  border-color: var(--ink);
+}
+
+/* Status Pills per Stitch DS */
+.pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.pill.present, .pill.paid {
+  background: #E4F3EC;
+  color: var(--primary-dark);
+}
+
+.pill.late, .pill.approved, .pill.warn {
+  background: #FDF1DC;
+  color: #9A6714;
+}
+
+.pill.absent, .pill.rejected, .pill.danger {
+  background: #FBEEEC;
+  color: #8A3226;
+}
+
+.pill.leave, .pill.pending {
+  background: #E9EEF7;
+  color: #2F4E8A;
+}
+
+.pill.draft {
+  background: #EFEDE7;
+  color: var(--muted);
+}
+
+/* Admin Web Shell Layout — 100% Fullscreen Viewport */
+.admin-shell {
+  background: var(--surface);
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--line);
+  background: #FCFBF9;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.admin-topbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--ink);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.admin-layout {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.admin-sidebar {
+  width: 240px;
+  border-right: 1px solid var(--line);
+  padding: 24px 16px;
+  background: #FCFBF9;
+  flex-shrink: 0;
+}
+
+.side-link {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.side-link:hover {
+  background: #F0EDE5;
+  color: var(--ink);
+}
+
+.side-link.active {
+  background: var(--ink);
+  color: #FFF;
+}
+
+.admin-main {
+  padding: 32px 40px;
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.admin-main h2 {
+  font-size: 18px;
+  margin: 0 0 3px;
+}
+
+.admin-main .sub {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+/* KPI Card Grid */
+.kpi-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.kpi-card {
+  flex: 1;
+  min-width: 150px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: var(--surface);
+}
+
+.kpi-card .kpi-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.kpi-card .kpi-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.kpi-card .kpi-value.accent {
+  color: var(--accent);
+}
+
+.kpi-card .kpi-value.warn {
+  color: #9A6714;
+}
+
+.kpi-card .kpi-value.danger {
+  color: var(--danger);
+}
+
+/* Data Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 700;
+}
+
+td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.row-flex {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.mini-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #DDD6C6;
+  flex-shrink: 0;
+}
+
+.name-cell .n {
+  font-weight: 600;
+}
+
+.name-cell .d {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.panel-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #FCFBF9;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+
+.error-banner {
+  background: #FBEEEC;
+  border: 1px solid #F0C7C0;
+  color: #8A3226;
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: flex;
+  gap: 8px;
+}

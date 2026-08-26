@@ -1,0 +1,58 @@
+# ==========================================
+# Root Files & Project Documentation Ignore
+# ==========================================
+docs projects/
+docs/
+BETA/
+EN/
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ==========================================
+# Go Backend Build Artifacts & Binaries
+# ==========================================
+/bin/
+*.exe
+*.exe?
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+
+# ==========================================
+# Node / Frontend / Mobile Dependencies & Build
+# ==========================================
+.vite/
+node_modules/
+.pnpm-store/
+dist/
+build/
+.expo/
+.next/
+*.log
+
+# ==========================================
+# Operating System & IDE Files
+# ==========================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+.gemini/
+.ai/
+AGENTS.md
