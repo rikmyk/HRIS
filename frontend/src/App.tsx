@@ -117,6 +117,9 @@ export default function App() {
   const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState<boolean>(false);
   const [editingSalaryEmp, setEditingSalaryEmp] = useState<EmployeeItem | null>(null);
   const [isEditSalaryModalOpen, setIsEditSalaryModalOpen] = useState<boolean>(false);
+  const [editBasicSalary, setEditBasicSalary] = useState<string>('');
+  const [editAllowances, setEditAllowances] = useState<string>('');
+  const [selectedPlacements, setSelectedPlacements] = useState<string[]>([]);
 
   // New Employee Form Input State
   const [newEmpCode, setNewEmpCode] = useState<string>('EMP-2026-004');
@@ -920,7 +923,9 @@ export default function App() {
                           <button
                             onClick={() => {
                               setEditingSalaryEmp(emp);
-                              setSelectedPlacements(emp.office_placements);
+                              setEditBasicSalary(emp.basic_salary);
+                              setEditAllowances(emp.allowances);
+                              setSelectedPlacements(emp.office_placements || []);
                               setIsEditSalaryModalOpen(true);
                             }}
                             className="btn-mini primary"
@@ -1502,7 +1507,7 @@ export default function App() {
       {/* MODAL 2: ATUR GAJI & PENEMPATAN KARYAWAN EXIST */}
       {isEditSalaryModalOpen && editingSalaryEmp && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#fff', borderRadius: 16, maxWidth: 520, width: '100%', padding: 24, boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, maxWidth: 520, width: '100%', padding: 24, boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1.5px solid var(--line)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid var(--line)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <DollarSign size={20} color="var(--primary)" />
@@ -1521,8 +1526,8 @@ export default function App() {
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 4 }}>GAJI POKOK</label>
                 <input
                   type="text"
-                  defaultValue={editingSalaryEmp.basic_salary}
-                  id="edit_basic_salary"
+                  value={editBasicSalary}
+                  onChange={(e) => setEditBasicSalary(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13, fontWeight: 700 }}
                 />
               </div>
@@ -1531,8 +1536,8 @@ export default function App() {
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 4 }}>TUNJANGAN</label>
                 <input
                   type="text"
-                  defaultValue={editingSalaryEmp.allowances}
-                  id="edit_allowances"
+                  value={editAllowances}
+                  onChange={(e) => setEditAllowances(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13, fontWeight: 700 }}
                 />
               </div>
@@ -1542,22 +1547,23 @@ export default function App() {
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 6 }}>PENEMPATAN KANTOR CABANG (MULTI-PLACEMENT)</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {officeLocations.map(off => {
-                  const isSelected = selectedPlacements.includes(off.name);
+                  const isSelected = (selectedPlacements || []).includes(off.name);
                   return (
                     <label key={off.id} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, cursor: 'pointer' }}>
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={(e) => {
+                          const current = selectedPlacements || [];
                           if (e.target.checked) {
-                            setSelectedPlacements([...selectedPlacements, off.name]);
+                            setSelectedPlacements([...current, off.name]);
                           } else {
-                            setSelectedPlacements(selectedPlacements.filter(p => p !== off.name));
+                            setSelectedPlacements(current.filter(p => p !== off.name));
                           }
                         }}
                         style={{ accentColor: 'var(--primary)', width: 16, height: 16 }}
                       />
-                      <span>📍 <strong>{off.name}</strong></span>
+                      <span>📍 <strong>{off.name}</strong> ({off.address})</span>
                     </label>
                   );
                 })}
@@ -1568,22 +1574,22 @@ export default function App() {
               <button onClick={() => setIsEditSalaryModalOpen(false)} className="btn-mini">Batal</button>
               <button
                 onClick={() => {
-                  const newBasic = (document.getElementById('edit_basic_salary') as HTMLInputElement)?.value || editingSalaryEmp.basic_salary;
-                  const newAllow = (document.getElementById('edit_allowances') as HTMLInputElement)?.value || editingSalaryEmp.allowances;
+                  const formattedBasic = editBasicSalary.startsWith('Rp') ? editBasicSalary : formatRupiah(editBasicSalary);
+                  const formattedAllow = editAllowances.startsWith('Rp') ? editAllowances : formatRupiah(editAllowances);
 
                   setEmployees(prev => prev.map(e => e.id === editingSalaryEmp.id ? {
                     ...e,
-                    basic_salary: newBasic,
-                    allowances: newAllow,
-                    office_placements: selectedPlacements
+                    basic_salary: formattedBasic,
+                    allowances: formattedAllow,
+                    office_placements: selectedPlacements || []
                   } : e));
 
                   // Also update their active draft payslip if exists
                   setPayslips(prev => prev.map(p => p.employee_name === editingSalaryEmp.name ? {
                     ...p,
-                    basic_salary: newBasic,
-                    allowances: newAllow,
-                    net_salary: newBasic
+                    basic_salary: formattedBasic,
+                    allowances: formattedAllow,
+                    net_salary: formattedBasic
                   } : p));
 
                   setIsEditSalaryModalOpen(false);
