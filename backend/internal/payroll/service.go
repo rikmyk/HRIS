@@ -2,8 +2,11 @@ package payroll
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"hris/internal/audit"
@@ -90,6 +93,7 @@ type Service struct {
 	auditLog   *audit.Logger
 	cache      cache.PayslipCache
 	storage    storage.StorageService
+	filePath   string
 }
 
 func NewService(storageSvc storage.StorageService) *Service {
@@ -100,6 +104,7 @@ func NewService(storageSvc storage.StorageService) *Service {
 		auditLog:   audit.NewLogger(),
 		cache:      cache.NewMemoryPayslipCache(),
 		storage:    storageSvc,
+		filePath:   filepath.Join("data", "payroll_store.json"),
 	}
 
 	// Seed mock salary structure
@@ -139,58 +144,33 @@ func NewService(storageSvc storage.StorageService) *Service {
 		UpdatedAt: time.Now(),
 	}
 
-	// 2. Initial payslip for Siti Rahma (ps-002 / emp-002)
-	svc.payslips["ps-002"] = &PayslipBreakdown{
-		ID:               "ps-002",
-		EmployeeID:       "emp-002",
-		EmployeeName:     "Siti Rahma",
-		EmployeeCode:     "EMP-2026-002",
-		DepartmentName:   "Human Resources",
-		PositionTitle:    "HR Specialist",
-		PeriodID:         "period-2026-08",
-		PeriodName:       "Agustus 2026",
-		TotalPresent:     20,
-		TotalLateMinutes: 0,
-		UnpaidLeaveDays:  0,
-		GrossSalary:      8500000,
-		TotalDeduction:   0,
-		NetSalary:        8500000,
-		Status:           "approved",
-		IsPaid:           true,
-		Components: []Component{
-			{Name: "Gaji Pokok", Type: "allowance", Amount: 7500000},
-			{Name: "Tunjangan Jabatan", Type: "allowance", Amount: 1000000},
-		},
-		UpdatedAt: time.Now(),
-	}
-
-	// 3. Initial payslip for Agus Pratama (ps-003 / emp-003)
-	svc.payslips["ps-003"] = &PayslipBreakdown{
-		ID:               "ps-003",
-		EmployeeID:       "emp-003",
-		EmployeeName:     "Agus Pratama",
-		EmployeeCode:     "EMP-2026-003",
-		DepartmentName:   "Product Management",
-		PositionTitle:    "Product Manager",
-		PeriodID:         "period-2026-08",
-		PeriodName:       "Agustus 2026",
-		TotalPresent:     19,
-		TotalLateMinutes: 45,
-		UnpaidLeaveDays:  0,
-		GrossSalary:      12500000,
-		TotalDeduction:   225000,
-		NetSalary:        12275000,
-		Status:           "approved",
-		IsPaid:           false,
-		Components: []Component{
-			{Name: "Gaji Pokok", Type: "allowance", Amount: 11000000},
-			{Name: "Tunjangan Transport", Type: "allowance", Amount: 1500000},
-			{Name: "Potongan Keterlambatan (45m)", Type: "deduction", Amount: 225000},
-		},
-		UpdatedAt: time.Now(),
-	}
-
+	svc.loadFromFile()
 	return svc
+}
+
+func (s *Service) loadFromFile() {
+	if s.filePath == "" {
+		return
+	}
+	data, err := os.ReadFile(s.filePath)
+	if err != nil {
+		return
+	}
+	var loaded map[string]*PayslipBreakdown
+	if err := json.Unmarshal(data, &loaded); err == nil && len(loaded) > 0 {
+		s.payslips = loaded
+	}
+}
+
+func (s *Service) saveToFile() {
+	if s.filePath == "" {
+		return
+	}
+	_ = os.MkdirAll(filepath.Dir(s.filePath), 0755)
+	data, err := json.MarshalIndent(s.payslips, "", "  ")
+	if err == nil {
+		_ = os.WriteFile(s.filePath, data, 0644)
+	}
 }
 
 // CalculatePayslip executes the Payroll Engine auto-calculation algorithm
@@ -296,6 +276,7 @@ func (s *Service) ApprovePayslip(ctx context.Context, payslipID, actorID string)
 
 	s.auditLog.LogAction(ctx, actorID, "payslip", payslipID, "approve", before, *ps)
 	s.cache.InvalidatePayslip(ctx, cache.FormatPayslipCacheKey(ps.EmployeeID, ps.PeriodID))
+	s.saveToFile()
 
 	return ps, nil
 }
@@ -337,6 +318,7 @@ func (s *Service) MarkAsPaid(ctx context.Context, payslipID, actorID, paymentRef
 
 	s.auditLog.LogAction(ctx, actorID, "payslip", payslipID, "mark_paid", before, *ps)
 	s.cache.InvalidatePayslip(ctx, cache.FormatPayslipCacheKey(ps.EmployeeID, ps.PeriodID))
+	s.saveToFile()
 
 	return ps, nil
 }
