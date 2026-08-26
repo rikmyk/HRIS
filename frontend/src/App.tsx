@@ -140,6 +140,27 @@ export default function App() {
     return `${dayName}, ${day} ${monthName} ${year} · ${hours}:${minutes}:${seconds} WIB`;
   };
 
+  const formatIndonesianDateOnly = (date: Date) => {
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const monthName = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${dayName}, ${day} ${monthName} ${year}`;
+  };
+
+  const formatTimeOnly = (date: Date) => {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds} WIB`;
+  };
+
   const formatIndonesianMonthYear = (date: Date) => {
     const months = [
       'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -710,10 +731,16 @@ export default function App() {
             <span>HRIS Admin</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink)', fontWeight: 600 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+          {/* Center: Live Timestamp Clock */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: 'var(--primary-dark)', background: '#F0FDF4', padding: '4px 12px', borderRadius: 20, border: '1.5px solid #BBF7D0' }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+            <span>{formatTimeOnly(currentDateTime)}</span>
+          </div>
+
+          {/* Right: Live Date */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--ink)', fontWeight: 600 }}>
             <Calendar size={14} color="var(--primary-dark)" />
-            <span style={{ fontWeight: 700 }}>{formatIndonesianFullDateTime(currentDateTime)}</span>
+            <span style={{ fontWeight: 700 }}>{formatIndonesianDateOnly(currentDateTime)}</span>
           </div>
         </div>
 
