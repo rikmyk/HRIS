@@ -1067,14 +1067,14 @@ export default function App() {
                           <td><strong>{att.date}</strong></td>
                           <td>
                             <div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--forest)' }}>🟢 {att.clock_in_time}</div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--forest)' }}>{att.clock_in_time}</div>
                               <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_in_distance}</div>
                             </div>
                           </td>
                           <td>
                             {att.clock_out_time && att.clock_out_time !== '-' ? (
                               <div>
-                                <div style={{ fontSize: 12, fontWeight: 700, color: '#C24A3B' }}>🔴 {att.clock_out_time}</div>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: '#C24A3B' }}>{att.clock_out_time}</div>
                                 <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_out_distance}</div>
                               </div>
                             ) : (
@@ -1622,7 +1622,7 @@ export default function App() {
                 {/* Clock In Photo Box */}
                 <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, background: '#FFFFFF', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#166534', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    🟢 Foto Selfie Absen Masuk
+                    Foto Selfie Absen Masuk
                   </div>
                   <div style={{ height: 190, borderRadius: 8, overflow: 'hidden', background: '#E2E8F0', marginBottom: 10, border: '1px solid #E2E8F0' }}>
                     <img src={selectedPhotoModal.clock_in_photo} alt="Selfie Masuk" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1634,7 +1634,7 @@ export default function App() {
                 {/* Clock Out Photo Box */}
                 <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, background: '#FFFFFF', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#B91C1C', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    🔴 Foto Selfie Absen Keluar
+                    Foto Selfie Absen Keluar
                   </div>
                   <div style={{ height: 190, borderRadius: 8, overflow: 'hidden', background: '#E2E8F0', marginBottom: 10, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {selectedPhotoModal.clock_out_photo ? (
