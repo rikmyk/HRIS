@@ -254,15 +254,21 @@ func (s *Service) UpsertDailyRecord(rec *DailyAttendanceRecord) {
 		if existing.EmployeeCode == rec.EmployeeCode && existing.Date == rec.Date {
 			if rec.ClockInTime != "" && rec.ClockInTime != "-" {
 				existing.ClockInTime = rec.ClockInTime
-				existing.ClockInPhoto = rec.ClockInPhoto
+				if rec.ClockInPhoto != "" {
+					existing.ClockInPhoto = rec.ClockInPhoto
+				}
 				existing.ClockInDistance = rec.ClockInDistance
 			}
 			if rec.ClockOutTime != "" && rec.ClockOutTime != "-" {
 				existing.ClockOutTime = rec.ClockOutTime
-				existing.ClockOutPhoto = rec.ClockOutPhoto
+				if rec.ClockOutPhoto != "" {
+					existing.ClockOutPhoto = rec.ClockOutPhoto
+				}
 				existing.ClockOutDistance = rec.ClockOutDistance
 			}
-			existing.Status = rec.Status
+			if rec.Status != "" {
+				existing.Status = rec.Status
+			}
 			s.dailyRecords[i] = existing
 			return
 		}
