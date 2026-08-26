@@ -50,9 +50,19 @@ const fetchWithTimeout = async (url: string, options: any = {}, timeoutMs = 2500
 };
 
 const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined' && window.location) {
-    const hostname = window.location.hostname || 'localhost';
-    return `http://${hostname}:8080/v1`;
+  try {
+    const hostUri = Constants.expoConfig?.hostUri || (Constants as any).manifest?.debuggerHost;
+    if (hostUri) {
+      const ip = hostUri.split(':')[0];
+      if (ip && ip !== 'localhost' && ip !== '127.0.0.1') {
+        return `http://${ip}:8080/v1`;
+      }
+    }
+  } catch (e) {}
+
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    const host = window.location.hostname;
+    return `http://${host}:8080/v1`;
   }
   return 'http://localhost:8080/v1';
 };

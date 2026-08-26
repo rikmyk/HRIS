@@ -20,7 +20,8 @@ import (
 
 func main() {
 	app := fiber.New(fiber.Config{
-		AppName: "HRIS API v1.0",
+		AppName:   "HRIS API v1.0",
+		BodyLimit: 10 * 1024 * 1024,
 	})
 
 	app.Use(cors.New(cors.Config{
