@@ -31,6 +31,8 @@ EN/
 *.test
 *.out
 coverage.out
+backend/data/
+backend/internal/*/data/
 
 # ==========================================
 # Node / Frontend / Mobile Dependencies & Build
