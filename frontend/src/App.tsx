@@ -751,7 +751,7 @@ export default function App() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justify: 'center',
+                justifyContent: 'center',
                 color: 'var(--ink)',
                 marginRight: 4,
                 transition: 'all 0.15s ease'
@@ -837,7 +837,7 @@ export default function App() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  justify: 'center',
+                  justifyContent: 'center',
                   gap: isSidebarCollapsed ? 0 : 8,
                   background: '#FFFFFF',
                   border: '1.5px solid var(--line)',
@@ -865,7 +865,7 @@ export default function App() {
                   padding: isSidebarCollapsed ? '8px 0' : '8px 12px',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  justify: 'center',
+                  justifyContent: 'center',
                   gap: isSidebarCollapsed ? 0 : 6,
                   color: '#C24A3B',
                   borderColor: '#FCA5A5',
@@ -1902,19 +1902,19 @@ export default function App() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16, fontSize: 13 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingVertical: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
                 <span style={{ color: 'var(--muted)' }}>Gaji Pokok Terdaftar:</span>
                 <strong>{selectedPayslipDetail.basic_salary}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingVertical: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
                 <span style={{ color: 'var(--muted)' }}>Tunjangan Transport & Makan:</span>
                 <strong>{selectedPayslipDetail.allowances}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingVertical: 4, color: '#C24A3B' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', color: '#C24A3B' }}>
                 <span>Potongan Keterlambatan:</span>
                 <strong>{selectedPayslipDetail.deductions}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingVertical: 10, borderTop: '2px dashed var(--line)', background: '#DCFCE7', paddingHorizontal: 12, borderRadius: 8, color: '#166534', fontWeight: 800, fontSize: 15 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', borderTop: '2px dashed var(--line)', background: '#DCFCE7', borderRadius: 8, color: '#166534', fontWeight: 800, fontSize: 15 }}>
                 <span>TAKE HOME PAY (THP)</span>
                 <span>{selectedPayslipDetail.net_salary}</span>
               </div>
