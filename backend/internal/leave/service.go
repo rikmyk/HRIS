@@ -26,7 +26,9 @@ type LeaveType struct {
 type LeaveRequest struct {
 	ID            string     `json:"id"`
 	EmployeeID    string     `json:"employee_id"`
+	EmployeeCode  string     `json:"employee_code,omitempty"`
 	EmployeeName  string     `json:"employee_name,omitempty"`
+	Department    string     `json:"department,omitempty"`
 	LeaveTypeID   string     `json:"leave_type_id"`
 	LeaveTypeName string     `json:"leave_type_name,omitempty"`
 	StartDate     string     `json:"start_date"`
@@ -42,6 +44,9 @@ type LeaveRequest struct {
 
 type CreateLeaveRequestInput struct {
 	EmployeeID    string `json:"employee_id"`
+	EmployeeCode  string `json:"employee_code"`
+	EmployeeName  string `json:"employee_name"`
+	Department    string `json:"department"`
 	LeaveTypeID   string `json:"leave_type_id"`
 	StartDate     string `json:"start_date"`
 	EndDate       string `json:"end_date"`
@@ -96,10 +101,26 @@ func (s *Service) CreateLeaveRequest(ctx context.Context, input CreateLeaveReque
 
 	days := int(end.Sub(start).Hours()/24) + 1
 
+	empCode := input.EmployeeCode
+	if empCode == "" {
+		empCode = "EMP-2026-001"
+	}
+	empName := input.EmployeeName
+	if empName == "" {
+		empName = "Budi Santoso"
+	}
+	dept := input.Department
+	if dept == "" {
+		dept = "Engineering"
+	}
+
 	reqID := "lr-" + time.Now().Format("20060102150405")
 	req := &LeaveRequest{
 		ID:            reqID,
 		EmployeeID:    input.EmployeeID,
+		EmployeeCode:  empCode,
+		EmployeeName:  empName,
+		Department:    dept,
 		LeaveTypeID:   lt.ID,
 		LeaveTypeName: lt.Name,
 		StartDate:     input.StartDate,
@@ -115,28 +136,19 @@ func (s *Service) CreateLeaveRequest(ctx context.Context, input CreateLeaveReque
 	return req, nil
 }
 
+func (s *Service) ListAllLeaveRequests(ctx context.Context) ([]*LeaveRequest, error) {
+	var list []*LeaveRequest
+	for _, r := range s.requests {
+		list = append(list, r)
+	}
+	return list, nil
+}
+
 func (s *Service) ListLeaveRequestsByEmployee(ctx context.Context, employeeID string) ([]*LeaveRequest, error) {
 	var list []*LeaveRequest
 	for _, r := range s.requests {
 		if r.EmployeeID == employeeID {
 			list = append(list, r)
-		}
-	}
-	// Fallback mock history if empty
-	if len(list) == 0 {
-		list = []*LeaveRequest{
-			{
-				ID:            "lr-mock-01",
-				EmployeeID:    employeeID,
-				LeaveTypeID:   "lt-01",
-				LeaveTypeName: "Cuti Tahunan",
-				StartDate:     "2026-08-26",
-				EndDate:       "2026-08-28",
-				DaysCount:     3,
-				Reason:        "Keperluan keluarga di luar kota",
-				Status:        "pending",
-				CreatedAt:     time.Now(),
-			},
 		}
 	}
 	return list, nil

@@ -67,8 +67,17 @@ func (h *Handler) CreateLeaveRequest(c *fiber.Ctx) error {
 }
 
 func (h *Handler) ListLeaveRequests(c *fiber.Ctx) error {
-	empID := c.Locals(auth.LocalsUserID).(string)
-	requests, err := h.service.ListLeaveRequestsByEmployee(c.Context(), empID)
+	role, _ := c.Locals(auth.LocalsUserRole).(string)
+	var requests []*LeaveRequest
+	var err error
+
+	if role == "HR" || role == "SA" || role == "MGR" {
+		requests, err = h.service.ListAllLeaveRequests(c.Context())
+	} else {
+		empID := c.Locals(auth.LocalsUserID).(string)
+		requests, err = h.service.ListLeaveRequestsByEmployee(c.Context(), empID)
+	}
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,

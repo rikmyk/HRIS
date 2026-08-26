@@ -1149,12 +1149,16 @@ export default function App() {
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
+            employee_id: 'emp-001',
+            employee_code: 'EMP-2026-001',
+            employee_name: employeeProfile?.name || 'Budi Santoso',
+            department: employeeProfile?.department || 'Engineering',
             leave_type_id: selectedLeaveTypeId,
             start_date: startDate,
             end_date: endDate,
             reason: actualReason
           })
-        }, 1000);
+        }, 3000);
       } catch (e) {
         console.log('Background leave API sync completed');
       }

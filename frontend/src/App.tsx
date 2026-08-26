@@ -422,8 +422,45 @@ export default function App() {
         }
       };
 
+      // Live Polling for Leave Requests from Go Backend API (http://localhost:8080/v1/leave/requests)
+      const fetchBackendLeaveRequests = async () => {
+        try {
+          const res = await fetch('http://localhost:8080/v1/leave/requests', {
+            headers: { 'Authorization': 'Bearer demo-token-emp-001' }
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+              setLeaveRequests(prev => {
+                const map = new Map();
+                prev.forEach(r => map.set(r.id, r));
+                json.data.forEach((r: any) => {
+                  map.set(r.id, {
+                    id: r.id,
+                    employee_code: r.employee_code || 'EMP-2026-001',
+                    employee_name: r.employee_name || 'Budi Santoso',
+                    department: r.department || 'Engineering',
+                    leave_type: r.leave_type_name || r.leave_type || 'Cuti Tahunan',
+                    date_range: r.start_date === r.end_date ? r.start_date : `${r.start_date} - ${r.end_date}`,
+                    total_days: r.days_count || 1,
+                    reason: r.reason || 'Keperluan pribadi',
+                    document_url: r.attachment_url || '',
+                    status: r.status || 'pending'
+                  });
+                });
+                return Array.from(map.values());
+              });
+            }
+          }
+        } catch (err) {}
+      };
+
       fetchBackendRecords();
-      const interval = setInterval(fetchBackendRecords, 3000);
+      fetchBackendLeaveRequests();
+      const interval = setInterval(() => {
+        fetchBackendRecords();
+        fetchBackendLeaveRequests();
+      }, 3000);
 
       return () => {
         window.removeEventListener('storage', syncAttendanceFromStorage);
