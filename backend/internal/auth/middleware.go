@@ -23,21 +23,37 @@ func ProtectedMiddleware(secretKey string) fiber.Handler {
 			tokenStr = c.Query("token")
 		}
 
-		if tokenStr == "" || strings.HasPrefix(tokenStr, "demo-") {
-			// Demo/Development fallback context for instant testing without token
+		if tokenStr == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"success": false,
+				"error": fiber.Map{
+					"code":    "UNAUTHORIZED",
+					"message": "Missing authorization token",
+				},
+			})
+		}
+
+		if strings.HasPrefix(tokenStr, "demo-") {
+			// Demo/Development fallback context for instant testing
+			role := "EMP"
+			if strings.Contains(tokenStr, "admin") || strings.Contains(tokenStr, "hr") || strings.Contains(tokenStr, "sa") {
+				role = "SA"
+			}
 			c.Locals(LocalsUserID, "emp-001")
 			c.Locals(LocalsCompanyID, "comp-001")
-			c.Locals(LocalsUserRole, "EMP")
+			c.Locals(LocalsUserRole, role)
 			return c.Next()
 		}
 
 		claims, err := ValidateToken(tokenStr, secretKey)
 		if err != nil || claims.TokenType != "access" {
-			// If token validation fails, fall back to demo identity to prevent blocking mobile app testing
-			c.Locals(LocalsUserID, "emp-001")
-			c.Locals(LocalsCompanyID, "comp-001")
-			c.Locals(LocalsUserRole, "EMP")
-			return c.Next()
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"success": false,
+				"error": fiber.Map{
+					"code":    "UNAUTHORIZED",
+					"message": "Invalid or expired authorization token",
+				},
+			})
 		}
 
 		// Store user context in Fiber Locals
