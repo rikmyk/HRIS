@@ -104,6 +104,15 @@ interface DailyAttendanceRecord {
   status: 'valid' | 'late' | 'rejected_geofence';
 }
 
+function loadPersistedState<T>(key: string, defaultValue: T): T {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? (JSON.parse(item) as T) : defaultValue;
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'offices' | 'monitoring' | 'leave' | 'approval' | 'payment'>('dashboard');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
@@ -206,17 +215,6 @@ export default function App() {
   const [newEmpAccountNo, setNewEmpAccountNo] = useState<string>('8801998877');
   const [newEmpStatus, setNewEmpStatus] = useState<string>('Permanent');
   const [newEmpPlacements, setNewEmpPlacements] = useState<string[]>(['Head Office Jakarta']);
-
-  // Persistence Helper
-  const loadPersistedState = <T,>(key: string, defaultVal: T): T => {
-    try {
-      const saved = localStorage.getItem(key);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.log('Error reading localStorage key', key, e);
-    }
-    return defaultVal;
-  };
 
   // Master Data Office Locations
   const [officeLocations, setOfficeLocations] = useState<OfficeLocationItem[]>(() =>
