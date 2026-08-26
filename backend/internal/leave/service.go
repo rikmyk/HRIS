@@ -210,9 +210,10 @@ func (s *Service) ApproveOrRejectLeaveRequest(ctx context.Context, requestID, ma
 	}
 
 	now := time.Now()
-	if action == "approve" {
+	switch action {
+	case "approve":
 		req.Status = "approved"
-	} else if action == "reject" {
+	case "reject":
 		req.Status = "rejected"
 	}
 	req.ApprovedBy = managerID
