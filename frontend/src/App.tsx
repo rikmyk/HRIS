@@ -742,16 +742,16 @@ export default function App() {
             <span>HRIS Admin</span>
           </div>
 
-          {/* Center: Live Timestamp Clock */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: 'var(--primary-dark)', background: '#F0FDF4', padding: '4px 12px', borderRadius: 20, border: '1.5px solid #BBF7D0' }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+          {/* Center: Live Timestamp Clock (Muted Style) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 500, color: 'var(--muted)', background: '#F8FAFC', padding: '4px 12px', borderRadius: 20, border: '1px solid var(--line)' }}>
+            <Clock size={13} color="var(--muted)" />
             <span>{formatTimeOnly(currentDateTime)}</span>
           </div>
 
           {/* Right: Live Date */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--ink)', fontWeight: 600 }}>
-            <Calendar size={14} color="var(--primary-dark)" />
-            <span style={{ fontWeight: 700 }}>{formatIndonesianDateOnly(currentDateTime)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
+            <Calendar size={13} color="var(--muted)" />
+            <span style={{ fontWeight: 600 }}>{formatIndonesianDateOnly(currentDateTime)}</span>
           </div>
         </div>
 
