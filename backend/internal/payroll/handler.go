@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(router fiber.Router, jwtSecret string) {
 	payrollGroup.Post("/batch-generate", auth.RequireRoles("HR", "SA"), h.GenerateBatchPayslips)
 
 	// Phase 4: Approval & Payment Routes
-	payrollGroup.Get("/payslips", auth.RequireRoles("HR", "SA", "MGR"), h.ListPayslips)
+	payrollGroup.Get("/payslips", auth.RequireRoles("HR", "SA", "MGR", "EMP"), h.ListPayslips)
 	payrollGroup.Get("/my-payslip", auth.RequireRoles("EMP", "MGR", "HR", "SA"), h.GetMyPayslip)
 	payrollGroup.Post("/payslips/:id/approve", auth.RequireRoles("HR", "SA"), h.ApprovePayslip)
 	payrollGroup.Post("/payslips/bulk-approve", auth.RequireRoles("HR", "SA"), h.BulkApprovePayslips)

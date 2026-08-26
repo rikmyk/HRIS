@@ -20,14 +20,16 @@
 | `docs projects/11-DESIGN-SYSTEM.md` | Design System (tokens, components, mobile modal patterns) |
 | `docs projects/12-AI-AGENT-TASKS.md` | AI Agent task briefs (T001–T058) |
 | `docs projects/13-MOBILE-UI-CHANGELOG.md` | Mobile UI Changelog — semua perubahan UI di luar wireframe original |
+| `docs projects/14-MOBILE-PAGINATION-AND-UI-SPEC.md` | Mobile Pagination & UI Standardization Specification |
+| `docs projects/specs/2026-08-25-multi-office-placement-design.md` | Multi-Office Placement Architecture Specification |
 
 ## AI Agent Memory
 
 Konteks persisten AI Agent tersimpan di:
 - `.ai/memory/project.md` — deskripsi proyek, goals, constraints
-- `.ai/memory/decisions.md` — ADR log (ADR-001 s/d ADR-009)
+- `.ai/memory/decisions.md` — ADR log (ADR-001 s/d ADR-010)
 - `.ai/memory/modules.md` — module map & business flows
 - `.ai/memory/techstack.md` — tech stack yang disetujui
 - `.ai/memory/conventions.md` — coding & naming conventions
 
-> Last updated: 2026-08-25
+> Last updated: 2026-08-26

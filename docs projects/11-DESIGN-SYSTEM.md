@@ -232,6 +232,20 @@ Full-screen overlay shown when employee taps "📷 Foto Masuk" or "📷 Foto Kel
 - **Detail block:** `#0F172A` inner card — date/time bold white, GPS location `--muted` grey, "✓ GPS & Foto Terverifikasi HRIS (Valid)" in `#10B981` green.
 - **Close button:** "Tutup Pratinjau" full-width `--primary` primary button.
 
+### 2.20 Mobile Pagination Controls Component Pattern (NEW — 14-MOBILE-PAGINATION-AND-UI-SPEC.md)
+Standardized client-side pagination component applied to all mobile history lists (Attendance, Payslip, Leave Requests) when total records exceed `5` items per page:
+- **State & Constants:** `attendancePage`, `payslipPage`, `leavePage` reset to `1` on tab/filter state change; per-page constant fixed at `5`.
+- **Layout:** `flexDirection: row`, `justifyContent: space-between`, `alignItems: center`, `marginTop: 12`, `marginBottom: 20`.
+- **Controls:** `Sebelumnya` (prev) button, `Halaman X dari Y` label (`Colors.darkInk`), `Selanjutnya` (next) button.
+- **Button Styling:** `paddingHorizontal: 14`, `paddingVertical: 8`, `borderRadius: 6`. Active state: `backgroundColor: Colors.forestGreen`, white bold text. Boundary/Disabled state: `backgroundColor: '#F1F5F9'`, `opacity: 0.5`, muted text.
+
+### 2.21 Lucide Iconography & Container Wrappers (NEW — 14-MOBILE-PAGINATION-AND-UI-SPEC.md)
+Standardized icon styling for profile settings and form components:
+- **Icon Set:** `lucide-react-native` icons (`BookOpen`, `Sun`, `Globe`, `Info`, `ChevronRight`, `ChevronDown`).
+- **Coloring:** Monochrome Dark Ink (`Colors.darkInk` / `#1E293B`).
+- **Minimalist Styling:** Background wrapper circles/rectangles behind list icons are removed for a clean, flat appearance.
+- **White Card Container Pattern:** Form input blocks and summary headers are enclosed inside unified white Card containers (`#FFFFFF`, `1px solid --line`, `14px` corner radius).
+
 ---
 
 ## 3. Principles the Agent Must Follow

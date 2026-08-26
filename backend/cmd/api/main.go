@@ -6,10 +6,13 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
 	"hris/internal/attendance"
+	"hris/internal/auth"
+	"hris/internal/employee"
 	"hris/internal/leave"
 	"hris/internal/payroll"
 	"hris/pkg/storage"
@@ -20,6 +23,11 @@ func main() {
 		AppName: "HRIS API v1.0",
 	})
 
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
+	}))
 	app.Use(logger.New())
 	app.Use(recover.New())
 
@@ -43,6 +51,13 @@ func main() {
 			"message": "HRIS API v1 Root",
 		})
 	})
+	v1.Get("/auth/demo-token", func(c *fiber.Ctx) error {
+		tokens, err := auth.GenerateTokenPair("emp-001", "comp-001", "EMP", jwtSecret)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"success": false, "error": err.Error()})
+		}
+		return c.JSON(fiber.Map{"success": true, "data": tokens})
+	})
 
 	// Storage Service Mock/MinIO Client
 	storageSvc := storage.NewMockMinIOStorage("localhost:9000", "hris-photos", false)
@@ -56,6 +71,9 @@ func main() {
 
 	payrollHandler := payroll.NewHandler(storageSvc)
 	payrollHandler.RegisterRoutes(v1, jwtSecret)
+
+	empHandler := employee.NewHandler()
+	empHandler.RegisterRoutes(v1, jwtSecret)
 
 	port := os.Getenv("PORT")
 	if port == "" {

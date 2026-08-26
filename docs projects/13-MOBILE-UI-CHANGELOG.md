@@ -1,6 +1,6 @@
 # Mobile UI Changelog — HRIS
 **Status:** Living Document · Tracks all UI changes, flow refinements, and features added to the Mobile App **after** the original wireframe/design system was finalized.
-**Last Updated:** 2026-08-25
+**Last Updated:** 2026-08-26
 **Responsible files:** `mobile/App.tsx`, `mobile/src/theme.ts`
 **Branch:** `feat/t017-t027-attendance-system`
 
@@ -254,6 +254,45 @@ New card anatomy replacing the old 2-row layout:
 8. **Native CameraX Capture Lock Release Delay (`isCameraRefreshing`)**: Implemented a 250ms asynchronous refresh window during retake (`handleRetakePhoto`). After calling `takePictureAsync()`, Android native CameraX driver locks the camera capture pipeline. Temporarily unmounting `<CameraView>` for 250ms via `isCameraRefreshing = true` allows Android hardware to close the snapshot thread and re-initialize live preview without black/blank screen locks.
 9. **Direct Hardware Selfie Photo Capture (Simplified Pipeline)**: Removed client-side face detection & liveness restrictions per request. Users can take selfie photos directly via `<CameraView facing="front">` using `📸 Ambil Foto Selfie` button with immediate preview and photo retake support (`🔄 Foto Ulang`).
 10. **Clean Pure White Card Aesthetics for Photo Preview & Zoom Dialogs**: Redesigned all modal cards (attendance selfie preview container, GPS card container, and full-screen photo detail modal container) to use pure white backgrounds (`#FFFFFF`) with crisp light borders (`borderColor: Colors.lineBorder`) and dark typography (`color: Colors.darkInk`), ensuring color is reserved strictly for action buttons (`btnPrimary`, `btnSecondary`).
+
+### 4.9 Max 5 Items-per-Page Pagination System (NEW — Attendance, Payslip, Leave Modules)
+**Status:** Implemented ✅
+
+**Implementation Details:**
+1. **Attendance History Pagination**: Added `attendancePage` state and `ATTENDANCE_PER_PAGE = 5` constant to limit daily attendance history rendering to a maximum of 5 records per page.
+2. **Filter Reset Logic**: Switching attendance filter tabs (`7 Hari`, `30 Hari`, `Bulan Ini`) automatically resets `attendancePage` back to 1.
+3. **Payslip & Leave Request Pagination**: Implemented matching 5-item pagination controls (`Sebelumnya`, `Halaman X dari Y`, `Selanjutnya`) for Payslip History and Leave Request History tabs.
+4. **Pagination Control Bar**: Added responsive bottom pagination control bar rendered only when total filtered pages > 1, with disabled opacity states for boundary pages.
+
+### 4.10 Standardized White Card Containers & Minimalist Lucide Icons (NEW — Profile & Form Modules)
+**Status:** Implemented ✅
+
+**Implementation Details:**
+1. **Leave Request Form Card Container**: Enclosed all form input fields (leave type, days, reason) and submission button inside a unified white Card container (`#FFF`, `Colors.lineBorder`).
+2. **Attendance History Summary Header Card Container**: Enclosed attendance summary statistics cards and filter tabs inside a styled white Card container.
+3. **Minimalist Lucide React Iconography**: Replaced legacy `Feather` icons in the Profile settings and assistance menu with `lucide-react-native` icons (`BookOpen`, `Sun`, `Globe`, `Info`, `ChevronRight`, `ChevronDown`) in a plain dark ink color (`Colors.darkInk`), eliminating background circle wrappers per user request.
+
+### 4.11 Complete Dynamic Dark Mode & Switch Pill Capsule Lock (NEW — All Mobile Modules)
+**Status:** Implemented ✅
+
+**Implementation Details:**
+1. **Dynamic Theme Engine (`themeColors`)**: Migrated all remaining UI hardcoded hex colors (`#FFF`, `#FFFFFF`, `#1E293B`) in Leave History, Payslip List/Breakdown, and Attendance History to dynamic `themeColors` tokens (`surface`, `subCardBg`, `lineBorder`, `darkInk`, `mutedText`).
+2. **Outlined Surface Aesthetics**: Standardized cards in both Light and Dark modes to use `themeColors.surface` with explicit `borderWidth: 1` and `borderColor: themeColors.lineBorder` (`#334155` in Dark Mode), preventing white flashes and background blending.
+3. **Attendance History Dark Mode Adjustments**: Updated summary stat counters (Hadir, Terlambat, Alpha) and selfie action trigger buttons to maintain high visual contrast in dark mode.
+4. **Payslip Module Dark Mode Adjustments**: Refactored monthly payslip history cards, THP badges, breakdown detail rows, and pagination controls to be theme-aware.
+5. **Theme Switch Pill Oval Shape Lock**: Resolved transition layout glitch where toggling Light/Dark mode caused the switch pill to lose its oval geometry and render rectangular corners. Applied `borderRadius: 9999` (capsule radius) and explicit `overflow: 'hidden'` on both the track container and inner active pills.
+
+### 4.12 Web Admin & Employee App Parity Synchronization (NEW — Web Admin Frontend)
+**Status:** Implemented ✅
+
+**Implementation Details:**
+1. **Interactive Selfie Photo View & Zoom Modal**: Replaced plain color avatars in the attendance monitoring table with actual employee selfie thumbnails and added a full-screen **"Zoom Foto & Maps"** preview modal (displaying employee selfie photo, NIK, clock-in timestamp, geofence office location, GPS distance, and validation tag).
+2. **Dedicated Leave Management Tab (`activeTab === 'leave'`)**: Added a dedicated "Pengajuan Izin" sidebar navigation item equipped with status filter buttons (*Semua*, *Menunggu Review*, *Disetujui*, *Ditolak*), employee search bar, leave detail preview modal (showing employee reason & doctor's note document attachments), and instant Approve / Reject action triggers.
+3. **Interactive Payslip Breakdown Modal**: Added a **"Rincian Gaji"** detail breakdown modal in the Approval & Payment tabs, allowing HR Admins to inspect itemized Gaji Pokok, Tunjangan, and Potongan before approving or marking as paid.
+4. **Interactive "+ Tambah Karyawan Baru" Form Modal**: Added a complete form modal to register new personnel (NIK, Nama Lengkap, Departemen, Jabatan, Status, Penetapan Gaji Pokok, Penetapan Tunjangan, Rekening Bank Transfer, and Multi-Office Geofence Placement) which automatically generates draft payslips synced with the assigned salary.
+5. **Master Data Penetapan Gaji & Cabang Button**: Added an **"Atur Gaji & Cabang"** action trigger for existing employees to update their base salary, allowances, and branch assignments.
+6. **Monitoring Filter Selector**: Added tab filters (*Semua*, *✓ Valid Dalam Radius*, *⚠️ Ditolak Luar Radius*) and employee search capability in real-time attendance monitoring.
+7. **Topbar Light/Dark Mode Switcher**: Added a theme toggle switcher button in the Web Admin header topbar.
 
 ---
 
