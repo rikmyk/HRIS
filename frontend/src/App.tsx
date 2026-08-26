@@ -113,6 +113,41 @@ export default function App() {
   const [approvalFilterStatus, setApprovalFilterStatus] = useState<string>('all');
   const [paymentFilterStatus, setPaymentFilterStatus] = useState<string>('all');
 
+  // Real-time Clock & Live Date State
+  const [currentDateTime, setCurrentDateTime] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatIndonesianFullDateTime = (date: Date) => {
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const monthName = months[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${dayName}, ${day} ${monthName} ${year} · ${hours}:${minutes}:${seconds} WIB`;
+  };
+
+  const formatIndonesianMonthYear = (date: Date) => {
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
   // Modal States
   const [selectedPhotoModal, setSelectedPhotoModal] = useState<DailyAttendanceRecord | null>(null);
   const [selectedPayslipDetail, setSelectedPayslipDetail] = useState<PayslipItem | null>(null);
@@ -560,7 +595,7 @@ export default function App() {
   const handleBulkApprovePayslips = async () => {
     try { await fetch(`${API_BASE}/payroll/payslips/bulk-approve`, { method: 'POST' }); } catch (e) {}
     setPayslips(prev => prev.map(p => ({ ...p, status: 'approved' })));
-    showToast('Seluruh Draft Slip Gaji (Agustus 2026) BERHASIL DI-APPROVE SEKALIGUS!');
+    showToast(`Seluruh Draft Slip Gaji (${formatIndonesianMonthYear(currentDateTime)}) BERHASIL DI-APPROVE SEKALIGUS!`);
   };
 
   const handleMarkAsPaid = async (id: string, name: string) => {
@@ -775,7 +810,7 @@ export default function App() {
             {activeTab === 'dashboard' && (
               <>
                 <h2>Dashboard Overview</h2>
-                <p className="sub" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Calendar size={14} /> Selasa, 25 Agustus 2026</p>
+                <p className="sub" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Calendar size={14} /> {formatIndonesianFullDateTime(currentDateTime)}</p>
                 <div className="kpi-row">
                   <div className="kpi-card">
                     <div className="kpi-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1281,7 +1316,7 @@ export default function App() {
             {/* TAB 6: APPROVAL SLIP GAJI */}
             {activeTab === 'approval' && (
               <>
-                <h2>Approval Slip Gaji — Agustus 2026</h2>
+                <h2>Approval Slip Gaji — {formatIndonesianMonthYear(currentDateTime)}</h2>
                 <p className="sub">Review komponen rincian gaji karyawan (Gaji Pokok & Tunjangan terdaftar) sebelum diterbitkan sebagai dokumen PDF</p>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--line)', marginBottom: 20, paddingBottom: 0 }}>
@@ -1364,7 +1399,7 @@ export default function App() {
             {/* TAB 7: PENANDAAN PEMBAYARAN */}
             {activeTab === 'payment' && (
               <>
-                <h2>Penandaan Pembayaran Gaji — Agustus 2026</h2>
+                <h2>Penandaan Pembayaran Gaji — {formatIndonesianMonthYear(currentDateTime)}</h2>
                 <p className="sub">Slip berstatus "Disetujui" yang telah ditransfer manual melalui Internet Banking</p>
                 <div className="error-banner" style={{ background: '#FDF1DC', borderColor: '#F0DBA6', color: '#7A5A0F', padding: 14, borderRadius: 12, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
                   <ShieldAlert size={18} color="#7A5A0F" />
@@ -1780,7 +1815,7 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid var(--line)' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 17, fontFamily: 'Space Grotesk' }}>Rincian Slip Gaji Karyawan</h3>
-                <div style={{ fontSize: 12, color: 'var(--muted)' }}>Periode Agustus 2026</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)' }}>Periode {formatIndonesianMonthYear(currentDateTime)}</div>
               </div>
               <button onClick={() => setSelectedPayslipDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
             </div>
