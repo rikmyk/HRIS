@@ -26,7 +26,9 @@ import {
   Moon,
   DollarSign,
   Briefcase,
-  Wallet
+  Wallet,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8080/v1';
@@ -107,6 +109,17 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Collapsed Sidebar State (Persisted)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() =>
+    loadPersistedState<boolean>('hris_web_sidebar_collapsed', false)
+  );
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hris_web_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
+    } catch (e) {}
+  }, [isSidebarCollapsed]);
 
   // Tab Filter States
   const [employeeFilterStatus, setEmployeeFilterStatus] = useState<string>('all');
@@ -727,8 +740,27 @@ export default function App() {
         {/* Topbar */}
         <div className="admin-topbar">
           <div className="brand">
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              title={isSidebarCollapsed ? "Perluas Sidebar" : "Minimize Sidebar"}
+              style={{
+                background: '#FFFFFF',
+                border: '1.5px solid var(--line)',
+                borderRadius: 8,
+                padding: '6px 8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'center',
+                color: 'var(--ink)',
+                marginRight: 4,
+                transition: 'all 0.15s ease'
+              }}
+            >
+              {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+            </button>
             <div className="brand-mark">H</div>
-            <span>HRIS Admin</span>
+            {!isSidebarCollapsed && <span>HRIS Admin</span>}
           </div>
 
           {/* Center: Live Timestamp Clock */}
@@ -747,56 +779,70 @@ export default function App() {
         {/* Layout */}
         <div className="admin-layout">
           {/* Sidebar */}
-          <div className="admin-sidebar">
+          <div className={`admin-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
             <div>
-              <div className={`side-link ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-                <LayoutDashboard size={17} /> Dashboard
+              <div className={`side-link ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')} title="Dashboard">
+                <LayoutDashboard size={18} />
+                <span>Dashboard</span>
               </div>
-              <div className={`side-link ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
-                <Users size={17} /> Karyawan & Penetapan Gaji
+              <div className={`side-link ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')} title="Karyawan & Penetapan Gaji">
+                <Users size={18} />
+                <span>Karyawan & Penetapan Gaji</span>
               </div>
-              <div className={`side-link ${activeTab === 'offices' ? 'active' : ''}`} onClick={() => setActiveTab('offices')}>
-                <Building2 size={17} /> Lokasi Kantor Cabang
+              <div className={`side-link ${activeTab === 'offices' ? 'active' : ''}`} onClick={() => setActiveTab('offices')} title="Lokasi Kantor Cabang">
+                <Building2 size={18} />
+                <span>Lokasi Kantor Cabang</span>
               </div>
-              <div className={`side-link ${activeTab === 'monitoring' ? 'active' : ''}`} onClick={() => setActiveTab('monitoring')}>
-                <MapPin size={17} /> Monitoring Absensi & Foto
+              <div className={`side-link ${activeTab === 'monitoring' ? 'active' : ''}`} onClick={() => setActiveTab('monitoring')} title="Monitoring Absensi & Foto">
+                <MapPin size={18} />
+                <span>Monitoring Absensi & Foto</span>
               </div>
-              <div className={`side-link ${activeTab === 'leave' ? 'active' : ''}`} onClick={() => setActiveTab('leave')}>
-                <FileText size={17} /> Pengajuan Izin
+              <div className={`side-link ${activeTab === 'leave' ? 'active' : ''}`} onClick={() => setActiveTab('leave')} title="Pengajuan Izin">
+                <FileText size={18} />
+                <span>Pengajuan Izin</span>
               </div>
-              <div className={`side-link ${activeTab === 'approval' ? 'active' : ''}`} onClick={() => setActiveTab('approval')}>
-                <FileCheck size={17} /> Approval Slip Gaji
+              <div className={`side-link ${activeTab === 'approval' ? 'active' : ''}`} onClick={() => setActiveTab('approval')} title="Approval Slip Gaji">
+                <FileCheck size={18} />
+                <span>Approval Slip Gaji</span>
               </div>
-              <div className={`side-link ${activeTab === 'payment' ? 'active' : ''}`} onClick={() => setActiveTab('payment')}>
-                <CreditCard size={17} /> Penandaan Pembayaran
+              <div className={`side-link ${activeTab === 'payment' ? 'active' : ''}`} onClick={() => setActiveTab('payment')} title="Penandaan Pembayaran">
+                <CreditCard size={18} />
+                <span>Penandaan Pembayaran</span>
               </div>
             </div>
 
             {/* Bottom User Profile, Mode Terang & Keluar Button */}
-            <div style={{ paddingTop: 16, borderTop: '1.5px solid var(--line)', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ paddingTop: 16, borderTop: '1.5px solid var(--line)', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10, alignItems: isSidebarCollapsed ? 'center' : 'stretch' }}>
               {/* User Profile Card */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F8FAFC', borderRadius: 10, border: '1.5px solid var(--line)' }}>
-                <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#2F6F5E', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, border: '1px solid #1E4D40', flexShrink: 0 }}>
+              {isSidebarCollapsed ? (
+                <div title="Sari Wijaya (HR Admin)" style={{ width: 36, height: 36, borderRadius: '50%', background: '#2F6F5E', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, border: '1.5px solid #1E4D40', flexShrink: 0, cursor: 'pointer' }}>
                   SW
                 </div>
-                <div style={{ overflow: 'hidden' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Sari Wijaya</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>HR Admin</div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F8FAFC', borderRadius: 10, border: '1.5px solid var(--line)' }}>
+                  <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#2F6F5E', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, border: '1px solid #1E4D40', flexShrink: 0 }}>
+                    SW
+                  </div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Sari Wijaya</div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>HR Admin</div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Theme Toggle Button */}
               <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
+                title={isDarkMode ? "Mode Gelap" : "Mode Terang"}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justify: 'center',
-                  gap: 8,
+                  gap: isSidebarCollapsed ? 0 : 8,
                   background: '#FFFFFF',
                   border: '1.5px solid var(--line)',
                   borderRadius: 8,
-                  padding: '8px 12px',
+                  padding: isSidebarCollapsed ? '8px 0' : '8px 12px',
                   cursor: 'pointer',
                   fontSize: 12,
                   fontWeight: 600,
@@ -805,21 +851,22 @@ export default function App() {
                   transition: 'all 0.15s ease'
                 }}
               >
-                {isDarkMode ? <Moon size={15} color="var(--ink)" /> : <Sun size={15} color="var(--accent)" />}
-                <span>{isDarkMode ? 'Mode Gelap' : 'Mode Terang'}</span>
+                {isDarkMode ? <Moon size={16} color="var(--ink)" /> : <Sun size={16} color="var(--accent)" />}
+                {!isSidebarCollapsed && <span>{isDarkMode ? 'Mode Gelap' : 'Mode Terang'}</span>}
               </button>
 
               {/* LogOut Button */}
               <button
                 onClick={() => setIsLoggedIn(false)}
+                title="Keluar"
                 className="btn-mini"
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: isSidebarCollapsed ? '8px 0' : '8px 12px',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justify: 'center',
-                  gap: 6,
+                  gap: isSidebarCollapsed ? 0 : 6,
                   color: '#C24A3B',
                   borderColor: '#FCA5A5',
                   background: '#FEF2F2',
@@ -827,7 +874,8 @@ export default function App() {
                   marginRight: 0
                 }}
               >
-                <LogOut size={14} /> Keluar
+                <LogOut size={15} />
+                {!isSidebarCollapsed && <span>Keluar</span>}
               </button>
             </div>
           </div>
