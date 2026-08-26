@@ -2,15 +2,18 @@ package leave
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
 	"time"
 )
 
 var (
-	ErrLeaveTypeNotFound      = errors.New("leave type not found")
-	ErrInsufficientQuota      = errors.New("insufficient annual leave quota")
-	ErrInvalidDateRange       = errors.New("end_date cannot be before start_date")
-	ErrUnauthorizedApproval   = errors.New("only direct manager or HR can approve this leave request")
+	ErrLeaveTypeNotFound       = errors.New("leave type not found")
+	ErrInsufficientQuota       = errors.New("insufficient annual leave quota")
+	ErrInvalidDateRange        = errors.New("end_date cannot be before start_date")
+	ErrUnauthorizedApproval    = errors.New("only direct manager or HR can approve this leave request")
 	ErrRequestAlreadyProcessed = errors.New("leave request has already been approved or rejected")
 )
 
@@ -57,18 +60,46 @@ type CreateLeaveRequestInput struct {
 type Service struct {
 	leaveTypes map[string]LeaveType
 	requests   map[string]*LeaveRequest
+	filePath   string
 }
 
 func NewService() *Service {
 	svc := &Service{
 		leaveTypes: make(map[string]LeaveType),
 		requests:   make(map[string]*LeaveRequest),
+		filePath:   filepath.Join("data", "leave_store.json"),
 	}
 	// Seed default leave types
 	svc.leaveTypes["lt-01"] = LeaveType{ID: "lt-01", CompanyID: "00000000-0000-0000-0000-000000000001", Name: "Cuti Tahunan", IsPaid: true, QuotaPerYear: 12, CreatedAt: time.Now()}
 	svc.leaveTypes["lt-02"] = LeaveType{ID: "lt-02", CompanyID: "00000000-0000-0000-0000-000000000001", Name: "Sakit dengan Surat Dokter", IsPaid: true, QuotaPerYear: 14, CreatedAt: time.Now()}
 	svc.leaveTypes["lt-03"] = LeaveType{ID: "lt-03", CompanyID: "00000000-0000-0000-0000-000000000001", Name: "Izin Unpaid Leave", IsPaid: false, QuotaPerYear: 0, CreatedAt: time.Now()}
+	svc.loadFromFile()
 	return svc
+}
+
+func (s *Service) loadFromFile() {
+	if s.filePath == "" {
+		return
+	}
+	data, err := os.ReadFile(s.filePath)
+	if err != nil {
+		return
+	}
+	var loaded map[string]*LeaveRequest
+	if err := json.Unmarshal(data, &loaded); err == nil && len(loaded) > 0 {
+		s.requests = loaded
+	}
+}
+
+func (s *Service) saveToFile() {
+	if s.filePath == "" {
+		return
+	}
+	_ = os.MkdirAll(filepath.Dir(s.filePath), 0755)
+	data, err := json.MarshalIndent(s.requests, "", "  ")
+	if err == nil {
+		_ = os.WriteFile(s.filePath, data, 0644)
+	}
 }
 
 func (s *Service) ListLeaveTypes(ctx context.Context, companyID string) ([]LeaveType, error) {
@@ -133,6 +164,7 @@ func (s *Service) CreateLeaveRequest(ctx context.Context, input CreateLeaveReque
 	}
 
 	s.requests[reqID] = req
+	s.saveToFile()
 	return req, nil
 }
 
@@ -185,6 +217,7 @@ func (s *Service) ApproveOrRejectLeaveRequest(ctx context.Context, requestID, ma
 	}
 	req.ApprovedBy = managerID
 	req.ApprovedAt = &now
+	s.saveToFile()
 
 	return req, nil
 }

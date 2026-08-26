@@ -2,7 +2,10 @@ package attendance
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -79,6 +82,7 @@ type Service struct {
 	mu           sync.RWMutex
 	records      []*AttendanceDTO
 	dailyRecords []*DailyAttendanceRecord
+	filePath     string
 }
 
 func NewService(storage storage.StorageService) *Service {
@@ -133,10 +137,38 @@ func NewService(storage storage.StorageService) *Service {
 		},
 	}
 
-	return &Service{
+	svc := &Service{
 		storage:      storage,
 		records:      initialRecords,
 		dailyRecords: initialDaily,
+		filePath:     filepath.Join("data", "attendance_store.json"),
+	}
+	svc.loadFromFile()
+	return svc
+}
+
+func (s *Service) loadFromFile() {
+	if s.filePath == "" {
+		return
+	}
+	data, err := os.ReadFile(s.filePath)
+	if err != nil {
+		return
+	}
+	var loaded []*DailyAttendanceRecord
+	if err := json.Unmarshal(data, &loaded); err == nil && len(loaded) > 0 {
+		s.dailyRecords = loaded
+	}
+}
+
+func (s *Service) saveToFile() {
+	if s.filePath == "" {
+		return
+	}
+	_ = os.MkdirAll(filepath.Dir(s.filePath), 0755)
+	data, err := json.MarshalIndent(s.dailyRecords, "", "  ")
+	if err == nil {
+		_ = os.WriteFile(s.filePath, data, 0644)
 	}
 }
 
@@ -233,7 +265,10 @@ func (s *Service) GetAttendanceHistory(empID string) []*AttendanceDTO {
 // UpsertDailyRecord adds or updates a daily attendance record sent from mobile or web admin.
 func (s *Service) UpsertDailyRecord(rec *DailyAttendanceRecord) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	defer func() {
+		s.saveToFile()
+		s.mu.Unlock()
+	}()
 
 	for i, existing := range s.dailyRecords {
 		if existing.EmployeeCode == rec.EmployeeCode && existing.Date == rec.Date {
