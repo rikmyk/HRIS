@@ -710,9 +710,10 @@ export default function App() {
             <span>HRIS Admin</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink)', fontWeight: 600 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
-            <span>Sistem HRIS Terintegrasi Real-time</span>
+            <Calendar size={14} color="var(--primary-dark)" />
+            <span style={{ fontWeight: 700 }}>{formatIndonesianFullDateTime(currentDateTime)}</span>
           </div>
         </div>
 
@@ -810,7 +811,7 @@ export default function App() {
             {activeTab === 'dashboard' && (
               <>
                 <h2>Dashboard Overview</h2>
-                <p className="sub" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Calendar size={14} /> {formatIndonesianFullDateTime(currentDateTime)}</p>
+                <p className="sub">Ringkasan status absensi, permohonan izin, dan kelola slip gaji karyawan</p>
                 <div className="kpi-row">
                   <div className="kpi-card">
                     <div className="kpi-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
