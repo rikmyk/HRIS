@@ -781,12 +781,7 @@ export default function App() {
                     {leaveRequests.slice(0, 3).map(r => (
                       <tr key={r.id}>
                         <td>
-                          <div className="row-flex">
-                            <div className="mini-avatar" style={{ background: '#2F6F5E', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
-                              {r.employee_name.charAt(0)}
-                            </div>
-                            <div className="name-cell"><div className="n">{r.employee_name}</div><div className="d">{r.department}</div></div>
-                          </div>
+                          <div className="name-cell"><div className="n">{r.employee_name}</div><div className="d">{r.department}</div></div>
                         </td>
                         <td>{r.leave_type}</td>
                         <td>{r.date_range}</td>
@@ -1168,14 +1163,9 @@ export default function App() {
                     {filteredLeaveRequests.map(r => (
                       <tr key={r.id}>
                         <td>
-                          <div className="row-flex">
-                            <div className="mini-avatar" style={{ background: '#2F6F5E', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
-                              {r.employee_name.charAt(0)}
-                            </div>
-                            <div className="name-cell">
-                              <div className="n">{r.employee_name}</div>
-                              <div className="d">{r.employee_code} · {r.department}</div>
-                            </div>
+                          <div className="name-cell">
+                            <div className="n">{r.employee_name}</div>
+                            <div className="d">{r.employee_code} · {r.department}</div>
                           </div>
                         </td>
                         <td><strong>{r.leave_type}</strong></td>
@@ -1237,12 +1227,7 @@ export default function App() {
                     {payslips.map(p => (
                       <tr key={p.id}>
                         <td>
-                          <div className="row-flex">
-                            <div className="mini-avatar" style={{ background: '#204F42', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
-                              {p.employee_name.charAt(0)}
-                            </div>
-                            <div className="name-cell"><div className="n">{p.employee_name}</div><div className="d">{p.department}</div></div>
-                          </div>
+                          <div className="name-cell"><div className="n">{p.employee_name}</div><div className="d">{p.department}</div></div>
                         </td>
                         <td>{p.attendance_summary}</td>
                         <td>
@@ -1303,10 +1288,7 @@ export default function App() {
                     {payslips.map(p => (
                       <tr key={p.id}>
                         <td>
-                          <div className="row-flex">
-                            <div className="mini-avatar"></div>
-                            <div className="name-cell"><div className="n">{p.employee_name}</div><div className="d">{p.department}</div></div>
-                          </div>
+                          <div className="name-cell"><div className="n">{p.employee_name}</div><div className="d">{p.department}</div></div>
                         </td>
                         <td><strong style={{ fontSize: 14, color: 'var(--primary-dark)' }}>{p.net_salary}</strong></td>
                         <td><strong>{p.bank_account}</strong></td>
