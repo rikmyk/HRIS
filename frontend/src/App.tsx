@@ -1012,8 +1012,8 @@ export default function App() {
                       <tr>
                         <th>Karyawan</th>
                         <th>Tanggal</th>
-                        <th>Foto & Jam Masuk</th>
-                        <th>Foto & Jam Keluar</th>
+                        <th>Jam Masuk</th>
+                        <th>Jam Keluar</th>
                         <th>Penempatan Kantor</th>
                         <th>Status Geofence</th>
                         <th>Aksi Detail</th>
@@ -1023,38 +1023,23 @@ export default function App() {
                       {paginatedAtt.map(att => (
                         <tr key={att.id}>
                           <td>
-                            <div className="row-flex">
-                              <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid var(--primary)', flexShrink: 0 }}>
-                                <img src={att.clock_in_photo} alt={att.employee_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              </div>
-                              <div className="name-cell">
-                                <div className="n">{att.employee_name}</div>
-                                <div className="d">{att.employee_code} · {att.department}</div>
-                              </div>
+                            <div className="name-cell">
+                              <div className="n">{att.employee_name}</div>
+                              <div className="d">{att.employee_code} · {att.department}</div>
                             </div>
                           </td>
                           <td><strong>{att.date}</strong></td>
                           <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <div style={{ width: 30, height: 30, borderRadius: 6, overflow: 'hidden', border: '1px solid var(--line)', flexShrink: 0 }}>
-                                <img src={att.clock_in_photo} alt="Masuk" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              </div>
-                              <div>
-                                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--forest)' }}>🟢 {att.clock_in_time}</div>
-                                <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_in_distance}</div>
-                              </div>
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--forest)' }}>🟢 {att.clock_in_time}</div>
+                              <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_in_distance}</div>
                             </div>
                           </td>
                           <td>
-                            {att.clock_out_photo ? (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <div style={{ width: 30, height: 30, borderRadius: 6, overflow: 'hidden', border: '1px solid var(--line)', flexShrink: 0 }}>
-                                  <img src={att.clock_out_photo} alt="Keluar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                </div>
-                                <div>
-                                  <div style={{ fontSize: 12, fontWeight: 700, color: '#C24A3B' }}>🔴 {att.clock_out_time}</div>
-                                  <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_out_distance}</div>
-                                </div>
+                            {att.clock_out_time && att.clock_out_time !== '-' ? (
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: '#C24A3B' }}>🔴 {att.clock_out_time}</div>
+                                <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_out_distance}</div>
                               </div>
                             ) : (
                               <span style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>Belum Absen Keluar</span>
