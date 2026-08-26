@@ -914,7 +914,7 @@ export default function App() {
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                             {emp.office_placements.map((loc, idx) => (
                               <span key={idx} className="pill present" style={{ fontSize: 10, background: idx === 0 ? '#DCFCE7' : '#E0F2FE', color: idx === 0 ? '#166534' : '#0369A1' }}>
-                                📍 {loc}
+                                {loc}
                               </span>
                             ))}
                           </div>
@@ -1067,21 +1067,21 @@ export default function App() {
                           <td><strong>{att.date}</strong></td>
                           <td>
                             <div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--forest)' }}>{att.clock_in_time}</div>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{att.clock_in_time}</div>
                               <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_in_distance}</div>
                             </div>
                           </td>
                           <td>
                             {att.clock_out_time && att.clock_out_time !== '-' ? (
                               <div>
-                                <div style={{ fontSize: 12, fontWeight: 700, color: '#C24A3B' }}>{att.clock_out_time}</div>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{att.clock_out_time}</div>
                                 <div style={{ fontSize: 10, color: 'var(--muted)' }}>Radius {att.clock_out_distance}</div>
                               </div>
                             ) : (
                               <span style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>Belum Absen Keluar</span>
                             )}
                           </td>
-                          <td><span style={{ fontSize: 12, fontWeight: 600 }}>📍 {att.office_name}</span></td>
+                          <td><span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>{att.office_name}</span></td>
                           <td>
                             <span className={`pill ${att.status === 'valid' ? 'present' : 'absent'}`}>
                               {att.status === 'valid' ? '✓ Hadir (Valid)' : '⚠️ Ditolak (Luar Radius)'}
@@ -1487,7 +1487,7 @@ export default function App() {
                         }}
                         style={{ accentColor: 'var(--primary)', width: 16, height: 16 }}
                       />
-                      <span>📍 <strong>{off.name}</strong> ({off.address})</span>
+                      <span><strong>{off.name}</strong> ({off.address})</span>
                     </label>
                   );
                 })}
@@ -1563,7 +1563,7 @@ export default function App() {
                         }}
                         style={{ accentColor: 'var(--primary)', width: 16, height: 16 }}
                       />
-                      <span>📍 <strong>{off.name}</strong> ({off.address})</span>
+                      <span><strong>{off.name}</strong> ({off.address})</span>
                     </label>
                   );
                 })}
@@ -1627,8 +1627,8 @@ export default function App() {
                   <div style={{ height: 190, borderRadius: 8, overflow: 'hidden', background: '#E2E8F0', marginBottom: 10, border: '1px solid #E2E8F0' }}>
                     <img src={selectedPhotoModal.clock_in_photo} alt="Selfie Masuk" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 700 }}>⏰ Jam: {selectedPhotoModal.clock_in_time}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>📍 Radius: {selectedPhotoModal.clock_in_distance}</div>
+                  <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>Jam: {selectedPhotoModal.clock_in_time}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>Radius: {selectedPhotoModal.clock_in_distance}</div>
                 </div>
 
                 {/* Clock Out Photo Box */}
@@ -1645,15 +1645,15 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 700 }}>⏰ Jam: {selectedPhotoModal.clock_out_time}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>📍 Radius: {selectedPhotoModal.clock_out_distance}</div>
+                  <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>Jam: {selectedPhotoModal.clock_out_time}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>Radius: {selectedPhotoModal.clock_out_distance}</div>
                 </div>
               </div>
 
               <div style={{ background: selectedPhotoModal.status === 'valid' ? '#F0FDF4' : '#FEF2F2', borderRadius: 12, padding: 14, border: `1px solid ${selectedPhotoModal.status === 'valid' ? '#BBF7D0' : '#FECACA'}`, marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Penempatan Kantor Cabang:</span>
-                  <strong style={{ fontSize: 13, color: 'var(--ink)' }}>📍 {selectedPhotoModal.office_name}</strong>
+                  <strong style={{ fontSize: 13, color: 'var(--ink)' }}>{selectedPhotoModal.office_name}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Status Validasi Geofence & GPS:</span>
