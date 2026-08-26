@@ -108,6 +108,11 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Tab Filter States
+  const [employeeFilterStatus, setEmployeeFilterStatus] = useState<string>('all');
+  const [approvalFilterStatus, setApprovalFilterStatus] = useState<string>('all');
+  const [paymentFilterStatus, setPaymentFilterStatus] = useState<string>('all');
+
   // Modal States
   const [selectedPhotoModal, setSelectedPhotoModal] = useState<DailyAttendanceRecord | null>(null);
   const [selectedPayslipDetail, setSelectedPayslipDetail] = useState<PayslipItem | null>(null);
@@ -852,26 +857,48 @@ export default function App() {
                 <h2>Manajemen Karyawan & Penetapan Gaji</h2>
                 <p className="sub">Daftar seluruh personel ({employees.length} karyawan), penetapan Gaji Pokok & Tunjangan, serta penempatan kantor cabang</p>
                 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ position: 'relative', width: 280 }}>
-                    <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
-                    <input
-                      type="text"
-                      placeholder="Cari nama / NIK / departemen..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      style={{ padding: '8px 14px 8px 36px', borderRadius: 8, border: '1px solid var(--line)', width: '100%' }}
-                    />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--line)', marginBottom: 20, paddingBottom: 0 }}>
+                  <div className="tab-nav-bar" style={{ marginBottom: 0, borderBottom: 'none' }}>
+                    <button
+                      onClick={() => setEmployeeFilterStatus('all')}
+                      className={`tab-nav-btn ${employeeFilterStatus === 'all' ? 'active' : ''}`}
+                    >
+                      Semua Karyawan ({employees.length})
+                    </button>
+                    <button
+                      onClick={() => setEmployeeFilterStatus('Permanent')}
+                      className={`tab-nav-btn ${employeeFilterStatus === 'Permanent' ? 'active' : ''}`}
+                    >
+                      Pegawai Tetap ({employees.filter(e => e.status === 'Permanent').length})
+                    </button>
+                    <button
+                      onClick={() => setEmployeeFilterStatus('Contract')}
+                      className={`tab-nav-btn ${employeeFilterStatus === 'Contract' ? 'active' : ''}`}
+                    >
+                      Pegawai Kontrak ({employees.filter(e => e.status === 'Contract').length})
+                    </button>
                   </div>
-                  
-                  {/* REAL INTERACTIVE ADD EMPLOYEE TRIGGER */}
-                  <button
-                    onClick={() => setIsAddEmployeeModalOpen(true)}
-                    className="btn-mini primary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8 }}
-                  >
-                    <Plus size={15} /> Tambah Karyawan Baru
-                  </button>
+
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ position: 'relative', width: 240 }}>
+                      <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
+                      <input
+                        type="text"
+                        placeholder="Cari nama / NIK..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ padding: '8px 14px 8px 36px', borderRadius: 8, border: '1px solid var(--line)', width: '100%' }}
+                      />
+                    </div>
+                    
+                    <button
+                      onClick={() => setIsAddEmployeeModalOpen(true)}
+                      className="btn-mini primary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8 }}
+                    >
+                      <Plus size={15} /> Tambah Karyawan Baru
+                    </button>
+                  </div>
                 </div>
 
                 <table>
@@ -887,11 +914,13 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {employees.filter(emp =>
-                      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      emp.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      emp.department.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map(emp => (
+                    {employees.filter(emp => {
+                      const matchesSearch = emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            emp.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            emp.department.toLowerCase().includes(searchQuery.toLowerCase());
+                      if (employeeFilterStatus === 'all') return matchesSearch;
+                      return matchesSearch && emp.status === employeeFilterStatus;
+                    }).map(emp => (
                       <tr key={emp.id}>
                         <td><strong>{emp.code}</strong></td>
                         <td>
@@ -946,12 +975,19 @@ export default function App() {
               <>
                 <h2>Master Data Lokasi Kantor Cabang</h2>
                 <p className="sub">Kelola koordinat GPS dan radius geofence untuk absensi karyawan</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ position: 'relative', width: 280 }}>
-                    <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
-                    <input type="text" placeholder="Cari nama kantor / cabang..." style={{ padding: '8px 14px 8px 36px', borderRadius: 8, border: '1px solid var(--line)', width: '100%' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--line)', marginBottom: 20, paddingBottom: 0 }}>
+                  <div className="tab-nav-bar" style={{ marginBottom: 0, borderBottom: 'none' }}>
+                    <button className="tab-nav-btn active">
+                      Semua Kantor Cabang ({officeLocations.length})
+                    </button>
                   </div>
-                  <button onClick={() => showToast('Form Tambah Lokasi Kantor Cabang Baru SIAP')} className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={15} /> Tambah Kantor Cabang</button>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ position: 'relative', width: 240 }}>
+                      <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
+                      <input type="text" placeholder="Cari nama kantor..." style={{ padding: '8px 14px 8px 36px', borderRadius: 8, border: '1px solid var(--line)', width: '100%' }} />
+                    </div>
+                    <button onClick={() => showToast('Form Tambah Lokasi Kantor Cabang Baru SIAP')} className="btn-mini primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8 }}><Plus size={15} /> Tambah Cabang</button>
+                  </div>
                 </div>
                 <table>
                   <thead>
@@ -1008,30 +1044,29 @@ export default function App() {
                   </p>
 
                   {/* Filter Selector & Search Bar */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 12 }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--line)', marginBottom: 20, paddingBottom: 0 }}>
+                    <div className="tab-nav-bar" style={{ marginBottom: 0, borderBottom: 'none' }}>
                       <button
                         onClick={() => { setMonitoringFilterStatus('all'); setMonitoringPage(1); }}
-                        className={`btn-mini ${monitoringFilterStatus === 'all' ? 'dark' : ''}`}
+                        className={`tab-nav-btn ${monitoringFilterStatus === 'all' ? 'active' : ''}`}
                       >
                         Semua Karyawan ({attendanceRecords.length})
                       </button>
                       <button
                         onClick={() => { setMonitoringFilterStatus('valid'); setMonitoringPage(1); }}
-                        className={`btn-mini ${monitoringFilterStatus === 'valid' ? 'primary' : ''}`}
+                        className={`tab-nav-btn ${monitoringFilterStatus === 'valid' ? 'active' : ''}`}
                       >
-                        ✓ Valid Dalam Radius ({attendanceRecords.filter(a => a.status === 'valid').length})
+                        Valid Dalam Radius ({attendanceRecords.filter(a => a.status === 'valid').length})
                       </button>
                       <button
                         onClick={() => { setMonitoringFilterStatus('rejected_geofence'); setMonitoringPage(1); }}
-                        className={`btn-mini ${monitoringFilterStatus === 'rejected_geofence' ? 'dark' : ''}`}
-                        style={{ background: monitoringFilterStatus === 'rejected_geofence' ? '#8A3226' : undefined, color: monitoringFilterStatus === 'rejected_geofence' ? '#FFF' : undefined }}
+                        className={`tab-nav-btn ${monitoringFilterStatus === 'rejected_geofence' ? 'active' : ''}`}
                       >
-                        ⚠️ Ditolak ({attendanceRecords.filter(a => a.status === 'rejected_geofence').length})
+                        Ditolak ({attendanceRecords.filter(a => a.status === 'rejected_geofence').length})
                       </button>
                     </div>
 
-                    <div style={{ position: 'relative', width: 260 }}>
+                    <div style={{ position: 'relative', width: 240, marginBottom: 8 }}>
                       <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
                       <input
                         type="text"
@@ -1148,35 +1183,35 @@ export default function App() {
                 <p className="sub">Kelola dan review seluruh permohonan izin, sakit, dan cuti karyawan</p>
 
                 {/* Filter Tabs & Search Bar */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 12 }}>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--line)', marginBottom: 20, paddingBottom: 0 }}>
+                  <div className="tab-nav-bar" style={{ marginBottom: 0, borderBottom: 'none' }}>
                     <button
                       onClick={() => setLeaveFilterStatus('all')}
-                      className={`btn-mini ${leaveFilterStatus === 'all' ? 'dark' : ''}`}
+                      className={`tab-nav-btn ${leaveFilterStatus === 'all' ? 'active' : ''}`}
                     >
                       Semua ({leaveRequests.length})
                     </button>
                     <button
                       onClick={() => setLeaveFilterStatus('pending')}
-                      className={`btn-mini ${leaveFilterStatus === 'pending' ? 'primary' : ''}`}
+                      className={`tab-nav-btn ${leaveFilterStatus === 'pending' ? 'active' : ''}`}
                     >
-                      ⏳ Menunggu Review ({leaveRequests.filter(r => r.status === 'pending').length})
+                      Menunggu Review ({leaveRequests.filter(r => r.status === 'pending').length})
                     </button>
                     <button
                       onClick={() => setLeaveFilterStatus('approved')}
-                      className={`btn-mini ${leaveFilterStatus === 'approved' ? 'dark' : ''}`}
+                      className={`tab-nav-btn ${leaveFilterStatus === 'approved' ? 'active' : ''}`}
                     >
-                      ✓ Disetujui ({leaveRequests.filter(r => r.status === 'approved').length})
+                      Disetujui ({leaveRequests.filter(r => r.status === 'approved').length})
                     </button>
                     <button
                       onClick={() => setLeaveFilterStatus('rejected')}
-                      className={`btn-mini ${leaveFilterStatus === 'rejected' ? 'dark' : ''}`}
+                      className={`tab-nav-btn ${leaveFilterStatus === 'rejected' ? 'active' : ''}`}
                     >
-                      ✕ Ditolak ({leaveRequests.filter(r => r.status === 'rejected').length})
+                      Ditolak ({leaveRequests.filter(r => r.status === 'rejected').length})
                     </button>
                   </div>
 
-                  <div style={{ position: 'relative', width: 240 }}>
+                  <div style={{ position: 'relative', width: 240, marginBottom: 8 }}>
                     <Search size={15} color="var(--muted)" style={{ position: 'absolute', left: 12, top: 11 }} />
                     <input
                       type="text"
@@ -1248,11 +1283,30 @@ export default function App() {
               <>
                 <h2>Approval Slip Gaji — Agustus 2026</h2>
                 <p className="sub">Review komponen rincian gaji karyawan (Gaji Pokok & Tunjangan terdaftar) sebelum diterbitkan sebagai dokumen PDF</p>
-                <div className="kpi-row">
-                  <div className="kpi-card"><div className="kpi-label">Draft Menunggu Review</div><div className="kpi-value accent">{payslips.filter(p => p.status === 'draft').length}</div></div>
-                  <div className="kpi-card"><div className="kpi-label">Sudah Disetujui</div><div className="kpi-value">{payslips.filter(p => p.status === 'approved').length}</div></div>
-                  <div className="kpi-card"><div className="kpi-label">Sudah Dibayar</div><div className="kpi-value">{payslips.filter(p => p.is_paid).length}</div></div>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--line)', marginBottom: 20, paddingBottom: 0 }}>
+                  <div className="tab-nav-bar" style={{ marginBottom: 0, borderBottom: 'none' }}>
+                    <button
+                      onClick={() => setApprovalFilterStatus('all')}
+                      className={`tab-nav-btn ${approvalFilterStatus === 'all' ? 'active' : ''}`}
+                    >
+                      Semua Slip ({payslips.length})
+                    </button>
+                    <button
+                      onClick={() => setApprovalFilterStatus('draft')}
+                      className={`tab-nav-btn ${approvalFilterStatus === 'draft' ? 'active' : ''}`}
+                    >
+                      Draft Menunggu Review ({payslips.filter(p => p.status === 'draft').length})
+                    </button>
+                    <button
+                      onClick={() => setApprovalFilterStatus('approved')}
+                      className={`tab-nav-btn ${approvalFilterStatus === 'approved' ? 'active' : ''}`}
+                    >
+                      Sudah Disetujui ({payslips.filter(p => p.status === 'approved').length})
+                    </button>
+                  </div>
                 </div>
+
                 <table>
                   <thead>
                     <tr>
@@ -1265,7 +1319,10 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {payslips.map(p => (
+                    {payslips.filter(p => {
+                      if (approvalFilterStatus === 'all') return true;
+                      return p.status === approvalFilterStatus;
+                    }).map(p => (
                       <tr key={p.id}>
                         <td>
                           <div className="name-cell"><div className="n">{p.employee_name}</div><div className="d">{p.department}</div></div>
@@ -1315,6 +1372,30 @@ export default function App() {
                     Sistem <strong>tidak melakukan transfer otomatis</strong>. Lakukan transfer bank perusahaan terlebih dahulu, lalu tandai status pembayaran di bawah ini.
                   </div>
                 </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--line)', marginBottom: 20, paddingBottom: 0 }}>
+                  <div className="tab-nav-bar" style={{ marginBottom: 0, borderBottom: 'none' }}>
+                    <button
+                      onClick={() => setPaymentFilterStatus('all')}
+                      className={`tab-nav-btn ${paymentFilterStatus === 'all' ? 'active' : ''}`}
+                    >
+                      Semua Gaji ({payslips.length})
+                    </button>
+                    <button
+                      onClick={() => setPaymentFilterStatus('unpaid')}
+                      className={`tab-nav-btn ${paymentFilterStatus === 'unpaid' ? 'active' : ''}`}
+                    >
+                      Menunggu Pembayaran ({payslips.filter(p => !p.is_paid).length})
+                    </button>
+                    <button
+                      onClick={() => setPaymentFilterStatus('paid')}
+                      className={`tab-nav-btn ${paymentFilterStatus === 'paid' ? 'active' : ''}`}
+                    >
+                      Sudah Dibayar ({payslips.filter(p => p.is_paid).length})
+                    </button>
+                  </div>
+                </div>
+
                 <table>
                   <thead>
                     <tr>
@@ -1326,7 +1407,12 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {payslips.map(p => (
+                    {payslips.filter(p => {
+                      if (paymentFilterStatus === 'all') return true;
+                      if (paymentFilterStatus === 'unpaid') return !p.is_paid;
+                      if (paymentFilterStatus === 'paid') return p.is_paid;
+                      return true;
+                    }).map(p => (
                       <tr key={p.id}>
                         <td>
                           <div className="name-cell"><div className="n">{p.employee_name}</div><div className="d">{p.department}</div></div>
