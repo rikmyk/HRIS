@@ -658,9 +658,10 @@ export default function App() {
   const handleTakePicture = async () => {
     if (cameraRef.current) {
       try {
-        const photo = await cameraRef.current.takePictureAsync({ quality: 0.5, skipProcessing: true });
-        if (photo && photo.uri) {
-          setCapturedPhotoUri(photo.uri);
+        const photo = await cameraRef.current.takePictureAsync({ quality: 0.4, base64: true });
+        if (photo) {
+          const photoSrc = photo.base64 ? `data:image/jpeg;base64,${photo.base64}` : photo.uri;
+          setCapturedPhotoUri(photoSrc);
           setIsPhotoCaptured(true);
         }
       } catch (err) {
