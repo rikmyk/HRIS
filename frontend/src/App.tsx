@@ -738,27 +738,8 @@ export default function App() {
         {/* Topbar */}
         <div className="admin-topbar">
           <div className="brand">
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              title={isSidebarCollapsed ? "Perluas Sidebar" : "Minimize Sidebar"}
-              style={{
-                background: '#FFFFFF',
-                border: '1.5px solid var(--line)',
-                borderRadius: 8,
-                padding: '6px 8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--ink)',
-                marginRight: 4,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-            </button>
             <div className="brand-mark">H</div>
-            {!isSidebarCollapsed && <span>HRIS Admin</span>}
+            <span>HRIS Admin</span>
           </div>
 
           {/* Center: Live Timestamp Clock */}
@@ -779,6 +760,36 @@ export default function App() {
           {/* Sidebar */}
           <div className={`admin-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
             <div>
+              {/* Sidebar Header with Perfectly Aligned Toggle Button */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: isSidebarCollapsed ? 'center' : 'space-between', marginBottom: 16, paddingBottom: 12, borderBottom: '1.5px solid var(--line)' }}>
+                {!isSidebarCollapsed && (
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Navigasi Menu
+                  </div>
+                )}
+                <button
+                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                  title={isSidebarCollapsed ? "Perluas Sidebar" : "Minimize Sidebar"}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1.5px solid var(--line)',
+                    borderRadius: 8,
+                    width: 36,
+                    height: 36,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--ink)',
+                    transition: 'all 0.15s ease',
+                    flexShrink: 0
+                  }}
+                >
+                  {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+                </button>
+              </div>
+
+              {/* Navigation Items */}
               <div className={`side-link ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')} title="Dashboard">
                 <LayoutDashboard size={18} />
                 <span>Dashboard</span>
